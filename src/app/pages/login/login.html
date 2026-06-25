@@ -1,4 +1,4 @@
-﻿<div class="relative min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-[#e9e8e4]">
+<div class="relative min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-[#e9e8e4]">
   
   <!-- Left Panel: Authentication Forms (Full height, full screen half) -->
   <div class="lg:col-span-6 bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] flex flex-col justify-between p-8 lg:p-12 min-h-screen relative z-10 shadow-lg">
@@ -184,9 +184,11 @@
     
     <!-- Generated Culinary Photo background (No people) -->
     <img 
-      src="cooking-hero.png" 
+      ngSrc="/cooking-hero.png" 
+      fill
+      priority
       alt="Kivora AI culinary preview" 
-      class="absolute inset-0 w-full h-full object-cover select-none"
+      class="object-cover select-none"
     />
 
     <!-- SPATIAL CARD 1: Yellow Floating "Today's Special: Creamy Tuscan Pasta" -->
