@@ -1,0 +1,260 @@
+﻿<div class="relative min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden bg-[#e9e8e4]">
+  
+  <!-- Left Panel: Authentication Forms (Full height, full screen half) -->
+  <div class="lg:col-span-6 bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] flex flex-col justify-between p-8 lg:p-12 min-h-screen relative z-10 shadow-lg">
+    
+    <!-- Brand Logo Badge -->
+    <div class="flex">
+      <span class="border border-slate-800/80 px-6 py-2 rounded-full text-slate-800 text-sm font-bold tracking-wider">
+        Kivora AI
+      </span>
+    </div>
+
+    <!-- Centered Authentication Form Group -->
+    <div class="my-auto py-8 max-w-md w-full mx-auto">
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+        @if (isSignUp()) { Join our Kitchen } @else { Welcome Chef }
+      </h1>
+      <p class="text-slate-500 text-sm font-semibold mb-6">
+        @if (isSignUp()) { Create your profile and start generating custom AI recipes } @else { Sign in to access your culinary assistant }
+      </p>
+
+      <!-- Validation Alert Toast -->
+      @if (errorMessage(); as error) {
+        <div class="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 text-xs font-semibold animate-fade-in" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      <!-- Reactive Form -->
+      <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+        
+        <!-- Name Field (Sign Up Only) -->
+        @if (isSignUp()) {
+          <div class="space-y-1">
+            <label for="name" class="block text-xs font-bold text-slate-500 pl-4">Full name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="AmÃ©lie Laurent"
+              class="w-full bg-[#f1f3f6] text-slate-800 placeholder-slate-400 rounded-full py-3.5 px-6 text-sm border-none focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:bg-white transition-all duration-200 h-12 shadow-inner"
+              [class.ring-2]="nameControl.touched && nameControl.invalid"
+              [class.ring-red-500/50]="nameControl.touched && nameControl.invalid"
+              required
+            />
+            @if (nameControl.touched && nameControl.invalid) {
+              <span class="text-[10px] text-red-500 font-semibold pl-4 block animate-slide-up" role="alert">Name is required.</span>
+            }
+          </div>
+        }
+
+        <!-- Email Field -->
+        <div class="space-y-1">
+          <label for="email" class="block text-xs font-bold text-slate-500 pl-4">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="amÃ©lielaurent7622@gmail.com"
+            autocomplete="email"
+            class="w-full bg-[#f1f3f6] text-slate-800 placeholder-slate-400 rounded-full py-3.5 px-6 text-sm border-none focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:bg-white transition-all duration-200 h-12 shadow-inner"
+            [class.ring-2]="emailControl.touched && emailControl.invalid"
+            [class.ring-red-500/50]="emailControl.touched && emailControl.invalid"
+            required
+          />
+          @if (emailControl.touched && emailControl.invalid) {
+            <span class="text-[10px] text-red-500 font-semibold pl-4 block animate-slide-up" role="alert">
+              @if (emailControl.hasError('required')) { Email is required. }
+              @else if (emailControl.hasError('email')) { Enter a valid email address. }
+            </span>
+          }
+        </div>
+
+        <!-- Password Field with visibility eye toggling -->
+        <div class="space-y-1">
+          <label for="password" class="block text-xs font-bold text-slate-500 pl-4">Password</label>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="hidePassword() ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="*********************"
+              autocomplete="current-password"
+              class="w-full bg-[#f1f3f6] text-slate-800 placeholder-slate-400 rounded-full py-3.5 px-6 pr-12 text-sm border-none focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:bg-white transition-all duration-200 h-12 shadow-inner"
+              [class.ring-2]="passwordControl.touched && passwordControl.invalid"
+              [class.ring-red-500/50]="passwordControl.touched && passwordControl.invalid"
+              required
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-800 focus:outline-none cursor-pointer p-1"
+              aria-label="Toggle password visibility"
+            >
+              @if (hidePassword()) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              }
+            </button>
+          </div>
+          @if (passwordControl.touched && passwordControl.invalid) {
+            <span class="text-[10px] text-red-500 font-semibold pl-4 block animate-slide-up" role="alert">
+              @if (passwordControl.hasError('required')) { Password is required. }
+              @else if (passwordControl.hasError('minlength')) { Password must be at least 6 characters. }
+            </span>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="authForm.invalid || isLoading()"
+          class="w-full h-12 rounded-full bg-[#fcd34d] hover:bg-[#fbbf24] active:scale-98 text-slate-900 font-bold text-sm shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none"
+        >
+          @if (isLoading()) {
+            <svg class="animate-spin h-5 w-5 text-slate-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Submitting...</span>
+          } @else {
+            <span>{{ isSignUp() ? 'Start Cooking' : 'Sign In' }}</span>
+          }
+        </button>
+      </form>
+
+      <!-- Social Login Divider -->
+      <div class="relative my-5 flex items-center justify-center">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200"></div>
+        </div>
+        <span class="relative z-10 px-4 bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] text-xs font-bold text-slate-400 uppercase tracking-wider">
+          Or continue with
+        </span>
+      </div>
+
+      <!-- Single Google Auth Button (Full width, Apple removed) -->
+      <button
+        type="button"
+        (click)="onGoogleLogin()"
+        [disabled]="isLoading()"
+        class="w-full flex items-center justify-center gap-3 border border-slate-300 bg-white/40 hover:bg-white/80 rounded-full py-3 px-4 text-slate-700 text-sm font-semibold active:scale-98 cursor-pointer transition-all duration-200 shadow-sm"
+      >
+        <!-- Google Icon SVG -->
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+        </svg>
+        <span>Sign In with Google</span>
+      </button>
+
+    </div>
+
+    <!-- Bottom Panel Footer Link -->
+    <div class="flex items-center justify-between text-xs text-slate-500 mt-auto pt-6 border-t border-slate-200/50">
+      <div>
+        <span>{{ isSignUp() ? 'Have any account?' : "Don't have an account?" }}</span>
+        <button 
+          type="button" 
+          (click)="toggleMode()" 
+          class="ml-1 font-bold text-slate-800 hover:underline cursor-pointer focus:outline-none"
+        >
+          {{ isSignUp() ? 'Sing in' : 'Sign up' }}
+        </button>
+      </div>
+      <a href="#" class="hover:underline font-medium text-slate-600 focus:outline-none focus:underline">Terms & Conditions</a>
+    </div>
+
+  </div>
+
+  <!-- Right Panel: Visual Space (Full height, full screen half) -->
+  <div class="lg:col-span-6 relative w-full h-[320px] lg:h-auto overflow-hidden bg-slate-200 flex">
+    
+    <!-- Generated Culinary Photo background (No people) -->
+    <img 
+      src="cooking-hero.png" 
+      alt="Kivora AI culinary preview" 
+      class="absolute inset-0 w-full h-full object-cover select-none"
+    />
+
+    <!-- SPATIAL CARD 1: Yellow Floating "Today's Special: Creamy Tuscan Pasta" -->
+    <div class="absolute top-8 left-8 bg-[#ffdb65] text-slate-900 px-5 py-4 rounded-2xl shadow-xl border border-[#ffdb65]/30 flex flex-col gap-0.5 max-w-[220px] z-10 hover:-translate-y-1 transition-transform duration-300 animate-float-slow">
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+        <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-700">Today's Special</span>
+      </div>
+      <span class="text-xs font-bold leading-tight mt-0.5">Creamy Tuscan Pasta</span>
+      <span class="text-[9px] font-semibold text-slate-700">Prep: 15m | Cook: 20m</span>
+    </div>
+
+    <!-- SPATIAL CARD 2: Dark translucent rating badge floating next to it -->
+    <div class="absolute top-24 left-44 bg-slate-950/65 backdrop-blur-md text-white/90 px-4 py-2.5 rounded-xl shadow-lg border border-white/10 text-[9px] font-bold z-0 select-none">
+      â­ 4.9 (240+ Reviews)
+    </div>
+
+    <!-- SPATIAL CARD 3: Translucent ingredients list overlay -->
+    <div class="absolute top-48 right-8 bg-white/15 backdrop-blur-md border border-white/20 px-5 py-4 rounded-2xl shadow-xl flex flex-col gap-2 text-white z-10 w-[220px] hover:translate-x-[-4px] transition-transform duration-300">
+      <div class="flex flex-col border-b border-white/10 pb-1.5">
+        <span class="text-[9px] text-white/70 font-semibold uppercase tracking-wider">Fresh Ingredients</span>
+        <span class="text-xs font-bold">100% Organic</span>
+      </div>
+      <div class="space-y-1 text-[10px] font-bold">
+        <div class="flex items-center gap-2">
+          <span>ðŸ…</span> <span class="text-white/90">Cherry Tomatoes</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>ðŸŒ¿</span> <span class="text-white/90">Fresh Basil</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>ðŸ«’</span> <span class="text-white/90">Olive Oil</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>ðŸ§„</span> <span class="text-white/90">Garlic Cloves</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPATIAL CARD 4: White active dish summary/nutrition card at the bottom -->
+    <div class="absolute bottom-8 left-8 right-8 bg-white border border-slate-200/50 p-5 rounded-2xl shadow-2xl z-10 flex flex-col gap-2 max-w-[360px] hover:translate-y-[-2px] transition-transform duration-300">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-slate-800 leading-tight">Slow-Cooked Italian Sauce</h3>
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+        </span>
+      </div>
+      <p class="text-[10px] text-slate-500 font-bold leading-tight uppercase tracking-wider">
+        Nutrients Per Serving (340 kcal)
+      </p>
+      <div class="grid grid-cols-3 gap-2 text-center mt-1 border-t border-slate-100 pt-2 text-[10px] font-bold">
+        <div class="bg-slate-50 py-1.5 rounded-lg border border-slate-100">
+          <span class="block text-slate-400 text-[8px] uppercase font-extrabold">Protein</span>
+          <span class="text-slate-700">24g</span>
+        </div>
+        <div class="bg-slate-50 py-1.5 rounded-lg border border-slate-100">
+          <span class="block text-slate-400 text-[8px] uppercase font-extrabold">Carbs</span>
+          <span class="text-slate-700">10g</span>
+        </div>
+        <div class="bg-slate-50 py-1.5 rounded-lg border border-slate-100">
+          <span class="block text-slate-400 text-[8px] uppercase font-extrabold">Fat</span>
+          <span class="text-slate-700">18g</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+

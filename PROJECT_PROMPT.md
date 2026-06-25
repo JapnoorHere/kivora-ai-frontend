@@ -1,6 +1,6 @@
-# Project Specification & Prompt: Build WhipUp AI (Angular v20+)
+# Project Specification & Prompt: Build Kivora AI (Angular v20+)
 
-You are tasked with building a modern, highly interactive, AI-powered multilingual recipe application called **WhipUp AI** from scratch. 
+You are tasked with building a modern, highly interactive, AI-powered multilingual recipe application called **Kivora AI** from scratch. 
 
 Below are the comprehensive project specifications, design aesthetics, user flows, architecture, and coding standards. Build the entire application as a brand-new project following these details.
 
@@ -60,11 +60,17 @@ Below are the comprehensive project specifications, design aesthetics, user flow
 
 ## 🎨 Visual System & Design Aesthetics
 
-*   **Color Palette:** Curated dark mode theme. Use deep background gradients (e.g., charcoal `#0f0f0f` to dark gray `#1a1a1a`) contrasted with accent tones (e.g., orange-to-amber gradients).
+*   **Color Palette:** Warm, light cream/beige aesthetics with cool slate-blue backdrops.
+    - Base Page Background: `#a2abb8` (a soft, clean cool gray-blue).
+    - Primary Cards & Modals: `#edece8` (soft warm cream / off-white) or linear gradients from `#fbfbfa` to `#f4eedb` (soft vanilla / warm sand).
+    - Input Elements: `#f1f3f6` (very light grey-beige) with active border ring highlights.
+    - Brand Accents & Primary Action Buttons: Warm gold/yellow `#fcd34d` to `#fbbf24` with dark slate-900 text.
+    - Text styling: Slate-900 (primary body text), slate-500/600 (subtexts).
 *   **Typography:** Import clean sans-serif typography (e.g., 'Inter' from Google Fonts).
-*   **Glassmorphism:** Use translucent white overlays with backdrop blur filters and fine borders (e.g., `rgba(255, 255, 255, 0.1)`) for headers, footer panels, modals, and cards.
+*   **Glassmorphism:** Use translucent white/cream overlays with backdrop blur filters, soft drop shadows, and fine borders (e.g., `rgba(255, 255, 255, 0.4)`) for headers, footer panels, modals, and cards.
 *   **Transitions & Animations:**
-    *   Hover scale animations (e.g., `transform: translateY(-8px)`) on recipe cards.
+    *   Spatial 3D depth animations (e.g., `transform: translateY(-8px)`) on recipe cards.
+    *   Subtle float animations for active cards.
     *   Pulse timers.
     *   Shimmer loading overlays on image templates.
 

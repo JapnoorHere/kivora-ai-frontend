@@ -1,0 +1,257 @@
+<aside 
+  class="h-full flex flex-col justify-between bg-[#fbfbfa] border-r border-slate-200/80 select-none transition-all duration-300 relative py-6"
+  [class.w-20]="effectiveCollapsed()"
+  [class.w-64]="!effectiveCollapsed()"
+  [class.px-3]="effectiveCollapsed()"
+  [class.px-5]="!effectiveCollapsed()"
+>
+  <!-- Desktop Collapse Toggle Button (Floating 'in the air' on edge) -->
+  @if (!isMobile()) {
+    <button 
+      type="button" 
+      (click)="toggleCollapse()"
+      class="absolute top-6 -right-3.5 z-50 w-7 h-7 bg-white hover:bg-amber-50 rounded-full border border-slate-200/80 shadow-md flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+      aria-label="Toggle sidebar collapse"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600 transition-transform duration-300" [class.rotate-180]="!isCollapsed()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  }
+  
+  <!-- Top: Brand Logo -->
+  <div class="space-y-6">
+    <div 
+      class="flex items-center cursor-pointer focus:outline-none transition-all duration-355"
+      [class.justify-center]="effectiveCollapsed()"
+      routerLink="/"
+    >
+      <div class="p-1.5 rounded-lg bg-gradient-to-tr from-[#fbbf24] to-[#f59e0b] text-slate-900 shadow-sm border border-amber-600/15 shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <span 
+        class="font-extrabold text-slate-800 tracking-wider text-sm transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+        [class.opacity-0]="effectiveCollapsed()"
+        [class.max-w-0]="effectiveCollapsed()"
+        [class.opacity-100]="!effectiveCollapsed()"
+        [class.max-w-xs]="!effectiveCollapsed()"
+        [class.ml-2]="!effectiveCollapsed()"
+        [class.ml-0]="effectiveCollapsed()"
+      >
+        KIVORA AI
+      </span>
+    </div>
+    
+    <div class="border-b border-slate-200/60"></div>
+ 
+    <!-- Navigation Menu links -->
+    <nav class="flex flex-col gap-2">
+      <!-- Discover (Home) -->
+      <a 
+        routerLink="/" 
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="bg-amber-500/10 border-r-4 border-amber-500 text-slate-950 font-bold"
+        class="flex items-center rounded-2xl text-slate-600 font-semibold text-sm transition-all duration-200 hover:bg-slate-900/5 hover:text-slate-950 focus:outline-none"
+        [class.px-4]="!effectiveCollapsed()"
+        [class.py-3]="!effectiveCollapsed()"
+        [class.p-3]="effectiveCollapsed()"
+        [class.justify-center]="effectiveCollapsed()"
+        [attr.title]="effectiveCollapsed() ? 'Discover Recipes' : null"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <span 
+          class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+          [class.opacity-0]="effectiveCollapsed()"
+          [class.max-w-0]="effectiveCollapsed()"
+          [class.opacity-100]="!effectiveCollapsed()"
+          [class.max-w-xs]="!effectiveCollapsed()"
+          [class.ml-3.5]="!effectiveCollapsed()"
+          [class.ml-0]="effectiveCollapsed()"
+        >
+          Discover Recipes
+        </span>
+      </a>
+ 
+      <!-- Ingredients Checklist (Conditional on Active Recipe) -->
+      @if (currentRecipe()) {
+        <a 
+          routerLink="/ingredients" 
+          routerLinkActive="bg-amber-500/10 border-r-4 border-amber-500 text-slate-950 font-bold"
+          class="flex items-center rounded-2xl text-slate-600 font-semibold text-sm transition-all duration-200 hover:bg-slate-900/5 hover:text-slate-950 focus:outline-none"
+          [class.px-4]="!effectiveCollapsed()"
+          [class.py-3]="!effectiveCollapsed()"
+          [class.p-3]="effectiveCollapsed()"
+          [class.justify-center]="effectiveCollapsed()"
+          [attr.title]="effectiveCollapsed() ? 'Checklist' : null"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <span 
+            class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+            [class.opacity-0]="effectiveCollapsed()"
+            [class.max-w-0]="effectiveCollapsed()"
+            [class.opacity-100]="!effectiveCollapsed()"
+            [class.max-w-xs]="!effectiveCollapsed()"
+            [class.ml-3.5]="!effectiveCollapsed()"
+            [class.ml-0]="effectiveCollapsed()"
+          >
+            Checklist
+          </span>
+        </a>
+ 
+        <!-- Cooking Steps (Conditional on Active Recipe) -->
+        <a 
+          routerLink="/steps" 
+          routerLinkActive="bg-amber-500/10 border-r-4 border-amber-500 text-slate-950 font-bold"
+          class="flex items-center rounded-2xl text-slate-600 font-semibold text-sm transition-all duration-200 hover:bg-slate-900/5 hover:text-slate-950 focus:outline-none"
+          [class.px-4]="!effectiveCollapsed()"
+          [class.py-3]="!effectiveCollapsed()"
+          [class.p-3]="effectiveCollapsed()"
+          [class.justify-center]="effectiveCollapsed()"
+          [attr.title]="effectiveCollapsed() ? 'Cooking Steps' : null"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span 
+            class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+            [class.opacity-0]="effectiveCollapsed()"
+            [class.max-w-0]="effectiveCollapsed()"
+            [class.opacity-100]="!effectiveCollapsed()"
+            [class.max-w-xs]="!effectiveCollapsed()"
+            [class.ml-3.5]="!effectiveCollapsed()"
+            [class.ml-0]="effectiveCollapsed()"
+          >
+            Cooking Steps
+          </span>
+        </a>
+      }
+ 
+      <!-- History & Stats -->
+      <a 
+        routerLink="/recent" 
+        routerLinkActive="bg-amber-500/10 border-r-4 border-amber-500 text-slate-950 font-bold"
+        class="flex items-center rounded-2xl text-slate-600 font-semibold text-sm transition-all duration-200 hover:bg-slate-900/5 hover:text-slate-950 focus:outline-none"
+        [class.px-4]="!effectiveCollapsed()"
+        [class.py-3]="!effectiveCollapsed()"
+        [class.p-3]="effectiveCollapsed()"
+        [class.justify-center]="effectiveCollapsed()"
+        [attr.title]="effectiveCollapsed() ? 'Cooking History' : null"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span 
+          class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+          [class.opacity-0]="effectiveCollapsed()"
+          [class.max-w-0]="effectiveCollapsed()"
+          [class.opacity-100]="!effectiveCollapsed()"
+          [class.max-w-xs]="!effectiveCollapsed()"
+          [class.ml-3.5]="!effectiveCollapsed()"
+          [class.ml-0]="effectiveCollapsed()"
+        >
+          Cooking History
+        </span>
+      </a>
+    </nav>
+  </div>
+ 
+  <!-- Bottom: Language & Chef Profile Panel -->
+  <div class="space-y-4">
+    
+    <!-- Language Selector: Smooth transition -->
+    <div 
+      class="transition-all duration-300 ease-in-out overflow-hidden"
+      [class.opacity-0]="effectiveCollapsed()"
+      [class.max-h-0]="effectiveCollapsed()"
+      [class.mb-0]="effectiveCollapsed()"
+      [class.opacity-100]="!effectiveCollapsed()"
+      [class.max-h-16]="!effectiveCollapsed()"
+      [class.mb-4]="!effectiveCollapsed()"
+    >
+      <div class="flex items-center justify-between px-4">
+        <span class="text-xs font-extrabold text-slate-400 uppercase tracking-widest font-sans">Language</span>
+        <app-language-selector />
+      </div>
+      <div class="border-b border-slate-200/60 mt-4"></div>
+    </div>
+ 
+    <div class="space-y-3">
+      <!-- Chef details card -->
+      <div 
+        class="flex items-center rounded-2xl bg-slate-900/5 border border-slate-700/5 transition-all duration-300 py-3"
+        [class.gap-3]="!effectiveCollapsed()"
+        [class.px-4]="!effectiveCollapsed()"
+        [class.px-2]="effectiveCollapsed()"
+        [class.justify-center]="effectiveCollapsed()"
+      >
+        <!-- Monogram circular avatar (Always visible) -->
+        <div 
+          class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-700 font-black text-sm uppercase shrink-0 transition-all duration-300"
+          [attr.title]="effectiveCollapsed() ? currentUser()?.name : null"
+        >
+          {{ currentUser()?.name?.charAt(0) || 'C' }}
+        </div>
+ 
+        <!-- User name & email details -->
+        <div 
+          class="flex flex-col min-w-0 transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+          [class.opacity-0]="effectiveCollapsed()"
+          [class.max-w-0]="effectiveCollapsed()"
+          [class.opacity-100]="!effectiveCollapsed()"
+          [class.max-w-[130px]]="!effectiveCollapsed()"
+          [class.ml-3]="!effectiveCollapsed()"
+          [class.ml-0]="effectiveCollapsed()"
+        >
+          <span class="text-xs font-black text-slate-800 truncate leading-tight">{{ currentUser()?.name }}</span>
+          <span class="text-[9px] font-bold text-slate-500 truncate leading-tight mt-0.5">{{ currentUser()?.email }}</span>
+        </div>
+      </div>
+ 
+      <!-- Sign Out button -->
+      <button 
+        type="button" 
+        (click)="triggerLogoutConfirm()" 
+        [attr.title]="effectiveCollapsed() ? 'Sign Out' : null"
+        class="flex items-center justify-center rounded-full border border-slate-300 hover:bg-slate-900/5 text-slate-700 font-bold text-xs transition-all duration-300 cursor-pointer active:scale-98 mx-auto"
+        [class.w-full]="!effectiveCollapsed()"
+        [class.py-3]="!effectiveCollapsed()"
+        [class.w-10]="effectiveCollapsed()"
+        [class.h-10]="effectiveCollapsed()"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span
+          class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
+          [class.opacity-0]="effectiveCollapsed()"
+          [class.max-w-0]="effectiveCollapsed()"
+          [class.opacity-100]="!effectiveCollapsed()"
+          [class.max-w-xs]="!effectiveCollapsed()"
+          [class.ml-2]="!effectiveCollapsed()"
+          [class.ml-0]="effectiveCollapsed()"
+        >
+          Sign Out
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reusable Logout Confirmation Dialog Overlay -->
+  @if (isLogoutConfirmOpen()) {
+    <app-confirm-dialog
+      title="Sign Out Confirmation"
+      message="Are you sure you want to end your active culinary session? You can return at any time."
+      confirmText="Sign Out"
+      cancelText="Stay"
+      type="danger"
+      (confirm)="confirmLogout()"
+      (cancel)="cancelLogout()"
+    />
+  }
+</aside>

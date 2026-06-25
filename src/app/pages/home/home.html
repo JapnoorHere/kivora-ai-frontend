@@ -1,0 +1,182 @@
+
+
+<!-- Main Page Wrapper (Light Theme, Spatial Glassmorphism) -->
+<div class="relative min-h-screen text-slate-900 flex flex-col select-none overflow-hidden pb-12">
+  
+  <!-- Liquid Glass Ambient Lights in Background -->
+  <div class="absolute inset-0 z-0 pointer-events-none">
+    <div class="absolute top-[5%] left-[10%] w-[400px] h-[400px] rounded-full bg-amber-400/20 blur-[130px] animate-pulse"></div>
+    <div class="absolute top-[40%] right-[15%] w-[500px] h-[500px] rounded-full bg-yellow-400/15 blur-[160px]"></div>
+    <div class="absolute bottom-[10%] left-[20%] w-[450px] h-[450px] rounded-full bg-yellow-400/15 blur-[140px]"></div>
+  </div>
+
+  <!-- Hero Search Banner Wrapper with background image -->
+  <div class="relative w-full overflow-hidden bg-cover bg-center py-20 sm:py-28" style="background-image: url('/hero-banner.png');">
+    
+    <!-- Subtle overlay to focus the center -->
+    <div class="absolute inset-0 bg-black/5 z-0"></div>
+
+    <!-- Centered Floating Glassmorphic Culinary Card -->
+    <div class="relative z-10 w-full max-w-2xl mx-auto px-4 animate-fade-in">
+      <div class="bg-[#fbfbfa]/75 backdrop-blur-xl border border-white/70 shadow-2xl rounded-[2.5rem] p-8 sm:p-12 text-center space-y-6 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500">
+        
+        <!-- Recipe Sparkle Icon Badge -->
+        <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[10px] font-black uppercase tracking-wider mx-auto">
+          ✨ AI Culinary Engine Active
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-slate-900">
+          Create Magic in <br class="sm:hidden" />
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-amber-500">Your Kitchen</span>
+        </h1>
+        
+        <p class="text-slate-600 text-xs sm:text-sm font-semibold max-w-md mx-auto leading-relaxed">
+          Kivora generates personalized, step-by-step recipes matching your culinary choices, ingredients, and diets instantly.
+        </p>
+
+        <!-- Interactive Search Bar Wrapper -->
+        <form (submit)="onSearchSubmit($event)" class="relative w-full mx-auto pt-2">
+          <div class="relative flex items-center bg-[#f1f3f6] border border-slate-200 rounded-full p-1.5 pl-5 shadow-inner focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300">
+            
+            <!-- Search icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+
+            <!-- Input Box with dynamic placeholders -->
+            <input 
+              type="text"
+              [formControl]="searchControl"
+              [placeholder]="placeholders[placeholderIndex()]"
+              (focus)="onSearchFocus()"
+              (blur)="onSearchBlur()"
+              class="w-full bg-transparent border-none text-slate-800 text-xs sm:text-sm placeholder-slate-400 focus:outline-none h-10 font-bold"
+              aria-label="Search recipes"
+            />
+
+            <!-- Action Button -->
+            <button 
+              type="submit"
+              class="h-10 px-6 rounded-full bg-[#fcd34d] hover:bg-[#fbbf24] active:scale-98 text-slate-900 font-extrabold text-xs tracking-wider uppercase shadow-md transition-all duration-200 cursor-pointer"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Cuisine Discovery Pills Section -->
+  <section class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6">
+    <div class="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none scroll-smooth -mx-6 px-6">
+      @for (category of categories; track category) {
+        <button
+          type="button"
+          (click)="selectCategory(category)"
+          class="px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 border focus:outline-none cursor-pointer"
+          [class.bg-gradient-to-r]="activeCategory() === category"
+          [class.from-[#fbbf24]]="activeCategory() === category"
+          [class.to-[#f59e0b]]="activeCategory() === category"
+          [class.text-slate-900]="activeCategory() === category"
+          [class.border-transparent]="activeCategory() === category"
+          [class.shadow-md]="activeCategory() === category"
+          [class.shadow-amber-500/15]="activeCategory() === category"
+          
+          [class.bg-white/60]="activeCategory() !== category"
+          [class.border-slate-700/10]="activeCategory() !== category"
+          [class.text-slate-700]="activeCategory() !== category"
+          [class.hover:bg-white/90]="activeCategory() !== category"
+        >
+          {{ category }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Preset Recipes Grid -->
+  <section class="relative z-10 w-full max-w-6xl mx-auto px-6 py-4 flex-1">
+    <h2 class="text-xs font-black text-slate-600 uppercase tracking-widest mb-6 pl-1">
+      Popular Culinary Presets
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (recipe of filteredPresets(); track recipe.name) {
+        <div 
+          (click)="selectPresetRecipe(recipe)"
+          class="group relative overflow-hidden bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.03)] rounded-3xl p-4 flex flex-col justify-between min-h-[320px] shadow-lg cursor-pointer hover:border-amber-400/30 transition-all duration-300 hover:translate-y-[-8px] hover:shadow-[0_20px_50px_rgba(251,191,36,0.1)] card-depth"
+        >
+          
+          <!-- Category and Diet tags -->
+          <div class="flex items-center justify-between z-10">
+            <span class="text-[9px] bg-slate-900/5 border border-slate-700/10 px-2.5 py-1 rounded-full font-bold text-slate-600 uppercase tracking-wider">
+              {{ recipe.cuisine }}
+            </span>
+            <span 
+              class="text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider shadow-inner flex items-center gap-1"
+              [class.bg-emerald-500/10]="recipe.diet === 'veg'"
+              [class.text-emerald-700]="recipe.diet === 'veg'"
+              [class.border]="recipe.diet === 'veg'"
+              [class.border-emerald-500/20]="recipe.diet === 'veg'"
+              
+              [class.bg-red-500/10]="recipe.diet === 'nonveg'"
+              [class.text-red-700]="recipe.diet === 'nonveg'"
+              [class.border]="recipe.diet === 'nonveg'"
+              [class.border-red-500/20]="recipe.diet === 'nonveg'"
+            >
+              <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-500]="recipe.diet === 'veg'" [class.bg-red-500]="recipe.diet === 'nonveg'"></span>
+              {{ recipe.diet === 'veg' ? 'Veg' : 'Non-Veg' }}
+            </span>
+          </div>
+
+          <!-- Card visual image (Culinary Theme) -->
+          <div class="relative w-full h-36 rounded-2xl overflow-hidden bg-[#edece8] my-3 flex items-center justify-center border border-slate-700/5 shadow-md">
+            @if (recipe.image) {
+              <img 
+                [src]="recipe.image" 
+                alt="{{ recipe.name }}"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+              />
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-slate-500 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            }
+          </div>
+
+          <!-- Recipe Details -->
+          <div class="space-y-1.5 z-10 pt-2 border-t border-slate-700/10 text-slate-800">
+            <h3 class="text-sm font-extrabold text-slate-900 leading-tight">
+              {{ recipe.name }}
+            </h3>
+            <p class="text-[10px] text-slate-500 font-semibold leading-relaxed line-clamp-2">
+              {{ recipe.description }}
+            </p>
+          </div>
+
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Persistent Feedback Floating trigger button -->
+  <button 
+    type="button"
+    (click)="isFeedbackOpen.set(true)"
+    class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-[#fcd34d] hover:bg-[#fbbf24] text-slate-900 flex items-center justify-center shadow-lg shadow-amber-500/10 border border-amber-500/20 active:scale-95 hover:translate-y-[-2px] transition-all duration-300 cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-500/20"
+    aria-label="Open feedback report modal"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+  </button>
+
+  <!-- Render Bug Report Modal conditionally -->
+  @if (isFeedbackOpen()) {
+    <app-bug-report-modal (close)="isFeedbackOpen.set(false)" />
+  }
+
+</div>
+

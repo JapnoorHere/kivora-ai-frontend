@@ -1,0 +1,125 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 select-none animate-fade-in">
+  
+  <!-- Backdrop Click Closes Modal -->
+  <div class="absolute inset-0 z-0 cursor-default" (click)="close.emit()"></div>
+
+  <!-- Central Modal Box (Spatial depth, glassmorphic styling) -->
+  <div 
+    class="relative z-10 w-full max-w-md bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] backdrop-blur-2xl border border-slate-700/10 rounded-3xl p-7 shadow-2xl animate-fade-in"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="feedback-title"
+  >
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700/10">
+      <h2 id="feedback-title" class="text-lg font-extrabold text-slate-900 tracking-tight">
+        Report Bug / Feedback
+      </h2>
+      <button 
+        type="button" 
+        (click)="close.emit()"
+        class="text-slate-500 hover:text-slate-900 p-1 rounded-lg hover:bg-slate-900/5 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+        aria-label="Close modal"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Success Message Overlay -->
+    @if (isSuccess()) {
+      <div class="py-8 text-center space-y-4 animate-fade-in">
+        <div class="inline-flex items-center justify-center p-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 mb-2 shadow-inner animate-pulse">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p class="text-sm font-bold text-slate-800">Feedback Submitted!</p>
+        <p class="text-xs text-slate-500">Thank you Chef, we appreciate your help in improving Kivora.</p>
+      </div>
+    } @else {
+
+      <!-- Error Message Banner -->
+      @if (errorMessage(); as error) {
+        <div class="mb-4 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 text-xs font-semibold animate-fade-in" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      <!-- Feedback Form -->
+      <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+        
+        <!-- Email Input -->
+        <div class="space-y-1.5">
+          <label for="feedback-email" class="block text-xs font-bold text-slate-500 pl-1">Email Address</label>
+          <input 
+            id="feedback-email"
+            type="email"
+            formControlName="email"
+            placeholder="chef@kivora.ai"
+            class="w-full bg-[#f1f3f6] border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 text-xs transition-all duration-300 focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 focus:bg-white"
+            [class.border-red-500]="emailControl.touched && emailControl.invalid"
+            required
+          />
+          @if (emailControl.touched && emailControl.invalid) {
+            <span class="text-[10px] text-red-600 font-semibold pl-1 block animate-slide-up" role="alert">
+              @if (emailControl.hasError('required')) { Email is required. }
+              @else if (emailControl.hasError('email')) { Enter a valid email address. }
+            </span>
+          }
+        </div>
+
+        <!-- Message/Description Textarea -->
+        <div class="space-y-1.5">
+          <label for="feedback-message" class="block text-xs font-bold text-slate-500 pl-1">Describe the bug / feedback</label>
+          <textarea
+            id="feedback-message"
+            formControlName="message"
+            rows="4"
+            placeholder="Please detail what went wrong or suggest improvements (minimum 10 characters)..."
+            class="w-full bg-[#f1f3f6] border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 text-xs transition-all duration-300 focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 focus:bg-white resize-none"
+            [class.border-red-500]="messageControl.touched && messageControl.invalid"
+            required
+          ></textarea>
+          @if (messageControl.touched && messageControl.invalid) {
+            <span class="text-[10px] text-red-600 font-semibold pl-1 block animate-slide-up" role="alert">
+              @if (messageControl.hasError('required')) { Description is required. }
+              @else if (messageControl.hasError('minlength')) { Must be at least 10 characters long. }
+            </span>
+          }
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-700/10">
+          <button 
+            type="button" 
+            (click)="close.emit()"
+            [disabled]="isSubmitting()"
+            class="px-4 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-700 hover:bg-slate-900/5 active:scale-98 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          
+          <button 
+            type="submit" 
+            [disabled]="feedbackForm.invalid || isSubmitting()"
+            class="px-5 py-2.5 rounded-xl bg-[#fcd34d] hover:bg-[#fbbf24] active:scale-98 text-slate-900 font-bold text-xs shadow-md transition-all duration-300 cursor-pointer disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none"
+          >
+            @if (isSubmitting()) {
+              <span>Submitting...</span>
+            } @else {
+              <span>Submit Report</span>
+            }
+          </button>
+        </div>
+
+      </form>
+    }
+
+  </div>
+</div>
