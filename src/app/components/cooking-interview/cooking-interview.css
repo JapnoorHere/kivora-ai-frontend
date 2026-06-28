@@ -1,0 +1,29 @@
+/* Backdrop fade in */
+@keyframes interviewIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-interview-in {
+  animation: interviewIn 0.2s ease-out forwards;
+}
+
+/* Step enters from right — forward navigation */
+@keyframes stepFromRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Step enters from left — backward navigation */
+@keyframes stepFromLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-step-forward {
+  animation: stepFromRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-step-backward {
+  animation: stepFromLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

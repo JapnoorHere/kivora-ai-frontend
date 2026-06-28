@@ -76,12 +76,8 @@ export class BugReportModal {
       setTimeout(() => {
         this.close.emit();
       }, 1500);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        this.errorMessage.set(err.message);
-      } else {
-        this.errorMessage.set('Failed to submit feedback. Please try again.');
-      }
+    } catch (err) {
+      this.errorMessage.set(err.message || 'Failed to submit feedback. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }

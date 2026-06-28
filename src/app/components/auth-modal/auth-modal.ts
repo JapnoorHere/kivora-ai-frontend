@@ -87,8 +87,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
         await this.authService.signup(name, email, password);
       }
       this.authSuccess.emit();
-    } catch (err: any) {
-      this.errorMessage.set(err?.message || 'An error occurred during authentication. Please check your credentials.');
+    } catch (err) {
+      this.errorMessage.set(err.message || 'An error occurred during authentication. Please check your credentials.');
     } finally {
       this.loader.hide();
     }
@@ -101,8 +101,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     try {
       await this.authService.loginWithGoogle();
       this.authSuccess.emit();
-    } catch (err: any) {
-      this.errorMessage.set(err?.message || 'Google authentication failed.');
+    } catch (err) {
+      this.errorMessage.set(err.message || 'Google authentication failed.');
     } finally {
       this.loader.hide();
     }

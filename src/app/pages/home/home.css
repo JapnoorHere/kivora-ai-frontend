@@ -99,12 +99,3 @@
   animation: bento-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Mobile bottom sheet slide up keyframes */
-@keyframes slideUpSheet {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.animate-slide-up-sheet {
-  animation: slideUpSheet 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
