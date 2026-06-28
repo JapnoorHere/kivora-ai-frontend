@@ -1,13 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { NgOptimizedImage } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-dock',
-  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, NgOptimizedImage],
+  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent],
   templateUrl: './dock.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
