@@ -13,23 +13,18 @@
 
     <!-- Top bar -->
     <div class="flex items-center justify-between px-6 sm:px-10 pt-7 pb-4 shrink-0">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 animate-pulse"></div>
-        <span class="text-[9px] font-black text-amber-400/75 uppercase tracking-[0.2em] truncate max-w-55">
-          {{ recipeName() }}
-        </span>
-        @if (recipeCuisine()) {
-          <span class="text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] hidden sm:inline">· {{ recipeCuisine() }}</span>
-        }
-      </div>
 
+      <!-- Logo -->
+      <img src="/logo.png" alt="Kivora" class="h-8 w-auto opacity-90" />
+
+      <!-- Close button -->
       <button
         type="button"
         (click)="cancel()"
-        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-600 hover:text-slate-300 transition-all focus:outline-none cursor-pointer shrink-0"
+        class="w-9 h-9 rounded-full bg-white/12 hover:bg-white/20 border border-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all focus:outline-none cursor-pointer shrink-0"
         aria-label="Cancel"
       >
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
