@@ -10,6 +10,7 @@ import { BugReportModal } from '../bug-report-modal/bug-report-modal';
   imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, BugReportModal],
   templateUrl: './dock.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(window:resize)': 'onResize()' },
 })
 export class DockComponent {
   private readonly authService = inject(AuthService);
@@ -22,6 +23,11 @@ export class DockComponent {
   protected readonly isLogoutConfirmOpen = signal<boolean>(false);
   protected readonly isCollapsed = signal<boolean>(false);
   protected readonly isFeedbackOpen = signal<boolean>(false);
+  protected readonly isMobileView = signal<boolean>(window.innerWidth < 768);
+
+  protected onResize(): void {
+    this.isMobileView.set(window.innerWidth < 768);
+  }
 
   protected toggleDock(): void {
     this.isCollapsed.update(v => !v);
