@@ -1,11 +1,11 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 select-none animate-fade-in">
+<div class="fixed inset-0 z-50 flex items-end justify-center pb-6 bg-slate-900/30 backdrop-blur-sm px-4 select-none animate-fade-in">
   
   <!-- Backdrop Click Closes Modal -->
   <div class="absolute inset-0 z-0 cursor-default" (click)="close.emit()"></div>
 
   <!-- Central Modal Box (Spatial depth, glassmorphic styling) -->
   <div 
-    class="relative z-10 w-full max-w-md bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] backdrop-blur-2xl border border-slate-700/10 rounded-3xl p-7 shadow-2xl animate-fade-in"
+    class="relative z-10 w-full max-w-md bg-gradient-to-br from-[#fbfbfa] to-[#f4eedb] backdrop-blur-2xl border border-slate-700/10 rounded-3xl p-7 shadow-2xl animate-slide-up"
     role="dialog"
     aria-modal="true"
     aria-labelledby="feedback-title"

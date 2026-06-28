@@ -1,9 +1,18 @@
-<nav class="fixed bottom-4 right-4 z-40 flex items-center gap-2 px-2 py-2 bg-[#fafaf8]/80 backdrop-blur-xl rounded-3xl border border-amber-200/50 shadow-[0_8px_32px_rgba(251,191,36,0.2)] select-none transition-all duration-300">
+<nav
+  class="fixed bottom-4 right-4 z-40 flex items-center select-none transition-all duration-300 ease-in-out"
+  [style.gap]="isCollapsed() ? '0px' : '8px'"
+  [style.padding]="isCollapsed() ? '0px' : '8px'"
+  [style.background-color]="isCollapsed() ? 'transparent' : 'rgba(250,250,248,0.82)'"
+  [style.border]="isCollapsed() ? '1px solid transparent' : '1px solid rgba(251,191,36,0.5)'"
+  [style.box-shadow]="isCollapsed() ? 'none' : '0 8px 32px rgba(251,191,36,0.22)'"
+  [style.backdrop-filter]="isCollapsed() ? 'none' : 'blur(20px)'"
+  [style.border-radius]="'24px'"
+>
 
-  <!-- Collapsible items — max-width + opacity transition for slide animation -->
+  <!-- Collapsible items — max-width slide animation -->
   <div
     class="flex items-center gap-1 overflow-hidden transition-all duration-300 ease-in-out"
-    [style.max-width]="isCollapsed() ? '0px' : '800px'"
+    [style.max-width]="isCollapsed() ? '0px' : '820px'"
     [style.opacity]="isCollapsed() ? '0' : '1'"
     [style.pointer-events]="isCollapsed() ? 'none' : 'auto'"
   >
@@ -122,16 +131,21 @@
       <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
     </button>
 
-    <!-- Spacer so last item doesn't flush against toggle button during animation -->
     <div class="w-1 shrink-0"></div>
 
   </div>
 
-  <!-- Toggle button — always visible, anchors dock at bottom-right -->
+  <!-- Toggle button — morphs into amber FAB when collapsed -->
   <button
     type="button"
     (click)="toggleDock()"
-    class="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-400/15 hover:bg-amber-400/30 text-amber-700 transition-all duration-200 focus:outline-none cursor-pointer shrink-0"
+    class="flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none cursor-pointer shrink-0"
+    [style.width]="isCollapsed() ? '44px' : '36px'"
+    [style.height]="isCollapsed() ? '44px' : '36px'"
+    [style.border-radius]="isCollapsed() ? '50%' : '10px'"
+    [style.background-color]="isCollapsed() ? 'rgba(251,191,36,1)' : 'rgba(251,191,36,0.15)'"
+    [style.box-shadow]="isCollapsed() ? '0 6px 28px rgba(251,191,36,0.55)' : 'none'"
+    [style.color]="isCollapsed() ? 'rgb(15,23,42)' : 'rgb(180,83,9)'"
     [attr.aria-label]="isCollapsed() ? 'Expand dock' : 'Collapse dock'"
   >
     <svg
