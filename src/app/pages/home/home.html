@@ -21,17 +21,17 @@
 
       <!-- Badge -->
       <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-400/15 border border-amber-400/25 text-amber-300 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
-        ✦ AI Culinary Engine Active
+        ✦ Your Personal Recipe Guide
       </div>
 
       <!-- Headline -->
       <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.08] tracking-tight max-w-lg mb-5">
-        Create Magic<br>in <span class="text-amber-400">Your Kitchen</span>
+        What Are You<br>Craving <span class="text-amber-400">Today?</span>
       </h1>
 
       <!-- Subtitle -->
       <p class="text-sm font-medium text-white/55 max-w-sm mb-10 leading-relaxed">
-        Personalized step-by-step recipes matching your ingredients, diets, and style — instantly.
+        Type a dish. Get a full recipe — built around your taste.
       </p>
 
       <!-- Frosted search bar -->
@@ -51,8 +51,8 @@
           />
           <button
             type="submit"
-            class="h-10 px-6 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-900 font-extrabold text-[10px] tracking-widest uppercase transition-all duration-200 cursor-pointer shrink-0"
-          >Cook</button>
+            class="h-10 px-6 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-900 font-extrabold text-[10px] tracking-wide transition-all duration-200 cursor-pointer shrink-0"
+          >Cook →</button>
         </div>
       </form>
 
@@ -95,7 +95,7 @@
   <!-- Preset Recipes Grid -->
   <section class="relative z-10 w-full max-w-6xl mx-auto px-6 py-4 flex-1">
     <h2 class="text-xs font-black text-slate-600 uppercase tracking-widest mb-6 pl-1">
-      Popular Culinary Presets
+      People Are Cooking This
     </h2>    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[340px]">
       @for (recipe of filteredPresets(); track recipe.name; let idx = $index) {
         <div 
