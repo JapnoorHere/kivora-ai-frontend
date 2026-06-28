@@ -1,7 +1,7 @@
 
 
 <!-- Main Page Wrapper (Light Theme, Spatial Glassmorphism) -->
-<div class="relative min-h-screen text-slate-900 flex flex-col select-none overflow-hidden pb-12 transition-[filter] duration-300" [class.blur-sm]="isInterviewOpen()">
+<div class="relative min-h-screen text-slate-900 flex flex-col select-none overflow-hidden pb-12 transition-[filter] duration-300" [class.blur-sm]="isInterviewOpen()" [class.pointer-events-none]="isInterviewOpen()">
   
   <!-- Liquid Glass Ambient Lights in Background (Drifting slow-motion orbs) -->
   <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -213,15 +213,15 @@
 
 
 
-  <!-- Cooking Interview Overlay -->
-  @if (isInterviewOpen()) {
-    <app-cooking-interview
-      [recipeName]="interviewRecipeName()"
-      [recipeCuisine]="interviewCuisine()"
-      (submitted)="onInterviewSubmit($event)"
-      (cancelled)="onInterviewCancelled()"
-    />
-  }
-
 
 </div>
+
+<!-- Cooking Interview — outside blurred wrapper so it renders sharp -->
+@if (isInterviewOpen()) {
+  <app-cooking-interview
+    [recipeName]="interviewRecipeName()"
+    [recipeCuisine]="interviewCuisine()"
+    (submitted)="onInterviewSubmit($event)"
+    (cancelled)="onInterviewCancelled()"
+  />
+}
