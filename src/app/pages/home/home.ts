@@ -5,13 +5,12 @@ import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { AuthService } from '../../core/services/auth.service';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { LoaderService } from '../../core/services/loader.service';
-import { BugReportModal } from '../../components/bug-report-modal/bug-report-modal';
+import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
 import { DISCOVERY_CATEGORIES, ROTATING_PLACEHOLDERS, PRESET_RECIPES, PresetRecipe } from '../../core/constants/recipe.constant';
-import { LanguageCode, DietaryPreference } from '../../core/enums/recipe.enum';
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, BugReportModal],
+  imports: [ReactiveFormsModule, CookingInterviewComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +22,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly loaderService = inject(LoaderService);
   private readonly router = inject(Router);
 
-  // Auth intercept states
   protected readonly isAuthenticated = this.authService.isAuthenticated;
   private pendingAction: (() => void) | null = null;
 
@@ -37,37 +35,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Expose signals from RecipeStateService
-  protected readonly currentLanguage = this.stateService.currentLanguage;
-  
   protected readonly searchControl = new FormControl('');
   protected readonly categories = ['All', ...DISCOVERY_CATEGORIES];
   protected readonly activeCategory = signal<string>('All');
-  protected readonly isFeedbackOpen = signal<boolean>(false);
-
-  // Recipe customization controls
-  protected readonly isCustomizing = signal<boolean>(false);
+  protected readonly isInterviewOpen = signal<boolean>(false);
   protected readonly customizationQuery = signal<string>('');
   protected readonly customizationPreset = signal<PresetRecipe | null>(null);
 
-  protected readonly servings = signal<number>(2);
-  protected readonly selectedDiet = signal<string>('veg');
-  protected readonly exclusions = signal<string>('');
-
-  // Rotating placeholder properties
   protected readonly placeholders = ROTATING_PLACEHOLDERS;
   protected readonly placeholderIndex = signal<number>(0);
-  private placeholderIntervalId: any = null;
+  private placeholderIntervalId: ReturnType<typeof setInterval> | null = null;
 
-  // Filtered preset recipes list based on active category
   protected readonly filteredPresets = computed(() => {
     const category = this.activeCategory();
-    if (category === 'All') {
-      return PRESET_RECIPES;
-    }
-    return PRESET_RECIPES.filter(
-      (recipe) => recipe.cuisine.toLowerCase() === category.toLowerCase()
-    );
+    if (category === 'All') return PRESET_RECIPES;
+    return PRESET_RECIPES.filter(r => r.cuisine.toLowerCase() === category.toLowerCase());
   });
 
   public ngOnInit(): void {
@@ -81,7 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected startPlaceholderCycle(): void {
     this.stopPlaceholderCycle();
     this.placeholderIntervalId = setInterval(() => {
-      this.placeholderIndex.update((prev) => (prev + 1) % this.placeholders.length);
+      this.placeholderIndex.update(prev => (prev + 1) % this.placeholders.length);
     }, 3000);
   }
 
@@ -97,7 +79,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   protected onSearchBlur(): void {
-    // Only resume cycling if search input is empty
     if (!this.searchControl.value) {
       this.startPlaceholderCycle();
     }
@@ -113,98 +94,77 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!query) return;
 
     if (this.isAuthenticated()) {
-      this.executeSearch(query);
+      this.openInterviewForSearch(query);
     } else {
-      this.pendingAction = () => this.executeSearch(query);
+      this.pendingAction = () => this.openInterviewForSearch(query);
       this.authService.isAuthModalOpen.set(true);
     }
   }
 
   protected selectPresetRecipe(recipe: PresetRecipe): void {
     if (this.isAuthenticated()) {
-      this.executePreset(recipe);
+      this.openInterviewForPreset(recipe);
     } else {
-      this.pendingAction = () => this.executePreset(recipe);
+      this.pendingAction = () => this.openInterviewForPreset(recipe);
       this.authService.isAuthModalOpen.set(true);
     }
   }
 
-  private executeSearch(query: string): void {
+  private openInterviewForSearch(query: string): void {
     this.customizationQuery.set(query);
     this.customizationPreset.set(null);
-    this.servings.set(2);
-    this.selectedDiet.set('veg');
-    this.exclusions.set('');
-    this.isCustomizing.set(true);
+    this.isInterviewOpen.set(true);
   }
 
-  private executePreset(recipe: PresetRecipe): void {
+  private openInterviewForPreset(recipe: PresetRecipe): void {
     this.customizationQuery.set('');
     this.customizationPreset.set(recipe);
-    this.servings.set(2);
-    this.selectedDiet.set(recipe.diet === 'nonveg' ? 'nonveg' : 'veg');
-    this.exclusions.set('');
-    this.isCustomizing.set(true);
+    this.isInterviewOpen.set(true);
   }
 
-  protected cancelCustomization(): void {
-    this.isCustomizing.set(false);
+  protected onInterviewCancelled(): void {
+    this.isInterviewOpen.set(false);
     this.customizationQuery.set('');
     this.customizationPreset.set(null);
   }
 
-  protected incrementServings(): void {
-    this.servings.update((s) => Math.min(20, s + 1));
-  }
-
-  protected decrementServings(): void {
-    this.servings.update((s) => Math.max(1, s - 1));
-  }
-
-  protected onExclusionsInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.exclusions.set(input.value || '');
-  }
-
-  protected async generateCustomRecipe(): Promise<void> {
+  protected async onInterviewSubmit(result: InterviewResult): Promise<void> {
     const preset = this.customizationPreset();
-    const query = this.customizationQuery();
-    const recipeName = preset ? preset.name : query;
-
+    const recipeName = preset ? preset.name : this.customizationQuery();
     if (!recipeName) return;
 
+    this.isInterviewOpen.set(false);
     this.loaderService.show();
-    this.isCustomizing.set(false);
 
     try {
-      const payload = {
+      const recipe = await this.apiService.generateRecipe({
         recipeName,
-        servingsCount: this.servings(),
-        diet: this.selectedDiet() as DietaryPreference,
+        servingsCount: result.servings,
+        diet: result.diet,
         cuisine: preset ? preset.cuisine : (this.activeCategory() !== 'All' ? this.activeCategory() : 'General'),
-        healthGoals: `Portion size customized for ${this.servings()} servings. Diet type: ${this.selectedDiet()}.`,
-        restrictions: this.exclusions().trim(),
-        description: preset ? preset.description : 'Custom recipe generated via search query.'
-      };
+        healthGoals: `${result.servings} servings, diet: ${result.diet}`,
+        restrictions: result.exclusions.trim(),
+        description: preset ? preset.description : 'Custom recipe via search.',
+      });
 
-      const recipe = await this.apiService.generateRecipe(payload);
       this.stateService.setRecipe(recipe);
-
-      // Clean search input and restore cycles
       this.searchControl.setValue('');
       this.startPlaceholderCycle();
-
-      // Redirect to active cooking ingredients checklist
       await this.router.navigate(['/ingredients']);
-    } catch (err: any) {
-      console.error('Error generating recipe:', err);
-      alert(err.message || 'Recipe generation failed. Please check inputs and try again.');
+    } catch (err) {
+      console.error('Recipe generation failed:', err);
+      alert(err.message || 'Recipe generation failed. Please try again.');
     } finally {
       this.loaderService.hide();
     }
   }
 
-  protected selectLocalizedText(text: any): string {
-    return this.stateService.selectLocalizedText(text);
+  protected interviewRecipeName(): string {
+    const preset = this.customizationPreset();
+    return preset ? preset.name : this.customizationQuery();
+  }
+
+  protected interviewCuisine(): string {
+    return this.customizationPreset()?.cuisine ?? '';
   }
 }
