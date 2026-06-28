@@ -1,7 +1,7 @@
 
 
 <!-- Main Page Wrapper (Light Theme, Spatial Glassmorphism) -->
-<div class="relative min-h-screen text-slate-900 flex flex-col select-none overflow-hidden pb-12">
+<div class="relative min-h-screen text-slate-900 flex flex-col select-none overflow-hidden pb-12 transition-[filter] duration-300" [class.blur-sm]="isInterviewOpen()">
   
   <!-- Liquid Glass Ambient Lights in Background (Drifting slow-motion orbs) -->
   <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
