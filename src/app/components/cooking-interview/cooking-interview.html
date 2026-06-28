@@ -1,0 +1,221 @@
+<div
+  class="fixed inset-0 z-50 flex flex-col animate-interview-in"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="interview-question"
+>
+
+  <!-- Blurred backdrop -->
+  <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-2xl"></div>
+
+  <!-- Content layer -->
+  <div class="relative z-10 flex flex-col h-full">
+
+    <!-- Top bar -->
+    <div class="flex items-center justify-between px-6 sm:px-10 pt-7 pb-4 shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 animate-pulse"></div>
+        <span class="text-[9px] font-black text-amber-400/75 uppercase tracking-[0.2em] truncate max-w-55">
+          {{ recipeName() }}
+        </span>
+        @if (recipeCuisine()) {
+          <span class="text-[9px] font-black text-slate-700 uppercase tracking-[0.15em] hidden sm:inline">· {{ recipeCuisine() }}</span>
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="cancel()"
+        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-600 hover:text-slate-300 transition-all focus:outline-none cursor-pointer shrink-0"
+        aria-label="Cancel"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Center: Question + Answer -->
+    <div class="flex-1 flex items-center justify-center px-6 overflow-hidden">
+      <div class="w-full max-w-sm text-center">
+
+        @switch (step()) {
+
+          @case (1) {
+            <div [class]="stepAnimClass()">
+              <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.22em] mb-8">Step 1 of 3</p>
+              <h2
+                id="interview-question"
+                class="text-3xl sm:text-4xl font-black text-white leading-tight mb-12"
+              >
+                How many people<br>are cooking?
+              </h2>
+
+              <div class="flex items-center justify-center gap-6 mb-3">
+                <button
+                  type="button"
+                  (click)="decrement()"
+                  class="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xl font-black flex items-center justify-center transition-all duration-150 active:scale-90 focus:outline-none cursor-pointer select-none"
+                  aria-label="Decrease"
+                >−</button>
+
+                <span class="text-[88px] sm:text-[104px] font-black text-white leading-none w-32 text-center tabular-nums select-none">
+                  {{ servings() }}
+                </span>
+
+                <button
+                  type="button"
+                  (click)="increment()"
+                  class="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xl font-black flex items-center justify-center transition-all duration-150 active:scale-90 focus:outline-none cursor-pointer select-none"
+                  aria-label="Increase"
+                >+</button>
+              </div>
+
+              <span class="text-[10px] font-black text-slate-600 uppercase tracking-[0.22em] select-none">
+                {{ servings() === 1 ? 'person' : 'people' }}
+              </span>
+            </div>
+          }
+
+          @case (2) {
+            <div [class]="stepAnimClass()">
+              <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.22em] mb-8">Step 2 of 3</p>
+              <h2
+                id="interview-question"
+                class="text-3xl sm:text-4xl font-black text-white leading-tight mb-10"
+              >
+                What kind of<br>cook are you?
+              </h2>
+
+              <div class="space-y-2.5">
+                <button
+                  type="button"
+                  (click)="selectDiet(Diet.VEGETARIAN)"
+                  class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                  [class.bg-amber-400]="diet() === Diet.VEGETARIAN"
+                  [class.border-amber-400]="diet() === Diet.VEGETARIAN"
+                  [class.text-slate-900]="diet() === Diet.VEGETARIAN"
+                  [class.bg-white/5]="diet() !== Diet.VEGETARIAN"
+                  [class.border-white/8]="diet() !== Diet.VEGETARIAN"
+                  [class.text-slate-500]="diet() !== Diet.VEGETARIAN"
+                  [class.hover:bg-white/10]="diet() !== Diet.VEGETARIAN"
+                  [class.hover:text-slate-200]="diet() !== Diet.VEGETARIAN"
+                >Vegetarian</button>
+
+                <button
+                  type="button"
+                  (click)="selectDiet(Diet.NON_VEGETARIAN)"
+                  class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                  [class.bg-amber-400]="diet() === Diet.NON_VEGETARIAN"
+                  [class.border-amber-400]="diet() === Diet.NON_VEGETARIAN"
+                  [class.text-slate-900]="diet() === Diet.NON_VEGETARIAN"
+                  [class.bg-white/5]="diet() !== Diet.NON_VEGETARIAN"
+                  [class.border-white/8]="diet() !== Diet.NON_VEGETARIAN"
+                  [class.text-slate-500]="diet() !== Diet.NON_VEGETARIAN"
+                  [class.hover:bg-white/10]="diet() !== Diet.NON_VEGETARIAN"
+                  [class.hover:text-slate-200]="diet() !== Diet.NON_VEGETARIAN"
+                >Non-Vegetarian</button>
+
+                <button
+                  type="button"
+                  (click)="selectDiet(Diet.VEGAN)"
+                  class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                  [class.bg-amber-400]="diet() === Diet.VEGAN"
+                  [class.border-amber-400]="diet() === Diet.VEGAN"
+                  [class.text-slate-900]="diet() === Diet.VEGAN"
+                  [class.bg-white/5]="diet() !== Diet.VEGAN"
+                  [class.border-white/8]="diet() !== Diet.VEGAN"
+                  [class.text-slate-500]="diet() !== Diet.VEGAN"
+                  [class.hover:bg-white/10]="diet() !== Diet.VEGAN"
+                  [class.hover:text-slate-200]="diet() !== Diet.VEGAN"
+                >Vegan</button>
+              </div>
+            </div>
+          }
+
+          @case (3) {
+            <div [class]="stepAnimClass()">
+              <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.22em] mb-8">Step 3 of 3</p>
+              <h2
+                id="interview-question"
+                class="text-3xl sm:text-4xl font-black text-white leading-tight mb-3"
+              >
+                Any restrictions or<br>special requests?
+              </h2>
+              <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.15em] mb-8">
+                Optional — skip if nothing comes to mind
+              </p>
+
+              <input
+                type="text"
+                [value]="exclusions()"
+                (input)="onExclusionsInput($event)"
+                placeholder="e.g. no onions, extra creamy, gluten-free..."
+                class="w-full bg-slate-800/70 border border-slate-600/50 rounded-2xl px-5 py-4 text-sm font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 focus:ring-4 focus:ring-amber-400/10 transition-all duration-300 text-center"
+              />
+            </div>
+          }
+
+        }
+      </div>
+    </div>
+
+    <!-- Bottom: Progress + Navigation -->
+    <div class="flex flex-col items-center gap-5 px-6 pb-8 sm:pb-10 shrink-0">
+
+      <!-- Progress pills -->
+      <div class="flex items-center gap-1.5">
+        <div
+          class="h-1 rounded-full transition-all duration-300"
+          [class.w-6]="step() === 1"
+          [class.w-1.5]="step() !== 1"
+          [class.bg-amber-400]="step() === 1"
+          [class.bg-slate-700]="step() !== 1"
+        ></div>
+        <div
+          class="h-1 rounded-full transition-all duration-300"
+          [class.w-6]="step() === 2"
+          [class.w-1.5]="step() !== 2"
+          [class.bg-amber-400]="step() === 2"
+          [class.bg-slate-700]="step() !== 2"
+        ></div>
+        <div
+          class="h-1 rounded-full transition-all duration-300"
+          [class.w-6]="step() === 3"
+          [class.w-1.5]="step() !== 3"
+          [class.bg-amber-400]="step() === 3"
+          [class.bg-slate-700]="step() !== 3"
+        ></div>
+      </div>
+
+      <!-- Nav buttons -->
+      <div class="flex items-center gap-5">
+        @if (step() > 1) {
+          <button
+            type="button"
+            (click)="back()"
+            class="text-[10px] font-black text-slate-600 hover:text-slate-400 uppercase tracking-[0.2em] transition-colors focus:outline-none cursor-pointer"
+          >← Back</button>
+        } @else {
+          <div class="w-14"></div>
+        }
+
+        @if (step() < 3) {
+          <button
+            type="button"
+            (click)="next()"
+            class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer"
+          >Continue →</button>
+        } @else {
+          <button
+            type="button"
+            (click)="submit()"
+            class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer"
+          >Start Cooking →</button>
+        }
+      </div>
+
+    </div>
+
+  </div>
+</div>
