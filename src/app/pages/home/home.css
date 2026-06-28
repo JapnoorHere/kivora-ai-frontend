@@ -10,14 +10,38 @@
 /* Spatial card offsets and glow highlights */
 .card-depth {
   transform-style: preserve-3d;
-  perspective: 800px;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+  perspective: 1000px;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .card-depth:hover {
   box-shadow: 
-    0 15px 35px -10px rgba(0, 0, 0, 0.6),
-    0 0 40px -5px rgba(249, 115, 22, 0.05);
+    0 20px 40px -15px rgba(0, 0, 0, 0.08),
+    0 0 50px -5px rgba(251, 191, 36, 0.08);
+}
+
+/* Light Sheen Reflection Sweep */
+.card-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.45) 42%,
+    rgba(255, 255, 255, 0) 54%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+  transition: transform 0s;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.group:hover .card-sheen {
+  transform: translateX(60%) skewX(-15deg);
+  transition: transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Page transitions */
@@ -32,9 +56,55 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Liquid Light Background Drifts */
+@keyframes drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(35px, -45px) scale(1.08); }
+  66% { transform: translate(-25px, 25px) scale(0.95); }
+}
+
+@keyframes drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-45px, 35px) scale(0.92); }
+}
+
+.animate-drift-1 {
+  animation: drift-1 16s ease-in-out infinite;
+}
+
+.animate-drift-2 {
+  animation: drift-2 20s ease-in-out infinite;
+}
+
+/* Bento card entrance rotation and lift */
+@keyframes bento-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(35px) rotateX(6deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+.bento-card-animate {
+  animation: bento-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Mobile bottom sheet slide up keyframes */
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-slide-up-sheet {
+  animation: slideUpSheet 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

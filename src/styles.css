@@ -1,6 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #fbbf24 rgba(244, 238, 219, 0.3);
+}
+
+/* Custom Scrollbar Styles for Chrome/Edge/Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(244, 238, 219, 0.3); /* Translucent warm cream */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbbf24; /* Solid brand gold */
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706; /* Solid brand amber/orange on hover */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
 @keyframes slideRight {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }

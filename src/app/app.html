@@ -1,4 +1,4 @@
-@if (isAuthenticated()) {
+@if (!isLoginRoute()) {
   <div class="flex min-h-screen relative">
     
     <!-- Sidebar for Desktop (Collapsible, Full Height, Floating in the Air) -->
@@ -29,8 +29,32 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <span class="font-extrabold text-slate-800 tracking-wider text-sm">KIVORA AI</span>
-        <div class="w-8 h-8"></div> <!-- Balance spacer -->
+        <div class="flex items-center gap-2">
+          <div class="relative w-6 h-6 shrink-0">
+            <img ngSrc="logo.png" fill class="object-contain" alt="Kivora AI logo" priority>
+          </div>
+          <span class="font-extrabold text-slate-800 tracking-wider text-sm">KIVORA AI</span>
+        </div>
+        <!-- Mobile Login / Logout Trigger -->
+        <div class="flex items-center">
+          @if (isAuthenticated()) {
+            <button 
+              type="button" 
+              (click)="triggerLogoutConfirm()" 
+              class="text-[10px] font-black text-slate-600 bg-slate-900/5 hover:bg-slate-900/10 px-3 py-1.5 rounded-xl border border-slate-700/10 active:scale-95 transition-all duration-200 uppercase tracking-widest cursor-pointer focus:outline-none"
+            >
+              Sign Out
+            </button>
+          } @else {
+            <button 
+              type="button" 
+              (click)="authService.isAuthModalOpen.set(true)" 
+              class="text-[10px] font-black text-slate-900 bg-[#fbbf24] hover:bg-[#e0a820] px-3 py-1.5 rounded-xl shadow-[0_2px_8px_rgba(251,191,36,0.15)] active:scale-95 transition-all duration-200 uppercase tracking-widest cursor-pointer focus:outline-none"
+            >
+              Sign In
+            </button>
+          }
+        </div>
       </header>
 
       <main class="relative flex-grow bg-gradient-to-b from-[#fbfbfa] via-[#f7f5f0] to-[#f4eedb] text-slate-900 flex flex-col justify-between">
@@ -49,3 +73,19 @@
 }
 
 <app-loader />
+
+@if (isLogoutConfirmOpen()) {
+  <app-confirm-dialog
+    title="Sign Out Confirmation"
+    message="Are you sure you want to end your active culinary session? You can return at any time."
+    confirmText="Sign Out"
+    cancelText="Stay"
+    type="danger"
+    (confirm)="confirmLogout()"
+    (cancel)="cancelLogout()"
+  />
+}
+
+@if (authService.isAuthModalOpen()) {
+  <app-auth-modal (close)="authService.isAuthModalOpen.set(false)" />
+}

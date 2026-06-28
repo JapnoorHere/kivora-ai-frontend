@@ -26,10 +26,8 @@
       [class.justify-center]="effectiveCollapsed()"
       routerLink="/"
     >
-      <div class="p-1.5 rounded-lg bg-gradient-to-tr from-[#fbbf24] to-[#f59e0b] text-slate-900 shadow-sm border border-amber-600/15 shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
+      <div class="relative w-10 h-10 shrink-0">
+        <img ngSrc="logo.png" fill class="object-contain" alt="Kivora AI logo" priority>
       </div>
       <span 
         class="font-extrabold text-slate-800 tracking-wider text-sm transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
@@ -193,9 +191,9 @@
         <!-- Monogram circular avatar (Always visible) -->
         <div 
           class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-700 font-black text-sm uppercase shrink-0 transition-all duration-300"
-          [attr.title]="effectiveCollapsed() ? currentUser()?.name : null"
+          [attr.title]="effectiveCollapsed() ? (isAuthenticated() ? currentUser()?.name : 'Guest Chef') : null"
         >
-          {{ currentUser()?.name?.charAt(0) || 'C' }}
+          {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
         </div>
  
         <!-- User name & email details -->
@@ -208,16 +206,20 @@
           [class.ml-3]="!effectiveCollapsed()"
           [class.ml-0]="effectiveCollapsed()"
         >
-          <span class="text-xs font-black text-slate-800 truncate leading-tight">{{ currentUser()?.name }}</span>
-          <span class="text-[9px] font-bold text-slate-500 truncate leading-tight mt-0.5">{{ currentUser()?.email }}</span>
+          <span class="text-xs font-black text-slate-800 truncate leading-tight">
+            {{ isAuthenticated() ? currentUser()?.name : 'Guest Chef' }}
+          </span>
+          <span class="text-[9px] font-bold text-slate-500 truncate leading-tight mt-0.5">
+            {{ isAuthenticated() ? currentUser()?.email : 'Sign In to Save' }}
+          </span>
         </div>
       </div>
  
-      <!-- Sign Out button -->
+      <!-- Sign Out / Sign In button -->
       <button 
         type="button" 
-        (click)="triggerLogoutConfirm()" 
-        [attr.title]="effectiveCollapsed() ? 'Sign Out' : null"
+        (click)="isAuthenticated() ? triggerLogoutConfirm() : redirectToLogin()" 
+        [attr.title]="effectiveCollapsed() ? (isAuthenticated() ? 'Sign Out' : 'Sign In') : null"
         class="flex items-center justify-center rounded-full border border-slate-300 hover:bg-slate-900/5 text-slate-700 font-bold text-xs transition-all duration-300 cursor-pointer active:scale-98 mx-auto"
         [class.w-full]="!effectiveCollapsed()"
         [class.py-3]="!effectiveCollapsed()"
@@ -225,7 +227,11 @@
         [class.h-10]="effectiveCollapsed()"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          @if (isAuthenticated()) {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          } @else {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          }
         </svg>
         <span
           class="transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden"
@@ -236,7 +242,7 @@
           [class.ml-2]="!effectiveCollapsed()"
           [class.ml-0]="effectiveCollapsed()"
         >
-          Sign Out
+          {{ isAuthenticated() ? 'Sign Out' : 'Sign In' }}
         </span>
       </button>
     </div>
