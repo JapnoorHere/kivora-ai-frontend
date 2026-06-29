@@ -20,7 +20,8 @@
 }
 
 <app-loader />
+<app-toast />
 
 @if (authService.isAuthModalOpen()) {
-  <app-auth-modal (close)="closeAuthModal()" />
+  <app-auth-modal (close)="closeAuthModal()" (authSuccess)="closeAuthModal()" />
 }

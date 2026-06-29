@@ -7,12 +7,14 @@ import {
   FeedbackRequest,
   ApiErrorResponse,
 } from '../models/recipe.model';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecipeApiService {
   private readonly baseUrl = environment.apiUrl;
+  private readonly toast = inject(ToastService);
 
   /**
    * Universal HTTP request wrapper using native Promise-based fetch.
@@ -32,8 +34,9 @@ export class RecipeApiService {
 
     // Check for token expiration / unauthorized
     if (response.status === 401) {
-      localStorage.removeItem('kivora_user'); // Clear cached profile
-      window.location.href = '/login'; // Redirect unauthenticated request
+      localStorage.removeItem('kivora_user');
+      this.toast.error('Your session has expired. Please sign in again.', 'Session Expired');
+      window.location.href = '/login';
       throw new Error('Session expired. Please log in again.');
     }
 

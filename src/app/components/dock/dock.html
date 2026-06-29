@@ -181,7 +181,7 @@
       [style.color]="isCollapsed() ? 'rgb(15,23,42)' : 'rgb(180,83,9)'"
       [attr.aria-label]="isCollapsed() ? 'Expand dock' : 'Collapse dock'"
     >
-      <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="isCollapsed()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="!isCollapsed()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
       </svg>
     </button>

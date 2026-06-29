@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { DOCUMENT } from '@angular/common';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-bug-report-modal',
@@ -17,13 +18,12 @@ export class BugReportModal {
   private readonly apiService = inject(RecipeApiService);
   private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
+  private readonly toast = inject(ToastService);
 
   // Modern functional output signal to notify parent components to close modal
   public readonly close = output<void>();
 
   protected readonly isSubmitting = signal<boolean>(false);
-  protected readonly isSuccess = signal<boolean>(false);
-  protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly feedbackForm = new FormGroup({
     email: new FormControl(this.authService.currentUser()?.email || '', {
@@ -65,19 +65,14 @@ export class BugReportModal {
     }
 
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
 
     try {
       const payload = this.feedbackForm.getRawValue();
       await this.apiService.submitBugReport(payload);
-      this.isSuccess.set(true);
-      
-      // Delay closing modal slightly to show success feedback message
-      setTimeout(() => {
-        this.close.emit();
-      }, 1500);
+      this.toast.success('Thank you, Chef! We\'ll look into it right away.', 'Report Submitted');
+      this.close.emit();
     } catch (err) {
-      this.errorMessage.set(err.message || 'Failed to submit feedback. Please try again.');
+      this.toast.error(err.message || 'Failed to submit. Please try again.', 'Submission Failed');
     } finally {
       this.isSubmitting.set(false);
     }

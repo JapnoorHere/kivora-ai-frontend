@@ -7,10 +7,11 @@ import { LoaderComponent } from './components/loader/loader';
 import { DockComponent } from './components/dock/dock';
 import { FooterComponent } from './components/footer/footer';
 import { AuthModalComponent } from './components/auth-modal/auth-modal';
+import { ToastComponent } from './components/toast/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoaderComponent, DockComponent, FooterComponent, AuthModalComponent],
+  imports: [RouterOutlet, LoaderComponent, DockComponent, FooterComponent, AuthModalComponent, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

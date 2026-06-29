@@ -1,0 +1,74 @@
+<div
+  class="fixed bottom-20 right-4 z-200 flex flex-col gap-3 items-end pointer-events-none w-80 max-w-[calc(100vw-28px)]"
+  aria-live="polite"
+  aria-atomic="false"
+  role="region"
+  aria-label="Notifications"
+>
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="pointer-events-auto w-full relative flex items-center gap-3.5 px-4 py-3.5 rounded-2xl"
+      style="box-shadow: 0 10px 40px rgba(0,0,0,0.28), 0 2px 10px rgba(0,0,0,0.14);"
+      [class.toast-enter]="!isExiting(toast.id)"
+      [class.toast-exit]="isExiting(toast.id)"
+      [style.background-color]="cardColor(toast.type)"
+      [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
+    >
+
+      <!-- Icon badge -->
+      <div class="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.22);">
+        @if (toast.type === 'success') {
+          <!-- Checkmark circle filled -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+          </svg>
+        }
+        @if (toast.type === 'error') {
+          <!-- X circle filled -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
+          </svg>
+        }
+        @if (toast.type === 'warning') {
+          <!-- Exclamation triangle filled -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+          </svg>
+        }
+        @if (toast.type === 'info') {
+          <!-- Info circle filled -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+          </svg>
+        }
+      </div>
+
+      <!-- Text -->
+      <div class="flex-1 min-w-0 pr-5">
+        @if (toast.title) {
+          <p class="text-[13px] font-extrabold text-white leading-tight mb-0.5">{{ toast.title }}</p>
+        }
+        <p class="text-[11px] font-medium leading-snug" style="color:rgba(255,255,255,0.82);">{{ toast.message }}</p>
+      </div>
+
+      <!-- Close -->
+      <button
+        type="button"
+        (click)="dismiss(toast.id)"
+        class="absolute top-2.5 right-2.5 rounded-lg p-1 focus:outline-none cursor-pointer transition-colors duration-150"
+        style="color:rgba(255,255,255,0.45);"
+        aria-label="Dismiss"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Progress bar -->
+      <div class="absolute bottom-0 left-0 right-0 rounded-b-2xl overflow-hidden" style="height:3px;background:rgba(0,0,0,0.12);">
+        <div class="h-full toast-progress" [style.animation-duration]="toast.duration + 'ms'" style="background:rgba(255,255,255,0.35);"></div>
+      </div>
+
+    </div>
+  }
+</div>

@@ -4,6 +4,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { BugReportModal } from '../bug-report-modal/bug-report-modal';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-dock',
@@ -16,6 +17,7 @@ export class DockComponent {
   private readonly authService = inject(AuthService);
   private readonly recipeState = inject(RecipeStateService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   protected readonly isAuthenticated = this.authService.isAuthenticated;
   protected readonly currentUser = this.authService.currentUser;
@@ -44,6 +46,7 @@ export class DockComponent {
   protected async confirmLogout(): Promise<void> {
     this.isLogoutConfirmOpen.set(false);
     await this.authService.logout();
+    this.toast.success('See you next time, Chef!', 'Signed Out');
     this.router.navigate(['/']);
   }
 

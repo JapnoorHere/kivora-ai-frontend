@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { NgOptimizedImage } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { LoaderService } from '../../core/services/loader.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-auth-modal',
@@ -15,6 +16,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly loader = inject(LoaderService);
+  private readonly toast = inject(ToastService);
 
   public ngOnInit(): void {
     // Lock page background scrolling
@@ -32,7 +34,6 @@ export class AuthModalComponent implements OnInit, OnDestroy {
 
   // State signals
   protected readonly isLoginMode = signal<boolean>(true);
-  protected readonly errorMessage = signal<string | null>(null);
   protected readonly showPassword = signal<boolean>(false);
 
   protected togglePasswordVisibility(): void {
@@ -62,7 +63,6 @@ export class AuthModalComponent implements OnInit, OnDestroy {
 
   protected switchMode(loginMode: boolean): void {
     this.isLoginMode.set(loginMode);
-    this.errorMessage.set(null);
     this.authForm.reset({ email: '', password: '', name: '' });
   }
 
@@ -76,19 +76,21 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.errorMessage.set(null);
     this.loader.show();
 
     try {
       const { email, password, name } = this.authForm.value;
       if (this.isLoginMode()) {
         await this.authService.login(email, password);
+        this.toast.success('Welcome back, Chef!', 'Signed In');
       } else {
         await this.authService.signup(name, email, password);
+        this.toast.success('Your kitchen is ready. Let\'s cook!', 'Account Created');
       }
       this.authSuccess.emit();
+      this.close.emit();
     } catch (err) {
-      this.errorMessage.set(err.message || 'An error occurred during authentication. Please check your credentials.');
+      this.toast.error(err.message || 'Authentication failed. Please check your credentials.', 'Sign In Failed');
     } finally {
       this.loader.hide();
     }
@@ -96,13 +98,14 @@ export class AuthModalComponent implements OnInit, OnDestroy {
 
   // Google sign in helper
   protected async loginWithGoogle(): Promise<void> {
-    this.errorMessage.set(null);
     this.loader.show();
     try {
       await this.authService.loginWithGoogle();
+      this.toast.success('Signed in with Google. Welcome, Chef!', 'Signed In');
       this.authSuccess.emit();
+      this.close.emit();
     } catch (err) {
-      this.errorMessage.set(err.message || 'Google authentication failed.');
+      this.toast.error(err.message || 'Google authentication failed. Please try again.', 'Google Sign In Failed');
     } finally {
       this.loader.hide();
     }
