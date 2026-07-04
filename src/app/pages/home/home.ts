@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, effect, OnInit, OnDestroy, AfterViewInit, NgZone } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
@@ -7,20 +7,57 @@ import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
 import { DISCOVERY_CATEGORIES, ROTATING_PLACEHOLDERS, PRESET_RECIPES, PresetRecipe } from '../../core/constants/recipe.constant';
+import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, CookingInterviewComponent],
+  imports: [ReactiveFormsModule, CookingInterviewComponent, FloatingComponent, FloatingElementComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly stateService = inject(RecipeStateService);
   private readonly authService = inject(AuthService);
   private readonly apiService = inject(RecipeApiService);
   private readonly loaderService = inject(LoaderService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+
+  private observer: IntersectionObserver | null = null;
+  private readonly observerReady = signal<boolean>(false);
+
+
+  private scrollListenerAdded = false;
+  private resizeListenerAdded = false;
+  private animFrameId: number | null = null;
+  private lastScrollY = 0;
+
+  private readonly cardLayouts = new Map<
+    HTMLElement, 
+    { top: number; left: number; width: number; height: number }
+  >();
+
+  private floatingEl: HTMLElement | null = null;
+  private heroContentEl: HTMLElement | null = null;
+  private orb1El: HTMLElement | null = null;
+  private orb2El: HTMLElement | null = null;
+  private orb3El: HTMLElement | null = null;
+
+
+  protected readonly floatingImages = [
+    { url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=600&auto=format&fit=crop', alt: 'Tacos', depth: 0.5, className: 'top-[6%] left-[4%] w-14 h-14 md:top-[14%] md:left-[11%] md:w-24 md:h-24' },
+    { url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=600&auto=format&fit=crop', alt: 'Ramen', depth: 1, className: 'top-[3%] left-[42%] w-14 h-14 md:top-[18%] md:left-[30%] md:w-28 md:h-28' },
+    { url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', alt: 'Pizza', depth: 2, className: 'top-[6%] left-[78%] w-16 h-22 md:top-[10%] md:left-[53%] md:w-40 md:h-52' },
+    { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600&auto=format&fit=crop', alt: 'Salad', depth: 1, className: 'hidden md:block top-[12%] left-[83%] w-32 h-32' },
+    { url: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=600&auto=format&fit=crop', alt: 'Waffles', depth: 1.2, className: 'hidden md:block top-[42%] left-[2%] w-36 h-36' },
+    { url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=600&auto=format&fit=crop', alt: 'Burger', depth: 2, className: 'top-[82%] left-[78%] w-16 h-22 md:top-[60%] md:w-36 md:h-48' },
+    { url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=600&auto=format&fit=crop', alt: 'Sushi', depth: 1.5, className: 'hidden md:block top-[64%] left-[10%] w-52 h-36' },
+    { url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?q=80&w=600&auto=format&fit=crop', alt: 'Dumplings', depth: 1, className: 'hidden md:block top-[68%] left-[48%] w-32 h-32' },
+    { url: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?q=80&w=600&auto=format&fit=crop', alt: 'Pasta', depth: 0.7, className: 'hidden md:block top-[36%] left-[90%] w-28 h-28' },
+    { url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=600&auto=format&fit=crop', alt: 'Pancakes', depth: 1.5, className: 'hidden md:block top-[44%] left-[68%] w-32 h-32' },
+    { url: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?q=80&w=600&auto=format&fit=crop', alt: 'Curry', depth: 1.1, className: 'top-[84%] left-[4%] w-16 h-16 md:top-[38%] md:left-[22%] md:w-32 md:h-32' }
+  ];
 
   protected readonly isAuthenticated = this.authService.isAuthenticated;
   private pendingAction: (() => void) | null = null;
@@ -32,6 +69,23 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.pendingAction = null;
         this.authService.isAuthModalOpen.set(false);
       }
+    });
+
+    // Automatically reobserve revealable cards when the filtered presets change or observer is ready
+    effect(() => {
+      this.filteredPresets();
+      if (this.observerReady()) {
+        setTimeout(() => {
+          this.reobserveCards();
+        }, 120);
+      }
+    });
+  }
+
+  public ngAfterViewInit(): void {
+    this.initScrollRevealObserver();
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => this.updateRecipeCardsParallax(), 50);
     });
   }
 
@@ -48,16 +102,228 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   protected readonly filteredPresets = computed(() => {
     const category = this.activeCategory();
-    if (category === 'All') return PRESET_RECIPES;
+    if (category === 'All') {
+      const grouped: Record<string, PresetRecipe[]> = {};
+      PRESET_RECIPES.forEach(r => {
+        if (!grouped[r.cuisine]) {
+          grouped[r.cuisine] = [];
+        }
+        if (grouped[r.cuisine].length < 3) {
+          grouped[r.cuisine].push(r);
+        }
+      });
+      return Object.values(grouped).flat();
+    }
     return PRESET_RECIPES.filter(r => r.cuisine.toLowerCase() === category.toLowerCase());
   });
 
   public ngOnInit(): void {
     this.startPlaceholderCycle();
+    this.initScrollParallax();
   }
 
   public ngOnDestroy(): void {
     this.stopPlaceholderCycle();
+    if (this.scrollListenerAdded) {
+      window.removeEventListener('scroll', this.handleScroll);
+    }
+    if (this.resizeListenerAdded) {
+      window.removeEventListener('resize', this.handleResize);
+    }
+    if (this.animFrameId !== null) {
+      cancelAnimationFrame(this.animFrameId);
+    }
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
+  private initScrollRevealObserver(): void {
+    this.ngZone.runOutsideAngular(() => {
+      const options = {
+        root: null,
+        rootMargin: '0px 0px -80px 0px',
+        threshold: 0.1
+      };
+
+      this.observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+            card.classList.add('revealed');
+            observer.unobserve(card);
+          }
+        });
+      }, options);
+
+      this.observerReady.set(true);
+    });
+  }
+
+  private reobserveCards(): void {
+    if (!this.observer) return;
+    this.ngZone.runOutsideAngular(() => {
+      this.cardLayouts.clear();
+      const cards = document.querySelectorAll('.premium-card');
+      cards.forEach(card => {
+        if (!card.classList.contains('revealed')) {
+          this.observer?.observe(card);
+        }
+      });
+      setTimeout(() => {
+        this.updateRecipeCardsParallax();
+      }, 150);
+    });
+  }
+
+  private initScrollParallax(): void {
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.handleScroll, { passive: true });
+      this.scrollListenerAdded = true;
+      window.addEventListener('resize', this.handleResize, { passive: true });
+      this.resizeListenerAdded = true;
+      this.handleScroll();
+    });
+  }
+
+  private readonly handleResize = (): void => {
+    this.cardLayouts.clear();
+    this.updateRecipeCardsParallax();
+  };
+
+  private readonly handleScroll = (): void => {
+    this.lastScrollY = window.scrollY;
+    if (this.animFrameId === null) {
+      this.animFrameId = requestAnimationFrame(this.updateScrollParallax);
+    }
+  };
+
+  private readonly updateScrollParallax = (): void => {
+    this.animFrameId = null;
+    const scrollY = this.lastScrollY;
+
+    if (!this.heroContentEl) {
+      this.heroContentEl = document.getElementById('hero-content');
+    }
+    if (!this.orb1El) {
+      this.orb1El = document.getElementById('orb-1');
+    }
+    if (!this.orb2El) {
+      this.orb2El = document.getElementById('orb-2');
+    }
+    if (!this.orb3El) {
+      this.orb3El = document.getElementById('orb-3');
+    }
+
+    if (this.heroContentEl) {
+      this.heroContentEl.style.transform = `translate3d(0, ${scrollY * 0.12}px, 0)`;
+    }
+    if (this.orb1El) {
+      this.orb1El.style.transform = `translate3d(0, ${scrollY * 0.15}px, 0)`;
+    }
+    if (this.orb2El) {
+      this.orb2El.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0)`;
+    }
+    if (this.orb3El) {
+      this.orb3El.style.transform = `translate3d(0, ${scrollY * 0.2}px, 0)`;
+    }
+
+    this.updateRecipeCardsParallax();
+  };
+
+  private getPageOffset(element: HTMLElement): { top: number; left: number } {
+    let top = 0;
+    let left = 0;
+    let el: HTMLElement | null = element;
+    while (el) {
+      top += el.offsetTop || 0;
+      left += el.offsetLeft || 0;
+      el = el.offsetParent as HTMLElement;
+    }
+    return { top, left };
+  }
+
+  private updateRecipeCardsParallax(): void {
+    const cards = document.querySelectorAll('.premium-card');
+    if (!cards.length) return;
+
+    // Populate layout metrics cache once per render selection
+    if (this.cardLayouts.size === 0) {
+      cards.forEach(cardEl => {
+        const card = cardEl as HTMLElement;
+        const offset = this.getPageOffset(card);
+        this.cardLayouts.set(card, {
+          top: offset.top,
+          left: offset.left,
+          width: card.offsetWidth,
+          height: card.offsetHeight
+        });
+      });
+    }
+
+    const viewportHeight = window.innerHeight;
+    const viewportCenterX = window.innerWidth / 2;
+    const isMobile = window.innerWidth < 640;
+
+    const maxTranslateX = isMobile ? 0 : 120;
+    const maxTranslateY = 140;
+    const maxRotate = isMobile ? 1 : 6;
+    const animRange = 450;
+
+    cards.forEach(cardEl => {
+      const card = cardEl as HTMLElement;
+      const layout = this.cardLayouts.get(card);
+      if (!layout) return;
+
+      const untransformedTop = layout.top - window.scrollY;
+      const untransformedBottom = untransformedTop + layout.height;
+      const untransformedLeft = layout.left;
+      const cardCenterX = untransformedLeft + layout.width / 2;
+
+      // Check exit conditions based on untransformed positions
+      if (untransformedBottom < 0) {
+        card.style.setProperty('--scroll-tx', '0px');
+        card.style.setProperty('--scroll-ty', '0px');
+        card.style.setProperty('--scroll-rz', '0deg');
+        card.style.setProperty('--scroll-opacity', '1');
+        card.classList.add('revealed');
+        return;
+      }
+
+      if (untransformedTop > viewportHeight + 100) {
+        card.style.setProperty('--scroll-tx', '0px');
+        card.style.setProperty('--scroll-ty', `${maxTranslateY}px`);
+        card.style.setProperty('--scroll-rz', '0deg');
+        card.style.setProperty('--scroll-opacity', '0');
+        card.classList.remove('revealed');
+        return;
+      }
+
+      const isLeft = cardCenterX < viewportCenterX;
+
+      const progress = Math.max(0, Math.min(1, (viewportHeight - untransformedTop) / animRange));
+      const ease = progress * progress * (3 - 2 * progress);
+
+      const startTx = isLeft ? -maxTranslateX : maxTranslateX;
+      const startTy = maxTranslateY;
+      const startRz = isLeft ? -maxRotate : maxRotate;
+
+      const tx = (1 - ease) * startTx;
+      const ty = (1 - ease) * startTy;
+      const rz = (1 - ease) * startRz;
+      const opacity = ease;
+
+      card.style.setProperty('--scroll-tx', `${tx}px`);
+      card.style.setProperty('--scroll-ty', `${ty}px`);
+      card.style.setProperty('--scroll-rz', `${rz}deg`);
+      card.style.setProperty('--scroll-opacity', `${opacity}`);
+
+      if (progress > 0.15) {
+        card.classList.add('revealed');
+      } else {
+        card.classList.remove('revealed');
+      }
+    });
   }
 
   protected startPlaceholderCycle(): void {
@@ -86,6 +352,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   protected selectCategory(category: string): void {
     this.activeCategory.set(category);
+    this.cardLayouts.clear();
   }
 
   protected onSearchSubmit(event: Event): void {
@@ -109,6 +376,51 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.authService.isAuthModalOpen.set(true);
     }
   }
+
+  protected onCardMouseMove(event: MouseEvent, card: HTMLElement): void {
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const xc = rect.width / 2;
+    const yc = rect.height / 2;
+    const rx = ((y - yc) / yc) * -8;
+    const ry = ((x - xc) / xc) * 8;
+
+    card.style.setProperty('--rx', `${rx}deg`);
+    card.style.setProperty('--ry', `${ry}deg`);
+    card.style.setProperty('--mx', `${x}px`);
+    card.style.setProperty('--my', `${y}px`);
+  }
+
+  protected onCardMouseLeave(card: HTMLElement): void {
+    card.style.setProperty('--rx', '0deg');
+    card.style.setProperty('--ry', '0deg');
+  }
+
+  protected getBentoClasses(index: number, total: number): string {
+    if (total === 5) {
+      if (index === 0) return 'col-span-1 row-span-2';
+      if (index === 1) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
+      if (index === 2 || index === 3) return 'col-span-1 row-span-1';
+      return 'col-span-1 sm:col-span-2 lg:col-span-3 row-span-1';
+    }
+    if (total === 7) {
+      if (index === 0) return 'col-span-1 row-span-1';
+      if (index === 1) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
+      if (index === 2) return 'col-span-1 row-span-2';
+      if (index === 3 || index === 4) return 'col-span-1 row-span-1';
+      if (index === 5) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
+      return 'col-span-1 sm:col-span-2 lg:col-span-3 row-span-1';
+    }
+    const r = index % 6;
+    if (r === 0) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
+    if (r === 1) return 'col-span-1 row-span-1';
+    if (r === 2) return 'col-span-1 row-span-2';
+    if (r === 3 || r === 4) return 'col-span-1 row-span-1';
+    return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
+  }
+
 
   private openInterviewForSearch(query: string): void {
     this.customizationQuery.set(query);

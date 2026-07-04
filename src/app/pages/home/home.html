@@ -5,39 +5,104 @@
   
   <!-- Liquid Glass Ambient Lights in Background (Drifting slow-motion orbs) -->
   <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-    <div class="absolute top-[5%] left-[10%] w-[450px] h-[450px] rounded-full bg-[#fbbf24]/18 blur-[130px] animate-drift-1"></div>
-    <div class="absolute top-[35%] right-[10%] w-[550px] h-[550px] rounded-full bg-[#fbbf24]/10 blur-[150px] animate-drift-2"></div>
-    <div class="absolute bottom-[5%] left-[15%] w-[500px] h-[500px] rounded-full bg-[#fbbf24]/12 blur-[145px] animate-drift-1" style="animation-delay: -5s;"></div>
+    <div id="orb-1" class="absolute top-[5%] left-[10%] w-[450px] h-[450px] rounded-full bg-[#fbbf24]/18 blur-[130px] animate-drift-1"></div>
+    <div id="orb-2" class="absolute top-[35%] right-[10%] w-[550px] h-[550px] rounded-full bg-[#fbbf24]/10 blur-[150px] animate-drift-2"></div>
+    <div id="orb-3" class="absolute bottom-[5%] left-[15%] w-[500px] h-[500px] rounded-full bg-[#fbbf24]/12 blur-[145px] animate-drift-1" style="animation-delay: -5s;"></div>
   </div>
 
-  <!-- Hero: Full-bleed editorial with text directly on image -->
-  <div class="relative w-full overflow-hidden bg-cover bg-center" style="background-image: url('/hero-banner.png');">
+  <!-- Hero: Interactive Parallax Floating Visuals (Cream/Light Theme) -->
+  <div class="relative w-full min-h-screen flex items-center justify-center bg-transparent">
+    
+    <!-- Premium Faint Dot Grid Pattern -->
+    <div class="absolute inset-0 z-0 bg-dot-grid opacity-40 pointer-events-none"></div>
 
-    <!-- Left-to-right gradient for text readability -->
-    <div class="absolute inset-0 bg-linear-to-r from-slate-950/75 via-slate-950/35 to-slate-950/5 z-0 pointer-events-none"></div>
+    <!-- Soft Creamy Ambient Glows -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-[15%] left-[20%] w-[350px] h-[350px] rounded-full bg-[#fbbf24]/12 blur-[100px] animate-drift-1"></div>
+      <div class="absolute bottom-[15%] right-[25%] w-[400px] h-[400px] rounded-full bg-[#fbbf24]/8 blur-[120px] animate-drift-2"></div>
+    </div>
 
-    <!-- Content: left-aligned, directly on image -->
-    <div class="relative z-10 w-full max-w-6xl mx-auto px-6 sm:px-8 py-24 sm:py-36 animate-fade-in">
+    <!-- Interactive Parallax Floating Layer -->
+    <app-floating [sensitivity]="-0.65" class="absolute inset-0 w-full h-full pointer-events-none z-10">
+      @for (item of floatingImages; track item.url; let idx = $index) {
+        <app-floating-element 
+          [depth]="item.depth" 
+          [class]="item.className"
+        >
+          <div 
+            [style.animation-delay]="idx * 120 + 'ms'"
+            class="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/60 shadow-[0_12px_28px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.15)] hover:scale-105 duration-350 cursor-pointer pointer-events-auto filter brightness-[0.95] hover:brightness-100 transition-all floating-img-fade flex flex-col justify-end"
+          >
+            <!-- Card Image -->
+            <img
+              [src]="item.url"
+              [alt]="item.alt"
+              class="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+            <!-- Dark Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10 pointer-events-none"></div>
+            <!-- Title Caption -->
+            <div class="relative z-20 p-2 sm:p-3 text-white text-left">
+              <span class="text-[7px] sm:text-[9px] font-black uppercase tracking-widest drop-shadow-md">
+                {{ item.alt }}
+              </span>
+            </div>
+          </div>
+        </app-floating-element>
+      }
+
+      <!-- Decorative Sparkle 1 -->
+      <app-floating-element [depth]="0.3" class="top-[18%] left-[25%] w-5 h-5 pointer-events-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        </svg>
+      </app-floating-element>
+
+      <!-- Decorative Sparkle 2 -->
+      <app-floating-element [depth]="2.5" class="top-[75%] left-[30%] w-6 h-6 pointer-events-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/30 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        </svg>
+      </app-floating-element>
+
+      <!-- Decorative Sparkle 3 -->
+      <app-floating-element [depth]="1.8" class="top-[35%] left-[88%] w-4 h-4 pointer-events-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        </svg>
+      </app-floating-element>
+
+      <!-- Decorative Sparkle 4 -->
+      <app-floating-element [depth]="0.8" class="top-[55%] left-[18%] w-5 h-5 pointer-events-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/35 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        </svg>
+      </app-floating-element>
+    </app-floating>
+
+    <!-- Content: centered, on top of floating background -->
+    <div id="hero-content" class="relative z-20 w-full max-w-4xl mx-auto px-6 text-center flex flex-col items-center py-20 sm:py-28 animate-fade-in">
 
       <!-- Badge -->
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-400/15 border border-amber-400/25 text-amber-300 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
         ✦ Your Personal Recipe Guide
       </div>
 
       <!-- Headline -->
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.08] tracking-tight max-w-lg mb-5">
-        What Are You<br>Craving <span class="text-amber-400">Today?</span>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.08] tracking-tight max-w-2xl mb-5">
+        What Are You<br>Craving <span class="text-amber-500">Today?</span>
       </h1>
 
       <!-- Subtitle -->
-      <p class="text-sm font-medium text-white/55 max-w-sm mb-10 leading-relaxed">
+      <p class="text-sm font-semibold text-slate-500 max-w-md mb-10 leading-relaxed">
         Type a dish. Get a full recipe — built around your taste.
       </p>
 
       <!-- Frosted search bar -->
-      <form (submit)="onSearchSubmit($event)" class="max-w-xl">
-        <div class="relative flex items-center bg-black/30 backdrop-blur-md border border-white/25 rounded-full p-1.5 pl-5 focus-within:border-amber-400/60 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/60 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <form (submit)="onSearchSubmit($event)" class="w-full max-w-xl mx-auto">
+        <div class="relative flex items-center bg-white/70 backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.03)] rounded-full p-1.5 pl-5 focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -46,7 +111,7 @@
             [placeholder]="placeholders[placeholderIndex()]"
             (focus)="onSearchFocus()"
             (blur)="onSearchBlur()"
-            class="w-full bg-transparent border-none text-white text-sm placeholder-white/45 focus:outline-none h-10 font-medium"
+            class="w-full bg-transparent border-none text-slate-800 text-sm placeholder-slate-400/75 focus:outline-none h-10 font-bold"
             aria-label="Search recipes"
           />
           <button
@@ -59,8 +124,48 @@
     </div>
   </div>
 
+  <!-- Content Sheet: Opaque backing to hide elements scrolling underneath -->
+  <div class="relative z-20 bg-[#fbfbfa] w-full flex-grow flex flex-col pb-12 shadow-[0_-15px_30px_rgba(244,238,219,0.12)] overflow-hidden">
+    
+    <!-- Premium Content Sheet Dot Grid Background -->
+    <div class="absolute inset-0 z-0 bg-dot-grid opacity-[0.25] pointer-events-none"></div>
+
+    <!-- Soft Creamy Ambient Glows behind cards -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-[10%] left-[-15%] w-[450px] h-[450px] rounded-full bg-[#fbbf24]/5 blur-[130px] animate-drift-1"></div>
+      <div class="absolute bottom-[20%] right-[-15%] w-[500px] h-[500px] rounded-full bg-[#fbbf24]/4 blur-[140px] animate-drift-2"></div>
+    </div>
+
+    <!-- 8 Drifting Golden Sparkles in Background -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-[8%] left-[12%] w-5.5 h-5.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: 0s; animation-duration: 22s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[28%] left-[84%] w-7 h-7 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -4s; animation-duration: 28s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[48%] left-[8%] w-6 h-6 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -8s; animation-duration: 25s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[68%] left-[90%] w-5 h-5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -2s; animation-duration: 32s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[88%] left-[15%] w-7.5 h-7.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -12s; animation-duration: 20s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[18%] left-[48%] w-5 h-5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -6s; animation-duration: 24s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[58%] left-[52%] w-6.5 h-6.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -10s; animation-duration: 27s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+      <div class="absolute top-[82%] left-[82%] w-5.5 h-5.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -14s; animation-duration: 23s;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+      </div>
+    </div>
+
   <!-- Cuisine Discovery Pills Section -->
-  <section class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6">
+  <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-6">
     <div class="flex items-center gap-2.5 overflow-x-auto pb-4 scrollbar-none scroll-smooth -mx-6 px-6">
       @for (category of categories; track category) {
         <button
@@ -92,108 +197,109 @@
     </div>
   </section>
 
-  <!-- Preset Recipes Grid -->
-  <section class="relative z-10 w-full max-w-6xl mx-auto px-6 py-4 flex-1">
-    <h2 class="text-xs font-black text-slate-600 uppercase tracking-widest mb-6 pl-1">
+  <!-- Preset Recipes Masonry Grid -->
+  <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-4 flex-1">
+    <h2 class="text-xs font-black text-slate-650 uppercase tracking-widest mb-6 pl-1">
       People Are Cooking This
-    </h2>    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[340px]">
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[280px] grid-flow-row-dense">
       @for (recipe of filteredPresets(); track recipe.name; let idx = $index) {
         <div 
+          #cardRef
           (click)="selectPresetRecipe(recipe)"
+          (mousemove)="onCardMouseMove($event, cardRef)"
+          (mouseleave)="onCardMouseLeave(cardRef)"
           [style.animation-delay]="idx * 75 + 'ms'"
-          class="group relative overflow-hidden bg-white/45 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:border-[#fbbf24]/50 rounded-[2rem] p-4 flex flex-row items-center gap-5 hover:shadow-[0_20px_50px_rgba(251,191,36,0.12)] hover:translate-y-[-4px] hover:bg-white/70 transition-all duration-500 bento-card-animate card-depth select-none cursor-pointer h-40"
+          class="group premium-card reveal-card cursor-pointer select-none h-full"
+          [class]="getBentoClasses(idx, filteredPresets().length)"
         >
-          <!-- Shiny light sheen sweep overlay -->
-          <div class="card-sheen"></div>
-          
-          <!-- Left Side: Rectangular Food Image with rounded squircle -->
-          <div class="relative w-28 h-28 md:w-32 md:h-32 shrink-0 rounded-2xl overflow-hidden bg-[#edece8] border border-white/40 shadow-inner flex items-center justify-center z-10">
-            @if (recipe.image) {
-              <img 
-                [src]="recipe.image" 
-                alt="{{ recipe.name }}"
-                class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
-                loading="lazy"
-              />
-            } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-slate-500 group-hover:scale-108 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            }
+          <!-- Card Sheen Sweeper Overlay -->
+          <div class="premium-card-sheen"></div>
 
-            <!-- Floating action overlay sheets on hover inside the image -->
-            <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-              <div class="w-8 h-8 rounded-full bg-[#fbbf24] text-slate-900 shadow-md flex items-center justify-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <!-- Card Glow Effect (Radial Gradient following cursor) -->
+          <div class="premium-card-glow"></div>
 
-          <!-- Right Side: Details panel -->
-          <div class="flex-grow flex flex-col justify-between h-full py-1.5 pr-2 z-10 text-slate-800 overflow-hidden">
-            <!-- Top Row: Category and Diet tags -->
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[8px] bg-slate-900/5 border border-slate-700/10 px-2.5 py-1 rounded-full font-black uppercase tracking-widest text-slate-500">
+          <!-- Card content container with height filling bento grid cell -->
+          <div 
+            class="relative overflow-hidden w-full flex flex-col justify-end h-full"
+            style="transform-style: preserve-3d;"
+          >
+            <!-- Recipe Image -->
+            <img 
+              [src]="recipe.image" 
+              [alt]="recipe.name"
+              class="premium-card-img"
+              loading="lazy"
+            />
+
+            <!-- Dark gradient overlay from bottom to top for readability -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 z-10 pointer-events-none"></div>
+
+            <!-- Top Row: Cuisine & Diet tag pills -->
+            <div class="premium-card-tags">
+              <span class="text-[8px] bg-white/12 backdrop-blur-md border border-white/20 px-2.5 py-1 rounded-full font-black uppercase tracking-widest text-white shadow-sm">
                 {{ recipe.cuisine }}
               </span>
               <span 
-                class="text-[8px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5"
-                [class.bg-emerald-500/10]="recipe.diet === 'veg'"
-                [class.text-emerald-700]="recipe.diet === 'veg'"
+                class="text-[8px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm"
+                [class.bg-emerald-500/25]="recipe.diet === 'veg'"
+                [class.text-emerald-300]="recipe.diet === 'veg'"
                 [class.border]="recipe.diet === 'veg'"
-                [class.border-emerald-500/25]="recipe.diet === 'veg'"
+                [class.border-emerald-400/30]="recipe.diet === 'veg'"
                 
-                [class.bg-slate-900/5]="recipe.diet === 'nonveg'"
-                [class.text-slate-650]="recipe.diet === 'nonveg'"
+                [class.bg-white/12]="recipe.diet === 'nonveg'"
+                [class.text-white]="recipe.diet === 'nonveg'"
                 [class.border]="recipe.diet === 'nonveg'"
-                [class.border-slate-700/10]="recipe.diet === 'nonveg'"
+                [class.border-white/20]="recipe.diet === 'nonveg'"
               >
                 <span 
                   class="w-1.5 h-1.5 rounded-full shrink-0" 
-                  [class.bg-emerald-500]="recipe.diet === 'veg'" 
+                  [class.bg-emerald-400]="recipe.diet === 'veg'" 
                   [class.animate-pulse]="recipe.diet === 'veg'"
-                  [class.bg-slate-400]="recipe.diet === 'nonveg'"
+                  [class.bg-slate-300]="recipe.diet === 'nonveg'"
                 ></span>
                 {{ recipe.diet === 'veg' ? 'Veg' : 'Non-Veg' }}
               </span>
             </div>
 
-            <!-- Middle Row: Title and description -->
-            <div class="space-y-1 my-1">
-              <h3 class="text-xs sm:text-sm font-black text-slate-800 leading-tight uppercase font-sans line-clamp-1 group-hover:text-[#fbbf24] transition-colors duration-300">
+            <!-- Bottom Row: Title, Description & Hover-revealed details -->
+            <div class="premium-card-content">
+              <h3 class="premium-card-title">
                 {{ recipe.name }}
               </h3>
-              <p class="text-[9px] text-slate-400 font-bold leading-relaxed line-clamp-2 uppercase tracking-wide">
+              <p class="premium-card-description">
                 {{ recipe.description }}
               </p>
-            </div>
-
-            <!-- Bottom Row: Time, Calories, and action button -->
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-700/5 mt-0.5">
-              <div class="flex items-center gap-3">
-                <div class="flex flex-col">
-                  <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Time</span>
-                  <span class="text-[9px] font-black text-slate-700 uppercase tracking-wide">25 mins</span>
-                </div>
-                <div class="h-5 w-px bg-slate-200"></div>
-                <div class="flex flex-col">
-                  <span class="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Calories</span>
-                  <span class="text-[9px] font-black text-slate-700 uppercase tracking-wide">320 kcal</span>
+              
+              <!-- Reveal Drawer (Time, Calories, Cook action) -->
+              <div class="premium-card-drawer">
+                <div class="premium-card-drawer-inner">
+                  <div class="premium-card-drawer-content">
+                    <div class="flex items-center gap-3">
+                      <div class="flex flex-col">
+                        <span class="text-[6px] font-black text-white/50 uppercase tracking-widest">Time</span>
+                        <span class="text-[8px] font-black text-[#fbbf24] uppercase tracking-wide">25 mins</span>
+                      </div>
+                      <div class="h-4 w-px bg-white/20"></div>
+                      <div class="flex flex-col">
+                        <span class="text-[6px] font-black text-white/50 uppercase tracking-widest">Calories</span>
+                        <span class="text-[8px] font-black text-[#fbbf24] uppercase tracking-wide">320 kcal</span>
+                      </div>
+                    </div>
+                    
+                    <span class="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-1">
+                      <span>Cook</span>
+                      <svg class="w-2.5 h-2.5 transform group-hover:translate-x-1 transition-transform duration-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              <!-- Cook Trigger Button text -->
-              <span class="text-[9px] font-black text-slate-700 group-hover:text-slate-900 transition-colors duration-300 uppercase tracking-widest flex items-center gap-1.5">
-                <span>Cook</span>
-                <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </span>
             </div>
-          </div>
 
+          </div>
         </div>
       }
 
@@ -210,9 +316,7 @@
       }
     </div>
   </section>
-
-
-
+</div>
 
 </div>
 
