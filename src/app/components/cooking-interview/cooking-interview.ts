@@ -1,11 +1,12 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
-import { DietaryPreference } from '../../core/enums/recipe.enum';
+import { DietaryPreference, LanguageCode } from '../../core/enums/recipe.enum';
 
 export interface InterviewResult {
   readonly servings: number;
   readonly diet: DietaryPreference;
   readonly exclusions: string;
+  readonly language: LanguageCode;
 }
 
 @Component({
@@ -22,6 +23,7 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
 
   public readonly recipeName = input.required<string>();
   public readonly recipeCuisine = input<string>('');
+  public readonly initialLanguage = input<LanguageCode>(LanguageCode.ENGLISH);
 
   public readonly submitted = output<InterviewResult>();
   public readonly cancelled = output<void>();
@@ -31,8 +33,11 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
   protected readonly servings = signal<number>(2);
   protected readonly diet = signal<DietaryPreference>(DietaryPreference.VEGETARIAN);
   protected readonly exclusions = signal<string>('');
+  protected readonly language = signal<LanguageCode>(this.initialLanguage());
 
   protected readonly Diet = DietaryPreference;
+  protected readonly Language = LanguageCode;
+  protected readonly totalSteps = 4;
 
   protected readonly stepAnimClass = computed(() =>
     `animate-step-${this.direction()}`
@@ -68,6 +73,10 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
     this.diet.set(value);
   }
 
+  protected selectLanguage(value: LanguageCode): void {
+    this.language.set(value);
+  }
+
   protected onExclusionsInput(event: Event): void {
     this.exclusions.set((event.target as HTMLInputElement).value);
   }
@@ -77,6 +86,7 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
       servings: this.servings(),
       diet: this.diet(),
       exclusions: this.exclusions(),
+      language: this.language(),
     });
   }
 

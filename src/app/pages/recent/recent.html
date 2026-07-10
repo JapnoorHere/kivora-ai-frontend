@@ -1,0 +1,41 @@
+<div class="relative min-h-screen bg-[#fbfbfa] pt-10 pb-28 px-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <h1 class="text-2xl font-black text-slate-900">Your Recipes</h1>
+
+    @if (isLoading()) {
+      <div class="flex items-center justify-center py-32">
+        <div class="w-10 h-10 border-3 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
+      </div>
+    } @else if (recipes().length === 0) {
+      <div class="flex flex-col items-center justify-center gap-4 py-24 text-center">
+        <p class="text-sm font-bold text-slate-500">No recipes yet — go cook something!</p>
+        <a
+          [routerLink]="[routes.HOME]"
+          class="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer"
+        >Discover Recipes</a>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+        @for (recipe of recipes(); track recipe.id) {
+          <button
+            type="button"
+            (click)="openRecipe(recipe.id)"
+            class="text-left bg-white/60 hover:bg-white border border-slate-200 rounded-3xl p-5 space-y-2.5 transition-all duration-200 cursor-pointer"
+          >
+            @if (recipe.cuisine) {
+              <span class="text-[9px] font-black text-amber-600 uppercase tracking-[0.18em]">{{ recipe.cuisine }}</span>
+            }
+            <h3 class="text-base font-black text-slate-900 leading-snug">{{ recipe.title }}</h3>
+            <p class="text-xs font-semibold text-slate-500 line-clamp-2 leading-relaxed">{{ recipe.description }}</p>
+            <div class="flex items-center gap-2 pt-1">
+              <span class="text-[9px] font-bold text-slate-600 bg-slate-900/5 px-2.5 py-1 rounded-full">{{ recipe.prepTime + recipe.cookTime }} mins</span>
+              <span class="text-[9px] font-bold text-emerald-700 bg-emerald-500/10 px-2.5 py-1 rounded-full">{{ recipe.dietaryPreference }}</span>
+            </div>
+          </button>
+        }
+      </div>
+    }
+
+  </div>
+</div>

@@ -7,12 +7,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home').then((m) => m.HomeComponent),
   },
   {
-    path: 'ingredients',
+    path: 'recipes/:id/ingredients',
     loadComponent: () => import('./pages/ingredients/ingredients').then((m) => m.IngredientsComponent),
     canActivate: [authGuard],
   },
   {
-    path: 'steps',
+    path: 'recipes/:id/steps',
     loadComponent: () => import('./pages/steps/steps').then((m) => m.StepsComponent),
     canActivate: [authGuard],
   },

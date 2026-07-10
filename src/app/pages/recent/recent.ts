@@ -1,12 +1,41 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { APP_ROUTES } from '../../core/constants/app.constants';
+import { RecipeStateService } from '../../core/services/recipe-state.service';
+import { ToastService } from '../../core/services/toast.service';
+import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-recent',
-  template: `
-    <div class="text-center p-8">
-      <h1 class="text-2xl font-bold text-slate-800">Cooking History (Stub)</h1>
-    </div>
-  `,
+  imports: [RouterLink],
+  templateUrl: './recent.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RecentComponent {}
+export class RecentComponent {
+  private readonly router = inject(Router);
+  private readonly stateService = inject(RecipeStateService);
+  private readonly toastService = inject(ToastService);
+
+  protected readonly routes = APP_ROUTES;
+  protected readonly recipes = this.stateService.recentRecipes;
+  protected readonly isLoading = signal<boolean>(true);
+
+  constructor() {
+    this.loadRecipes();
+  }
+
+  private async loadRecipes(): Promise<void> {
+    this.isLoading.set(true);
+    try {
+      await this.stateService.loadRecentRecipes();
+    } catch (err: unknown) {
+      this.toastService.error(getErrorMessage(err, 'Could not load your recent recipes.'));
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  protected openRecipe(id: string): void {
+    this.router.navigate(this.routes.recipeIngredients(id));
+  }
+}

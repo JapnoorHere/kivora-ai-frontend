@@ -109,8 +109,8 @@
         <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navRecent.isActive" [class.text-slate-400]="!navRecent.isActive">History</span>
       </a>
 
-      @if (currentRecipe()) {
-        <a routerLink="/ingredients" routerLinkActive #navIngredients="routerLinkActive"
+      @if (currentRecipe(); as recipe) {
+        <a [routerLink]="routes.recipeIngredients(recipe.id)" routerLinkActive #navIngredients="routerLinkActive"
           class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
           aria-label="Ingredient Checklist">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navIngredients.isActive">
@@ -121,7 +121,7 @@
           <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navIngredients.isActive" [class.text-slate-400]="!navIngredients.isActive">Checklist</span>
         </a>
 
-        <a routerLink="/steps" routerLinkActive #navSteps="routerLinkActive"
+        <a [routerLink]="routes.recipeSteps(recipe.id)" routerLinkActive #navSteps="routerLinkActive"
           class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
           aria-label="Cooking Steps">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navSteps.isActive">

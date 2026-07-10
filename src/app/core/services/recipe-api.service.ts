@@ -51,11 +51,19 @@ export class RecipeApiService {
     });
   }
 
-  public modifyRecipe(payload: RecipeModificationRequest): Promise<Recipe> {
-    return this.request<Recipe>(API_ENDPOINTS.RECIPES_MODIFY, {
+  public modifyRecipe(id: string, payload: RecipeModificationRequest): Promise<Recipe> {
+    return this.request<Recipe>(API_ENDPOINTS.recipeModify(id), {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  }
+
+  public fetchRecipes(): Promise<Recipe[]> {
+    return this.request<Recipe[]>(API_ENDPOINTS.RECIPES_LIST);
+  }
+
+  public fetchRecipeById(id: string): Promise<Recipe> {
+    return this.request<Recipe>(API_ENDPOINTS.recipeById(id));
   }
 
   public submitBugReport(payload: FeedbackRequest): Promise<void> {

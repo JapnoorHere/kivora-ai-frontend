@@ -10,8 +10,15 @@ export enum DietaryPreference {
   VEGAN = 'vegan'
 }
 
-export enum ApiErrorReason {
-  NONSENSICAL_INPUT = 'NONSENSICAL_INPUT',
-  DIET_MISMATCH = 'DIET_MISMATCH',
-  DIET_MISMATCH_MODIFICATION = 'DIET_MISMATCH_MODIFICATION'
+export enum RecipeDifficulty {
+  EASY = 'Easy',
+  MEDIUM = 'Medium',
+  HARD = 'Hard'
+}
+
+// Values match backend ERROR_CODES exactly (src/constants/messages.js)
+export enum ApiErrorCode {
+  INVALID_DISH = 'RECIPE_INVALID_DISH',
+  DIET_MISMATCH = 'RECIPE_DIET_MISMATCH',
+  DIET_MISMATCH_MODIFICATION = 'RECIPE_DIET_MISMATCH_MODIFICATION'
 }

@@ -3,6 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
 import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
+import { APP_ROUTES } from '../../core/constants/app.constants';
 import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
 import { PresetRecipe } from '../../core/interfaces/recipe.interface';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,7 +21,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
-  private readonly stateService = inject(RecipeStateService);
+  protected readonly stateService = inject(RecipeStateService);
   private readonly authService = inject(AuthService);
   private readonly apiService = inject(RecipeApiService);
   private readonly loaderService = inject(LoaderService);
@@ -332,20 +333,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loaderService.show();
 
     try {
+      const cuisine = preset ? preset.cuisine : (this.activeCategory() !== 'All' ? this.activeCategory() : undefined);
       const recipe = await this.apiService.generateRecipe({
-        recipeName,
-        servingsCount: result.servings,
-        diet: result.diet,
-        cuisine: preset ? preset.cuisine : (this.activeCategory() !== 'All' ? this.activeCategory() : 'General'),
-        healthGoals: `${result.servings} servings, diet: ${result.diet}`,
-        restrictions: result.exclusions.trim(),
-        description: preset ? preset.description : 'Custom recipe via search.',
+        dishName: recipeName,
+        cuisine,
+        dietaryPreference: result.diet,
+        servings: result.servings,
+        exclusions: result.exclusions.trim() || undefined,
+        language: result.language,
       });
 
       this.stateService.setRecipe(recipe);
+      this.stateService.setLanguage(result.language);
       this.searchControl.setValue('');
       this.startPlaceholderCycle();
-      await this.router.navigate(['/ingredients']);
+      await this.router.navigate(APP_ROUTES.recipeIngredients(recipe.id));
     } catch (err: unknown) {
       console.error('Recipe generation failed:', err);
       this.toastService.error(getErrorMessage(err, 'Recipe generation failed. Please try again.'));

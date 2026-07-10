@@ -20,6 +20,9 @@ export class DockComponent {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
 
+  // Exposed for [routerLink] bindings to the id-based recipe routes in the template
+  protected readonly routes = APP_ROUTES;
+
   protected readonly isAuthenticated = this.authService.isAuthenticated;
   protected readonly currentUser = this.authService.currentUser;
   protected readonly currentRecipe = this.recipeState.currentRecipe;
