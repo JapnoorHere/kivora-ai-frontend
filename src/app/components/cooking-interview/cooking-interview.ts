@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, signal, computed, input, output, inject, OnInit, OnDestroy } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { DietaryPreference } from '../../core/enums/recipe.enum';
 
 export interface InterviewResult {

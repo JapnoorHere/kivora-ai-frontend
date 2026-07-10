@@ -1,4 +1,4 @@
-import { LanguageCode, DietaryPreference } from '../enums/recipe.enum';
+import { DietaryPreference, LanguageCode } from '../enums/recipe.enum';
 
 export interface LocalizedText {
   readonly [LanguageCode.ENGLISH]: string;
@@ -57,4 +57,12 @@ export interface FeedbackRequest {
 export interface ApiErrorResponse {
   readonly message: string;
   readonly reason: string;
+}
+
+export interface PresetRecipe {
+  readonly cuisine: string;
+  readonly name: string;
+  readonly description: string;
+  readonly image: string;
+  readonly diet: DietaryPreference;
 }

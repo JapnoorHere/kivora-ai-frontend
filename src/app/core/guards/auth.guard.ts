@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { APP_ROUTES } from '../constants/app.constants';
 import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = async (): Promise<boolean> => {
@@ -12,6 +13,6 @@ export const authGuard: CanActivateFn = async (): Promise<boolean> => {
     return true;
   }
 
-  router.navigate(['/login']);
+  router.navigate([APP_ROUTES.HOME]);
   return false;
 };

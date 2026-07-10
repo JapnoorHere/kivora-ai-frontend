@@ -18,22 +18,27 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
   transform-style: preserve-3d;
   perspective: 1000px;
-  will-change: transform, box-shadow, border-color, opacity;
-  opacity: var(--scroll-opacity, 1);
-  transform: 
-    perspective(1000px) 
-    translate3d(var(--scroll-tx, 0px), var(--scroll-ty, 0px), 0)
-    rotateZ(var(--scroll-rz, 0deg));
-  transition: 
-    transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  will-change: transform, opacity;
+  opacity: 0;
+  transform: perspective(1000px) translate3d(0, 24px, 0);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.4s ease,
-    box-shadow 0.4s ease,
-    opacity 0.4s ease;
+    box-shadow 0.4s ease;
+}
+
+/* Revealed once by IntersectionObserver — a single class toggle
+   triggers this transition instead of a per-scroll-frame JS update,
+   which is what made the old animation lag on fast scroll. */
+.premium-card.revealed {
+  opacity: 1;
+  transform: perspective(1000px) translate3d(0, 0, 0);
 }
 
 /* mousemove tracks with slight dampening for responsiveness */
 .premium-card:hover {
-  transition: 
+  transition:
     transform 0.15s cubic-bezier(0.25, 1, 0.5, 1),
     border-color 0.4s ease,
     box-shadow 0.4s ease;
@@ -44,14 +49,13 @@
     0 0 80px -20px rgba(251, 191, 36, 0.08);
 }
 
-/* 3D Translation on Hover - composed with scroll offset variables */
+/* 3D Tilt on Hover */
 .premium-card.revealed:hover {
-  transform: 
-    perspective(1000px) 
-    translate3d(var(--scroll-tx, 0px), calc(var(--scroll-ty, 0px) - 10px), 18px) 
-    rotateX(var(--rx, 0deg)) 
-    rotateY(var(--ry, 0deg))
-    rotateZ(var(--scroll-rz, 0deg));
+  transform:
+    perspective(1000px)
+    translate3d(0, -10px, 18px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
 }
 
 /* Light Sheen Reflection Sweep */

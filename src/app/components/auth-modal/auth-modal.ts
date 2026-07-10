@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject, output, effect, OnInit, OnDestroy } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, effect, inject, output, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { ToastService } from '../../core/services/toast.service';
+import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-auth-modal',
@@ -41,7 +42,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   }
 
   // Typed Reactive Form
-  protected readonly authForm: FormGroup = this.fb.group({
+  protected readonly authForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     name: [''],
@@ -79,7 +80,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
     this.loader.show();
 
     try {
-      const { email, password, name } = this.authForm.value;
+      const { email, password, name } = this.authForm.getRawValue();
       if (this.isLoginMode()) {
         await this.authService.login(email, password);
         this.toast.success('Welcome back, Chef!', 'Signed In');
@@ -89,8 +90,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       }
       this.authSuccess.emit();
       this.close.emit();
-    } catch (err) {
-      this.toast.error(err.message || 'Authentication failed. Please check your credentials.', 'Sign In Failed');
+    } catch (err: unknown) {
+      this.toast.error(getErrorMessage(err, 'Authentication failed. Please check your credentials.'), 'Sign In Failed');
     } finally {
       this.loader.hide();
     }
@@ -104,8 +105,8 @@ export class AuthModalComponent implements OnInit, OnDestroy {
       this.toast.success('Signed in with Google. Welcome, Chef!', 'Signed In');
       this.authSuccess.emit();
       this.close.emit();
-    } catch (err) {
-      this.toast.error(err.message || 'Google authentication failed. Please try again.', 'Google Sign In Failed');
+    } catch (err: unknown) {
+      this.toast.error(getErrorMessage(err, 'Google authentication failed. Please try again.'), 'Google Sign In Failed');
     } finally {
       this.loader.hide();
     }

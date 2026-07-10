@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject, effect, output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DOCUMENT } from '@angular/common';
-import { RecipeApiService } from '../../core/services/recipe-api.service';
+import { ChangeDetectionStrategy, Component, effect, inject, output, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { ToastService } from '../../core/services/toast.service';
+import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-bug-report-modal',
@@ -14,7 +15,7 @@ import { ToastService } from '../../core/services/toast.service';
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BugReportModal {
+export class BugReportModalComponent {
   private readonly apiService = inject(RecipeApiService);
   private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
@@ -71,8 +72,8 @@ export class BugReportModal {
       await this.apiService.submitBugReport(payload);
       this.toast.success('Thank you, Chef! We\'ll look into it right away.', 'Report Submitted');
       this.close.emit();
-    } catch (err) {
-      this.toast.error(err.message || 'Failed to submit. Please try again.', 'Submission Failed');
+    } catch (err: unknown) {
+      this.toast.error(getErrorMessage(err, 'Failed to submit. Please try again.'), 'Submission Failed');
     } finally {
       this.isSubmitting.set(false);
     }

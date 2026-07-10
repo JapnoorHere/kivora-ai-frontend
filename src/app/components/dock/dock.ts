@@ -1,14 +1,15 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { APP_ROUTES, MOBILE_BREAKPOINT_PX } from '../../core/constants/app.constants';
 import { AuthService } from '../../core/services/auth.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
-import { BugReportModal } from '../bug-report-modal/bug-report-modal';
 import { ToastService } from '../../core/services/toast.service';
+import { BugReportModalComponent } from '../bug-report-modal/bug-report-modal';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-dock',
-  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, BugReportModal],
+  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, BugReportModalComponent],
   templateUrl: './dock.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(window:resize)': 'onResize()' },
@@ -25,10 +26,10 @@ export class DockComponent {
   protected readonly isLogoutConfirmOpen = signal<boolean>(false);
   protected readonly isCollapsed = signal<boolean>(false);
   protected readonly isFeedbackOpen = signal<boolean>(false);
-  protected readonly isMobileView = signal<boolean>(window.innerWidth < 768);
+  protected readonly isMobileView = signal<boolean>(window.innerWidth < MOBILE_BREAKPOINT_PX);
 
   protected onResize(): void {
-    this.isMobileView.set(window.innerWidth < 768);
+    this.isMobileView.set(window.innerWidth < MOBILE_BREAKPOINT_PX);
   }
 
   protected toggleDock(): void {
@@ -47,7 +48,7 @@ export class DockComponent {
     this.isLogoutConfirmOpen.set(false);
     await this.authService.logout();
     this.toast.success('See you next time, Chef!', 'Signed Out');
-    this.router.navigate(['/']);
+    this.router.navigate([APP_ROUTES.HOME]);
   }
 
   protected redirectToLogin(): void {
@@ -55,6 +56,6 @@ export class DockComponent {
   }
 
   protected newRecipe(): void {
-    this.router.navigate(['/']);
+    this.router.navigate([APP_ROUTES.HOME]);
   }
 }

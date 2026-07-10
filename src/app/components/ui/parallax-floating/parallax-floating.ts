@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, NgZone, OnInit, OnDestroy, effect, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, effect, inject, input } from '@angular/core';
 
 @Component({
   selector: 'app-floating',
@@ -125,7 +125,7 @@ export class FloatingComponent implements OnInit, OnDestroy {
     'class': 'absolute will-change-transform'
   }
 })
-export class FloatingElementComponent implements OnInit, OnDestroy {
+export class FloatingElementComponent implements OnDestroy {
   private readonly elementRef = inject(ElementRef);
   private readonly parent = inject(FloatingComponent);
 
@@ -133,14 +133,11 @@ export class FloatingElementComponent implements OnInit, OnDestroy {
   private readonly id = Math.random().toString(36).substring(7);
 
   constructor() {
+    // Registers on creation and re-registers whenever depth() changes
     effect(() => {
       const currentDepth = this.depth();
       this.parent.registerElement(this.id, this.elementRef.nativeElement, currentDepth);
     });
-  }
-
-  public ngOnInit(): void {
-    this.parent.registerElement(this.id, this.elementRef.nativeElement, this.depth());
   }
 
   public ngOnDestroy(): void {

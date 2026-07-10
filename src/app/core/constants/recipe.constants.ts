@@ -1,12 +1,5 @@
 import { DietaryPreference } from '../enums/recipe.enum';
-
-export interface PresetRecipe {
-  readonly cuisine: string;
-  readonly name: string;
-  readonly description: string;
-  readonly image: string;
-  readonly diet: DietaryPreference;
-}
+import { PresetRecipe } from '../interfaces/recipe.interface';
 
 export const DISCOVERY_CATEGORIES: readonly string[] = [
   'Indian', 'Chinese', 'Italian', 'Mexican', 'American', 'Desserts'

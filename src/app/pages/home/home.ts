@@ -1,13 +1,16 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, effect, OnInit, OnDestroy, AfterViewInit, NgZone } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RecipeStateService } from '../../core/services/recipe-state.service';
-import { AuthService } from '../../core/services/auth.service';
-import { RecipeApiService } from '../../core/services/recipe-api.service';
-import { LoaderService } from '../../core/services/loader.service';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
-import { DISCOVERY_CATEGORIES, ROTATING_PLACEHOLDERS, PRESET_RECIPES, PresetRecipe } from '../../core/constants/recipe.constant';
 import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
+import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
+import { PresetRecipe } from '../../core/interfaces/recipe.interface';
+import { AuthService } from '../../core/services/auth.service';
+import { LoaderService } from '../../core/services/loader.service';
+import { RecipeApiService } from '../../core/services/recipe-api.service';
+import { RecipeStateService } from '../../core/services/recipe-state.service';
+import { ToastService } from '../../core/services/toast.service';
+import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly apiService = inject(RecipeApiService);
   private readonly loaderService = inject(LoaderService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
 
@@ -29,14 +33,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   private scrollListenerAdded = false;
-  private resizeListenerAdded = false;
   private animFrameId: number | null = null;
   private lastScrollY = 0;
-
-  private readonly cardLayouts = new Map<
-    HTMLElement, 
-    { top: number; left: number; width: number; height: number }
-  >();
 
   private floatingEl: HTMLElement | null = null;
   private heroContentEl: HTMLElement | null = null;
@@ -84,9 +82,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public ngAfterViewInit(): void {
     this.initScrollRevealObserver();
-    this.ngZone.runOutsideAngular(() => {
-      setTimeout(() => this.updateRecipeCardsParallax(), 50);
-    });
   }
 
   protected readonly searchControl = new FormControl('');
@@ -127,9 +122,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.scrollListenerAdded) {
       window.removeEventListener('scroll', this.handleScroll);
     }
-    if (this.resizeListenerAdded) {
-      window.removeEventListener('resize', this.handleResize);
-    }
     if (this.animFrameId !== null) {
       cancelAnimationFrame(this.animFrameId);
     }
@@ -163,16 +155,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private reobserveCards(): void {
     if (!this.observer) return;
     this.ngZone.runOutsideAngular(() => {
-      this.cardLayouts.clear();
-      const cards = document.querySelectorAll('.premium-card');
+      const cards = document.querySelectorAll<HTMLElement>('.premium-card');
       cards.forEach(card => {
         if (!card.classList.contains('revealed')) {
           this.observer?.observe(card);
         }
       });
-      setTimeout(() => {
-        this.updateRecipeCardsParallax();
-      }, 150);
     });
   }
 
@@ -180,16 +168,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('scroll', this.handleScroll, { passive: true });
       this.scrollListenerAdded = true;
-      window.addEventListener('resize', this.handleResize, { passive: true });
-      this.resizeListenerAdded = true;
       this.handleScroll();
     });
   }
-
-  private readonly handleResize = (): void => {
-    this.cardLayouts.clear();
-    this.updateRecipeCardsParallax();
-  };
 
   private readonly handleScroll = (): void => {
     this.lastScrollY = window.scrollY;
@@ -227,104 +208,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.orb3El) {
       this.orb3El.style.transform = `translate3d(0, ${scrollY * 0.2}px, 0)`;
     }
-
-    this.updateRecipeCardsParallax();
   };
-
-  private getPageOffset(element: HTMLElement): { top: number; left: number } {
-    let top = 0;
-    let left = 0;
-    let el: HTMLElement | null = element;
-    while (el) {
-      top += el.offsetTop || 0;
-      left += el.offsetLeft || 0;
-      el = el.offsetParent as HTMLElement;
-    }
-    return { top, left };
-  }
-
-  private updateRecipeCardsParallax(): void {
-    const cards = document.querySelectorAll('.premium-card');
-    if (!cards.length) return;
-
-    // Populate layout metrics cache once per render selection
-    if (this.cardLayouts.size === 0) {
-      cards.forEach(cardEl => {
-        const card = cardEl as HTMLElement;
-        const offset = this.getPageOffset(card);
-        this.cardLayouts.set(card, {
-          top: offset.top,
-          left: offset.left,
-          width: card.offsetWidth,
-          height: card.offsetHeight
-        });
-      });
-    }
-
-    const viewportHeight = window.innerHeight;
-    const viewportCenterX = window.innerWidth / 2;
-    const isMobile = window.innerWidth < 640;
-
-    const maxTranslateX = isMobile ? 0 : 120;
-    const maxTranslateY = 140;
-    const maxRotate = isMobile ? 1 : 6;
-    const animRange = 450;
-
-    cards.forEach(cardEl => {
-      const card = cardEl as HTMLElement;
-      const layout = this.cardLayouts.get(card);
-      if (!layout) return;
-
-      const untransformedTop = layout.top - window.scrollY;
-      const untransformedBottom = untransformedTop + layout.height;
-      const untransformedLeft = layout.left;
-      const cardCenterX = untransformedLeft + layout.width / 2;
-
-      // Check exit conditions based on untransformed positions
-      if (untransformedBottom < 0) {
-        card.style.setProperty('--scroll-tx', '0px');
-        card.style.setProperty('--scroll-ty', '0px');
-        card.style.setProperty('--scroll-rz', '0deg');
-        card.style.setProperty('--scroll-opacity', '1');
-        card.classList.add('revealed');
-        return;
-      }
-
-      if (untransformedTop > viewportHeight + 100) {
-        card.style.setProperty('--scroll-tx', '0px');
-        card.style.setProperty('--scroll-ty', `${maxTranslateY}px`);
-        card.style.setProperty('--scroll-rz', '0deg');
-        card.style.setProperty('--scroll-opacity', '0');
-        card.classList.remove('revealed');
-        return;
-      }
-
-      const isLeft = cardCenterX < viewportCenterX;
-
-      const progress = Math.max(0, Math.min(1, (viewportHeight - untransformedTop) / animRange));
-      const ease = progress * progress * (3 - 2 * progress);
-
-      const startTx = isLeft ? -maxTranslateX : maxTranslateX;
-      const startTy = maxTranslateY;
-      const startRz = isLeft ? -maxRotate : maxRotate;
-
-      const tx = (1 - ease) * startTx;
-      const ty = (1 - ease) * startTy;
-      const rz = (1 - ease) * startRz;
-      const opacity = ease;
-
-      card.style.setProperty('--scroll-tx', `${tx}px`);
-      card.style.setProperty('--scroll-ty', `${ty}px`);
-      card.style.setProperty('--scroll-rz', `${rz}deg`);
-      card.style.setProperty('--scroll-opacity', `${opacity}`);
-
-      if (progress > 0.15) {
-        card.classList.add('revealed');
-      } else {
-        card.classList.remove('revealed');
-      }
-    });
-  }
 
   protected startPlaceholderCycle(): void {
     this.stopPlaceholderCycle();
@@ -352,7 +236,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected selectCategory(category: string): void {
     this.activeCategory.set(category);
-    this.cardLayouts.clear();
   }
 
   protected onSearchSubmit(event: Event): void {
@@ -463,9 +346,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.searchControl.setValue('');
       this.startPlaceholderCycle();
       await this.router.navigate(['/ingredients']);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Recipe generation failed:', err);
-      alert(err.message || 'Recipe generation failed. Please try again.');
+      this.toastService.error(getErrorMessage(err, 'Recipe generation failed. Please try again.'));
     } finally {
       this.loaderService.hide();
     }

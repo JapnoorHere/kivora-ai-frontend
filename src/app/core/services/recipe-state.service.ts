@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Recipe, LocalizedText } from '../models/recipe.model';
+import { Injectable, signal } from '@angular/core';
+import { MAX_RECENT_RECIPES, STORAGE_KEYS } from '../constants/app.constants';
 import { LanguageCode } from '../enums/recipe.enum';
+import { LocalizedText, Recipe } from '../interfaces/recipe.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -19,26 +20,26 @@ export class RecipeStateService {
   }
 
   public restoreState(): void {
-    const cachedLanguage = localStorage.getItem('kivora_language');
+    const cachedLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
     if (cachedLanguage) {
       this.currentLanguageSignal.set(cachedLanguage as LanguageCode);
     }
 
-    const cachedRecipe = localStorage.getItem('kivora_current_recipe');
+    const cachedRecipe = localStorage.getItem(STORAGE_KEYS.CURRENT_RECIPE);
     if (cachedRecipe) {
       try {
         this.currentRecipeSignal.set(JSON.parse(cachedRecipe));
       } catch {
-        localStorage.removeItem('kivora_current_recipe');
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_RECIPE);
       }
     }
 
-    const cachedRecent = localStorage.getItem('kivora_recent_recipes');
+    const cachedRecent = localStorage.getItem(STORAGE_KEYS.RECENT_RECIPES);
     if (cachedRecent) {
       try {
         this.recentRecipesSignal.set(JSON.parse(cachedRecent));
       } catch {
-        localStorage.removeItem('kivora_recent_recipes');
+        localStorage.removeItem(STORAGE_KEYS.RECENT_RECIPES);
       }
     }
   }
@@ -60,7 +61,7 @@ export class RecipeStateService {
     };
 
     this.currentRecipeSignal.set(updatedRecipe);
-    localStorage.setItem('kivora_current_recipe', JSON.stringify(updatedRecipe));
+    localStorage.setItem(STORAGE_KEYS.CURRENT_RECIPE, JSON.stringify(updatedRecipe));
 
     // Update history list
     const currentList = [...this.recentRecipesSignal()];
@@ -74,31 +75,31 @@ export class RecipeStateService {
       currentList.unshift(updatedRecipe);
     }
 
-    // Cap history at 20 recipes
-    const cappedList = currentList.slice(0, 20);
+    // Cap history at MAX_RECENT_RECIPES entries
+    const cappedList = currentList.slice(0, MAX_RECENT_RECIPES);
     this.recentRecipesSignal.set(cappedList);
-    localStorage.setItem('kivora_recent_recipes', JSON.stringify(cappedList));
+    localStorage.setItem(STORAGE_KEYS.RECENT_RECIPES, JSON.stringify(cappedList));
   }
 
   public clearRecipe(): void {
     this.currentRecipeSignal.set(null);
-    localStorage.removeItem('kivora_current_recipe');
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_RECIPE);
   }
 
   public removeRecentRecipe(id: number): void {
     const updatedList = this.recentRecipesSignal().filter((r) => r.id !== id);
     this.recentRecipesSignal.set(updatedList);
-    localStorage.setItem('kivora_recent_recipes', JSON.stringify(updatedList));
+    localStorage.setItem(STORAGE_KEYS.RECENT_RECIPES, JSON.stringify(updatedList));
   }
 
   public clearAllRecent(): void {
     this.recentRecipesSignal.set([]);
-    localStorage.removeItem('kivora_recent_recipes');
+    localStorage.removeItem(STORAGE_KEYS.RECENT_RECIPES);
   }
 
   public setLanguage(lang: LanguageCode): void {
     this.currentLanguageSignal.set(lang);
-    localStorage.setItem('kivora_language', lang);
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
   }
 
   public selectLocalizedText(text: LocalizedText | string | null | undefined): string {

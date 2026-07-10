@@ -54,28 +54,28 @@
 
       <!-- Decorative Sparkle 1 -->
       <app-floating-element [depth]="0.3" class="top-[18%] left-[25%] w-5 h-5 pointer-events-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
         </svg>
       </app-floating-element>
 
       <!-- Decorative Sparkle 2 -->
       <app-floating-element [depth]="2.5" class="top-[75%] left-[30%] w-6 h-6 pointer-events-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/30 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/30 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
         </svg>
       </app-floating-element>
 
       <!-- Decorative Sparkle 3 -->
       <app-floating-element [depth]="1.8" class="top-[35%] left-[88%] w-4 h-4 pointer-events-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/40 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
         </svg>
       </app-floating-element>
 
       <!-- Decorative Sparkle 4 -->
       <app-floating-element [depth]="0.8" class="top-[55%] left-[18%] w-5 h-5 pointer-events-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/35 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full text-amber-500/35 hover:text-amber-500 hover:scale-125 duration-500 transition-all cursor-pointer" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
         </svg>
       </app-floating-element>
@@ -100,9 +100,9 @@
       </p>
 
       <!-- Frosted search bar -->
-      <form (submit)="onSearchSubmit($event)" class="w-full max-w-xl mx-auto">
+      <form (ngSubmit)="onSearchSubmit($event)" class="w-full max-w-xl mx-auto">
         <div class="relative flex items-center bg-white/70 backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.03)] rounded-full p-1.5 pl-5 focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -139,28 +139,28 @@
     <!-- 8 Drifting Golden Sparkles in Background -->
     <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
       <div class="absolute top-[8%] left-[12%] w-5.5 h-5.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: 0s; animation-duration: 22s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[28%] left-[84%] w-7 h-7 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -4s; animation-duration: 28s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[48%] left-[8%] w-6 h-6 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -8s; animation-duration: 25s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[68%] left-[90%] w-5 h-5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -2s; animation-duration: 32s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[88%] left-[15%] w-7.5 h-7.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -12s; animation-duration: 20s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[18%] left-[48%] w-5 h-5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -6s; animation-duration: 24s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[58%] left-[52%] w-6.5 h-6.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -10s; animation-duration: 27s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
       <div class="absolute top-[82%] left-[82%] w-5.5 h-5.5 text-[#fbbf24] animate-sparkle-drift" style="animation-delay: -14s; animation-duration: 23s;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg>
       </div>
     </div>
 
@@ -199,15 +199,20 @@
 
   <!-- Preset Recipes Masonry Grid -->
   <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-4 flex-1">
-    <h2 class="text-xs font-black text-slate-650 uppercase tracking-widest mb-6 pl-1">
+    <h2 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-6 pl-1">
       People Are Cooking This
     </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[280px] grid-flow-row-dense">
       @for (recipe of filteredPresets(); track recipe.name; let idx = $index) {
-        <div 
+        <div
           #cardRef
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'View ' + recipe.name + ' recipe'"
           (click)="selectPresetRecipe(recipe)"
+          (keydown.enter)="selectPresetRecipe(recipe)"
+          (keydown.space)="$event.preventDefault(); selectPresetRecipe(recipe)"
           (mousemove)="onCardMouseMove($event, cardRef)"
           (mouseleave)="onCardMouseLeave(cardRef)"
           [style.animation-delay]="idx * 75 + 'ms'"
@@ -290,7 +295,7 @@
                     
                     <span class="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-1">
                       <span>Cook</span>
-                      <svg class="w-2.5 h-2.5 transform group-hover:translate-x-1 transition-transform duration-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                      <svg aria-hidden="true" class="w-2.5 h-2.5 transform group-hover:translate-x-1 transition-transform duration-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
                     </span>
@@ -306,7 +311,7 @@
       @if (filteredPresets().length === 0) {
         <div class="col-span-full flex flex-col items-center justify-center h-full min-h-[320px] text-center p-8 animate-fade-in select-none">
           <div class="w-12 h-12 rounded-full bg-slate-900/5 flex items-center justify-center mb-3">
-            <svg class="w-5.5 h-5.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" class="w-5.5 h-5.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
