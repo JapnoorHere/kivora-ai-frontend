@@ -13,6 +13,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
   selector: 'app-steps',
   imports: [RecipeModifyModalComponent, RouterLink],
   templateUrl: './steps.html',
+  styleUrl: './steps.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepsComponent {
@@ -27,12 +28,19 @@ export class StepsComponent {
   protected readonly recipe = signal<Recipe | null>(null);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly activeStepIndex = signal<number>(0);
+  protected readonly stepDirection = signal<'next' | 'back'>('next');
   protected readonly isModifyOpen = signal<boolean>(false);
   protected readonly isSubmittingModification = signal<boolean>(false);
 
   protected readonly isLastStep = computed(() => {
     const recipe = this.recipe();
     return !recipe || this.activeStepIndex() >= recipe.instructions.length - 1;
+  });
+
+  protected readonly progressPercent = computed(() => {
+    const recipe = this.recipe();
+    if (!recipe || recipe.instructions.length === 0) return 0;
+    return ((this.activeStepIndex() + 1) / recipe.instructions.length) * 100;
   });
 
   constructor() {
@@ -56,17 +64,24 @@ export class StepsComponent {
   }
 
   protected goToStep(index: number): void {
+    this.stepDirection.set(index >= this.activeStepIndex() ? 'next' : 'back');
     this.activeStepIndex.set(index);
   }
 
   protected nextStep(): void {
     if (!this.isLastStep()) {
+      this.stepDirection.set('next');
       this.activeStepIndex.update((i) => i + 1);
     }
   }
 
   protected previousStep(): void {
+    this.stepDirection.set('back');
     this.activeStepIndex.update((i) => Math.max(0, i - 1));
+  }
+
+  protected paddedStepNumber(stepNumber: number): string {
+    return stepNumber < 10 ? `0${stepNumber}` : `${stepNumber}`;
   }
 
   protected async onModify(modificationText: string): Promise<void> {

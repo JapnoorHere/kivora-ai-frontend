@@ -29,6 +29,7 @@ export class DockComponent {
   protected readonly isLogoutConfirmOpen = signal<boolean>(false);
   protected readonly isCollapsed = signal<boolean>(false);
   protected readonly isFeedbackOpen = signal<boolean>(false);
+  protected readonly isAccountMenuOpen = signal<boolean>(false);
   protected readonly isMobileView = signal<boolean>(window.innerWidth < MOBILE_BREAKPOINT_PX);
 
   protected onResize(): void {
@@ -39,7 +40,24 @@ export class DockComponent {
     this.isCollapsed.update(v => !v);
   }
 
+  protected toggleAccountMenu(): void {
+    this.isAccountMenuOpen.update(v => !v);
+  }
+
+  protected closeAccountMenu(): void {
+    this.isAccountMenuOpen.set(false);
+  }
+
+  protected onAccountButtonClick(): void {
+    if (this.isAuthenticated()) {
+      this.toggleAccountMenu();
+    } else {
+      this.redirectToLogin();
+    }
+  }
+
   protected triggerLogoutConfirm(): void {
+    this.isAccountMenuOpen.set(false);
     this.isLogoutConfirmOpen.set(true);
   }
 

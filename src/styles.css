@@ -7,6 +7,21 @@ html {
   scrollbar-color: #fbbf24 rgba(244, 238, 219, 0.3);
 }
 
+/* Hide scrollbar on horizontally-scrolling pill/chip rows */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Premium faint dot grid pattern, used behind glassy content to avoid flat/empty pages */
+.bg-dot-grid {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
 /* Custom Scrollbar Styles for Chrome/Edge/Safari */
 ::-webkit-scrollbar {
   width: 8px;
@@ -72,18 +87,10 @@ html {
   0%   { transform: translateX(0) scale(1); opacity: 1; }
   100% { transform: translateX(calc(100% + 32px)) scale(0.85); opacity: 0; }
 }
-@keyframes progressDeplete {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
-}
 .toast-enter {
   animation: toastIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 .toast-exit {
   animation: toastOut 0.35s cubic-bezier(0.55, 0, 1, 0.45) forwards;
-}
-.toast-progress {
-  transform-origin: left center;
-  animation: progressDeplete linear forwards;
 }
 

@@ -84,34 +84,42 @@
     <!-- Content: centered, on top of floating background -->
     <div id="hero-content" class="relative z-20 w-full max-w-4xl mx-auto px-6 text-center flex flex-col items-center py-20 sm:py-28 animate-fade-in">
 
-      <!-- Badge -->
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
-        ✦ Your Personal Recipe Guide
-      </div>
+      @if (greeting(); as greetingText) {
+        <!-- Personalized headline (signed in) -->
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
+          ✦ Your Personal Recipe Guide
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.08] tracking-tight max-w-2xl mb-10">
+          {{ greetingText }} <span class="inline-block">👋</span>
+        </h1>
+      } @else {
+        <!-- Discovery hook (signed out) -->
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
+          ✦ Your Personal Recipe Guide
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.08] tracking-tight max-w-2xl mb-5">
+          What Are You<br>Craving <span class="text-amber-500">Today?</span>
+        </h1>
+        <p class="text-sm font-semibold text-slate-500 max-w-md mb-10 leading-relaxed">
+          Type a dish. Get a full recipe — built around your taste.
+        </p>
+      }
 
-      <!-- Headline -->
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.08] tracking-tight max-w-2xl mb-5">
-        What Are You<br>Craving <span class="text-amber-500">Today?</span>
-      </h1>
-
-      <!-- Subtitle -->
-      <p class="text-sm font-semibold text-slate-500 max-w-md mb-10 leading-relaxed">
-        Type a dish. Get a full recipe — built around your taste.
-      </p>
-
-      <!-- Frosted search bar -->
+      <!-- Glass AI search bar -->
       <form (submit)="onSearchSubmit($event)" class="w-full max-w-xl mx-auto">
-        <div class="relative flex items-center bg-white/70 backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.03)] rounded-full p-1.5 pl-5 focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300">
-          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <div class="relative flex items-center gap-2 bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.08)] rounded-[28px] p-2 pl-2 focus-within:border-amber-400 focus-within:ring-4 focus-within:ring-amber-400/10 transition-all duration-300 group">
+          <div class="p-3 bg-amber-400/15 rounded-2xl text-amber-600 shrink-0 group-focus-within:scale-110 transition-transform duration-300">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+            </svg>
+          </div>
           <input
             type="text"
             [formControl]="searchControl"
             [placeholder]="placeholders[placeholderIndex()]"
             (focus)="onSearchFocus()"
             (blur)="onSearchBlur()"
-            class="w-full bg-transparent border-none text-slate-800 text-sm placeholder-slate-400/75 focus:outline-none h-10 font-bold"
+            class="w-full bg-transparent border-none text-slate-800 text-base placeholder-slate-400/75 focus:outline-none h-10 font-bold"
             aria-label="Search recipes"
           />
           <button
@@ -197,128 +205,130 @@
     </div>
   </section>
 
-  <!-- Preset Recipes Masonry Grid -->
-  <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-4 flex-1">
-    <h2 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-6 pl-1">
-      People Are Cooking This
-    </h2>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[280px] grid-flow-row-dense">
-      @for (recipe of filteredPresets(); track recipe.name; let idx = $index) {
-        <div
-          #cardRef
-          role="button"
-          tabindex="0"
-          [attr.aria-label]="'View ' + recipe.name + ' recipe'"
-          (click)="selectPresetRecipe(recipe)"
-          (keydown.enter)="selectPresetRecipe(recipe)"
-          (keydown.space)="$event.preventDefault(); selectPresetRecipe(recipe)"
-          (mousemove)="onCardMouseMove($event, cardRef)"
-          (mouseleave)="onCardMouseLeave(cardRef)"
-          [style.animation-delay]="idx * 75 + 'ms'"
-          class="group premium-card reveal-card cursor-pointer select-none h-full"
-          [class]="getBentoClasses(idx, filteredPresets().length)"
-        >
-          <!-- Card Sheen Sweeper Overlay -->
-          <div class="premium-card-sheen"></div>
-
-          <!-- Card Glow Effect (Radial Gradient following cursor) -->
-          <div class="premium-card-glow"></div>
-
-          <!-- Card content container with height filling bento grid cell -->
-          <div 
-            class="relative overflow-hidden w-full flex flex-col justify-end h-full"
-            style="transform-style: preserve-3d;"
+  @if (continueCookingRecipes().length > 0) {
+    <!-- Continue Cooking -->
+    <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-4">
+      <h2 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-6 pl-1 flex items-center gap-2">
+        Continue Cooking
+        <svg aria-hidden="true" class="w-3 h-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @for (recipe of continueCookingRecipes(); track recipe.id) {
+          <button
+            type="button"
+            (click)="resumeRecipe(recipe)"
+            class="bg-white/70 backdrop-blur-md border border-white/60 p-5 rounded-[24px] shadow-[0_4px_20px_rgba(31,41,55,0.04)] flex items-center justify-between gap-4 hover:shadow-[0_8px_30px_rgba(31,41,55,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group text-left"
           >
-            <!-- Recipe Image -->
-            <img 
-              [src]="recipe.image" 
-              [alt]="recipe.name"
-              class="premium-card-img"
-              loading="lazy"
-            />
-
-            <!-- Dark gradient overlay from bottom to top for readability -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 z-10 pointer-events-none"></div>
-
-            <!-- Top Row: Cuisine & Diet tag pills -->
-            <div class="premium-card-tags">
-              <span class="text-[8px] bg-white/12 backdrop-blur-md border border-white/20 px-2.5 py-1 rounded-full font-black uppercase tracking-widest text-white shadow-sm">
-                {{ recipe.cuisine }}
-              </span>
-              <span 
-                class="text-[8px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm"
-                [class.bg-emerald-500/25]="recipe.diet === 'veg'"
-                [class.text-emerald-300]="recipe.diet === 'veg'"
-                [class.border]="recipe.diet === 'veg'"
-                [class.border-emerald-400/30]="recipe.diet === 'veg'"
-                
-                [class.bg-white/12]="recipe.diet === 'nonveg'"
-                [class.text-white]="recipe.diet === 'nonveg'"
-                [class.border]="recipe.diet === 'nonveg'"
-                [class.border-white/20]="recipe.diet === 'nonveg'"
-              >
-                <span 
-                  class="w-1.5 h-1.5 rounded-full shrink-0" 
-                  [class.bg-emerald-400]="recipe.diet === 'veg'" 
-                  [class.animate-pulse]="recipe.diet === 'veg'"
-                  [class.bg-slate-300]="recipe.diet === 'nonveg'"
-                ></span>
-                {{ recipe.diet === 'veg' ? 'Veg' : 'Non-Veg' }}
-              </span>
-            </div>
-
-            <!-- Bottom Row: Title, Description & Hover-revealed details -->
-            <div class="premium-card-content">
-              <h3 class="premium-card-title">
-                {{ recipe.name }}
-              </h3>
-              <p class="premium-card-description">
-                {{ recipe.description }}
-              </p>
-              
-              <!-- Reveal Drawer (Time, Calories, Cook action) -->
-              <div class="premium-card-drawer">
-                <div class="premium-card-drawer-inner">
-                  <div class="premium-card-drawer-content">
-                    <div class="flex items-center gap-3">
-                      <div class="flex flex-col">
-                        <span class="text-[6px] font-black text-white/50 uppercase tracking-widest">Time</span>
-                        <span class="text-[8px] font-black text-[#fbbf24] uppercase tracking-wide">25 mins</span>
-                      </div>
-                      <div class="h-4 w-px bg-white/20"></div>
-                      <div class="flex flex-col">
-                        <span class="text-[6px] font-black text-white/50 uppercase tracking-widest">Calories</span>
-                        <span class="text-[8px] font-black text-[#fbbf24] uppercase tracking-wide">320 kcal</span>
-                      </div>
-                    </div>
-                    
-                    <span class="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-1">
-                      <span>Cook</span>
-                      <svg aria-hidden="true" class="w-2.5 h-2.5 transform group-hover:translate-x-1 transition-transform duration-350" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </span>
-                  </div>
-                </div>
+            <div class="flex items-center gap-4 min-w-0">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 border border-amber-400/20 flex items-center justify-center shrink-0 text-amber-600 font-black text-lg uppercase">
+                {{ recipe.title.charAt(0) }}
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-bold text-sm text-slate-900 truncate">{{ recipe.title }}</h4>
+                <p class="text-xs text-slate-500 font-semibold">{{ recipe.prepTime + recipe.cookTime }} mins · {{ recipe.difficulty }}</p>
               </div>
             </div>
+            <span class="w-9 h-9 rounded-full bg-amber-400/15 text-amber-600 flex items-center justify-center shrink-0 group-hover:bg-amber-400 group-hover:text-slate-900 transition-colors duration-300">
+              <svg aria-hidden="true" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+          </button>
+        }
+      </div>
+    </section>
+  }
 
-          </div>
-        </div>
-      }
+  <!-- Trending Recipes Carousel -->
+  <section class="relative z-10 py-8 overflow-hidden">
+    <div class="max-w-[1380px] mx-auto px-8 mb-6 flex justify-between items-end">
+      <div>
+        <h2 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-1">Trending Recipes</h2>
+        <p class="text-slate-400 text-xs font-semibold">What others are cooking today</p>
+      </div>
+    </div>
 
-      @if (filteredPresets().length === 0) {
-        <div class="col-span-full flex flex-col items-center justify-center h-full min-h-[320px] text-center p-8 animate-fade-in select-none">
-          <div class="w-12 h-12 rounded-full bg-slate-900/5 flex items-center justify-center mb-3">
-            <svg aria-hidden="true" class="w-5.5 h-5.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+    <div class="flex gap-5 overflow-x-auto px-8 pb-4 scrollbar-none scroll-smooth snap-x snap-proximity">
+      @for (recipe of filteredPresets(); track recipe.name; let idx = $index) {
+        <button
+          type="button"
+          (click)="selectPresetRecipe(recipe)"
+          [class.min-w-[320px]]="idx === 0"
+          [class.md:min-w-[400px]]="idx === 0"
+          [class.min-w-[260px]]="idx !== 0"
+          class="group cursor-pointer text-left snap-start shrink-0 trending-card"
+          [style.animation-delay]="idx * 60 + 'ms'"
+        >
+          <div class="relative rounded-[24px] overflow-hidden shadow-[0_4px_20px_rgba(31,41,55,0.06)] mb-3" [class.h-[260px]]="idx === 0" [class.h-[220px]]="idx !== 0">
+            <img [src]="recipe.image" [alt]="recipe.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-amber-600 uppercase tracking-wide">{{ recipe.cuisine }}</div>
+            <div
+              class="absolute top-3 right-3 w-2 h-2 rounded-full shadow-sm"
+              [class.bg-emerald-400]="recipe.diet === 'veg'"
+              [class.bg-white]="recipe.diet === 'nonveg'"
+            ></div>
           </div>
-          <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">No presets found</h3>
-          <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Try choosing another cuisine category</p>
-        </div>
+          <h4 class="text-sm font-bold text-slate-900 px-1 truncate">{{ recipe.name }}</h4>
+        </button>
       }
+    </div>
+  </section>
+
+  <!-- Chef's Pick Banner -->
+  @if (chefsPick(); as pick) {
+    <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-8">
+      <div class="bg-amber-400/8 border border-amber-400/20 rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-sm">
+        <div class="md:w-1/2 relative h-64 md:h-auto min-h-[260px]">
+          <img [src]="pick.image" [alt]="pick.name" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="p-8 md:p-10 md:w-1/2 flex flex-col justify-center">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="bg-amber-400 text-slate-900 px-3 py-1 rounded-lg text-[10px] font-black tracking-wider uppercase">Chef's Pick</span>
+            <span class="text-slate-500 text-xs font-bold">{{ pick.cuisine }}</span>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900 mb-3">{{ pick.name }}</h3>
+          <p class="text-slate-500 text-sm font-semibold mb-8 leading-relaxed">{{ pick.description }}</p>
+          <button
+            type="button"
+            (click)="selectPresetRecipe(pick)"
+            class="self-start bg-amber-400 hover:bg-amber-300 text-slate-900 px-7 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all duration-200 shadow-md cursor-pointer"
+          >Cook Now</button>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Explore: Vegetarian & Non-Veg Picks -->
+  <section class="relative z-10 w-full max-w-[1380px] mx-auto px-8 py-8 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div>
+      <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-5">Vegetarian Picks</h3>
+      <div class="grid grid-cols-2 gap-4">
+        @for (recipe of vegPicks(); track recipe.name) {
+          <button type="button" (click)="selectPresetRecipe(recipe)" class="bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden border border-white/60 shadow-sm hover:shadow-md transition-shadow duration-300 group cursor-pointer text-left">
+            <div class="h-28 overflow-hidden">
+              <img [src]="recipe.image" [alt]="recipe.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+            </div>
+            <div class="p-3">
+              <h5 class="font-bold text-xs text-slate-900 truncate">{{ recipe.name }}</h5>
+              <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wide">Vegetarian</span>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+    <div>
+      <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest mb-5">Non-Veg Picks</h3>
+      <div class="grid grid-cols-2 gap-4">
+        @for (recipe of nonVegPicks(); track recipe.name) {
+          <button type="button" (click)="selectPresetRecipe(recipe)" class="bg-white/70 backdrop-blur-md rounded-3xl overflow-hidden border border-white/60 shadow-sm hover:shadow-md transition-shadow duration-300 group cursor-pointer text-left">
+            <div class="h-28 overflow-hidden">
+              <img [src]="recipe.image" [alt]="recipe.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+            </div>
+            <div class="p-3">
+              <h5 class="font-bold text-xs text-slate-900 truncate">{{ recipe.name }}</h5>
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Non-Veg</span>
+            </div>
+          </button>
+        }
+      </div>
     </div>
   </section>
 </div>

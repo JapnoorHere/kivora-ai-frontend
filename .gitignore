@@ -29,6 +29,9 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
+# Local MCP server config — contains live API keys/tokens
+/.mcp.json
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

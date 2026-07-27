@@ -12,11 +12,16 @@ export const API_ENDPOINTS = {
   recipeById: (id: string): string => `/recipes/${id}`,
   recipeModify: (id: string): string => `/recipes/${id}/modify`,
   FEEDBACK_SUBMIT: '/feedback/submit',
+  SETTINGS_AI_GET: '/settings/ai',
+  SETTINGS_AI_SAVE_KEY: '/settings/ai/keys',
+  settingsAiRemoveKey: (provider: string): string => `/settings/ai/keys/${provider}`,
+  SETTINGS_AI_PREFERRED: '/settings/ai/preferred',
 } as const;
 
 export const APP_ROUTES = {
   HOME: '/',
   RECENT: '/recent',
+  SETTINGS: '/settings',
   recipeIngredients: (id: string): string[] => ['/recipes', id, 'ingredients'],
   recipeSteps: (id: string): string[] => ['/recipes', id, 'steps'],
 } as const;

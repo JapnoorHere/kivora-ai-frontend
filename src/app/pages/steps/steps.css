@@ -1,0 +1,19 @@
+/* Re-triggered each step change via @for's track-based DOM recreation —
+   see steps.html, the single-item @for keyed on stepNumber. */
+@keyframes stepSlideInNext {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stepSlideInBack {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.step-anim-next {
+  animation: stepSlideInNext 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.step-anim-back {
+  animation: stepSlideInBack 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

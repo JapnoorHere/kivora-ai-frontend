@@ -51,15 +51,36 @@
     </button>
 
     <!-- User -->
-    <button type="button"
-      (click)="isAuthenticated() ? triggerLogoutConfirm() : redirectToLogin()"
-      class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl focus:outline-none cursor-pointer"
-      [attr.aria-label]="isAuthenticated() ? 'Sign Out' : 'Sign In'">
-      <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase">
-        {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
-      </div>
-      <span class="text-[9px] font-bold text-slate-400">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
-    </button>
+    <div class="relative">
+      <button type="button"
+        (click)="onAccountButtonClick()"
+        class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-2xl focus:outline-none cursor-pointer"
+        [attr.aria-label]="isAuthenticated() ? 'Account menu' : 'Sign In'">
+        <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase">
+          {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
+        </div>
+        <span class="text-[9px] font-bold text-slate-400">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
+      </button>
+
+      @if (isAccountMenuOpen()) {
+        <div class="fixed inset-0 z-[45]" (click)="closeAccountMenu()"></div>
+        <div class="absolute bottom-full right-0 mb-3 w-44 bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] p-1.5 animate-slide-up z-50">
+          <a routerLink="/settings" (click)="closeAccountMenu()" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-900/5 transition-colors cursor-pointer">
+            <svg aria-hidden="true" class="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-xs font-bold text-slate-700">AI Settings</span>
+          </a>
+          <button type="button" (click)="triggerLogoutConfirm()" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
+            <svg aria-hidden="true" class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span class="text-xs font-bold text-red-600">Sign Out</span>
+          </button>
+        </div>
+      }
+    </div>
 
   </nav>
 }
@@ -157,15 +178,36 @@
         <span class="text-[9px] font-black text-slate-700 whitespace-nowrap">New</span>
       </button>
 
-      <button type="button"
-        (click)="isAuthenticated() ? triggerLogoutConfirm() : redirectToLogin()"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none cursor-pointer"
-        [attr.aria-label]="isAuthenticated() ? 'Sign Out' : 'Sign In'">
-        <div class="w-9 h-9 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase transition-all hover:ring-2 hover:ring-amber-400/30">
-          {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
-        </div>
-        <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
-      </button>
+      <div class="relative">
+        <button type="button"
+          (click)="onAccountButtonClick()"
+          class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none cursor-pointer"
+          [attr.aria-label]="isAuthenticated() ? 'Account menu' : 'Sign In'">
+          <div class="w-9 h-9 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase transition-all hover:ring-2 hover:ring-amber-400/30">
+            {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
+          </div>
+          <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
+        </button>
+
+        @if (isAccountMenuOpen()) {
+          <div class="fixed inset-0 z-[45]" (click)="closeAccountMenu()"></div>
+          <div class="absolute bottom-full right-0 mb-3 w-44 bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] p-1.5 animate-slide-up z-50">
+            <a routerLink="/settings" (click)="closeAccountMenu()" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-900/5 transition-colors cursor-pointer">
+              <svg aria-hidden="true" class="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-xs font-bold text-slate-700">AI Settings</span>
+            </a>
+            <button type="button" (click)="triggerLogoutConfirm()" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
+              <svg aria-hidden="true" class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span class="text-xs font-bold text-red-600">Sign Out</span>
+            </button>
+          </div>
+        }
+      </div>
 
       <div class="w-1 shrink-0"></div>
     </div>

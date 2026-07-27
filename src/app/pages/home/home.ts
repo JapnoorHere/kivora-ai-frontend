@@ -1,11 +1,12 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
 import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
 import { APP_ROUTES } from '../../core/constants/app.constants';
 import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
-import { PresetRecipe } from '../../core/interfaces/recipe.interface';
+import { DietaryPreference } from '../../core/enums/recipe.enum';
+import { PresetRecipe, Recipe } from '../../core/interfaces/recipe.interface';
 import { AuthService } from '../../core/services/auth.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
@@ -20,7 +21,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
   styleUrl: './home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy {
   protected readonly stateService = inject(RecipeStateService);
   private readonly authService = inject(AuthService);
   private readonly apiService = inject(RecipeApiService);
@@ -29,15 +30,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
 
-  private observer: IntersectionObserver | null = null;
-  private readonly observerReady = signal<boolean>(false);
-
-
   private scrollListenerAdded = false;
   private animFrameId: number | null = null;
   private lastScrollY = 0;
 
-  private floatingEl: HTMLElement | null = null;
   private heroContentEl: HTMLElement | null = null;
   private orb1El: HTMLElement | null = null;
   private orb2El: HTMLElement | null = null;
@@ -69,20 +65,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.authService.isAuthModalOpen.set(false);
       }
     });
-
-    // Automatically reobserve revealable cards when the filtered presets change or observer is ready
-    effect(() => {
-      this.filteredPresets();
-      if (this.observerReady()) {
-        setTimeout(() => {
-          this.reobserveCards();
-        }, 120);
-      }
-    });
-  }
-
-  public ngAfterViewInit(): void {
-    this.initScrollRevealObserver();
   }
 
   protected readonly searchControl = new FormControl('');
@@ -113,9 +95,34 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     return PRESET_RECIPES.filter(r => r.cuisine.toLowerCase() === category.toLowerCase());
   });
 
+  // Personalized hero greeting — only meaningful once signed in
+  protected readonly greeting = computed(() => {
+    const name = this.authService.currentUser()?.name;
+    const hour = new Date().getHours();
+    const timeOfDay = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
+    return name ? `Good ${timeOfDay}, ${name.split(' ')[0]}` : null;
+  });
+
+  // Real recent-recipe data only — no fabricated "progress" numbers
+  protected readonly continueCookingRecipes = computed(() => this.stateService.recentRecipes().slice(0, 2));
+
+  protected readonly chefsPick = computed(() => this.filteredPresets()[0] ?? PRESET_RECIPES[0]);
+
+  protected readonly vegPicks = computed(() =>
+    PRESET_RECIPES.filter(r => r.diet === DietaryPreference.VEGETARIAN).slice(0, 2)
+  );
+
+  protected readonly nonVegPicks = computed(() =>
+    PRESET_RECIPES.filter(r => r.diet === DietaryPreference.NON_VEGETARIAN).slice(0, 2)
+  );
+
   public ngOnInit(): void {
     this.startPlaceholderCycle();
     this.initScrollParallax();
+    if (this.isAuthenticated()) {
+      // Best-effort — Continue Cooking simply stays empty if this fails
+      this.stateService.loadRecentRecipes().catch(() => undefined);
+    }
   }
 
   public ngOnDestroy(): void {
@@ -126,43 +133,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.animFrameId !== null) {
       cancelAnimationFrame(this.animFrameId);
     }
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-  }
-
-  private initScrollRevealObserver(): void {
-    this.ngZone.runOutsideAngular(() => {
-      const options = {
-        root: null,
-        rootMargin: '0px 0px -80px 0px',
-        threshold: 0.1
-      };
-
-      this.observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const card = entry.target as HTMLElement;
-            card.classList.add('revealed');
-            observer.unobserve(card);
-          }
-        });
-      }, options);
-
-      this.observerReady.set(true);
-    });
-  }
-
-  private reobserveCards(): void {
-    if (!this.observer) return;
-    this.ngZone.runOutsideAngular(() => {
-      const cards = document.querySelectorAll<HTMLElement>('.premium-card');
-      cards.forEach(card => {
-        if (!card.classList.contains('revealed')) {
-          this.observer?.observe(card);
-        }
-      });
-    });
   }
 
   private initScrollParallax(): void {
@@ -261,50 +231,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  protected onCardMouseMove(event: MouseEvent, card: HTMLElement): void {
-    const rect = card.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const xc = rect.width / 2;
-    const yc = rect.height / 2;
-    const rx = ((y - yc) / yc) * -8;
-    const ry = ((x - xc) / xc) * 8;
-
-    card.style.setProperty('--rx', `${rx}deg`);
-    card.style.setProperty('--ry', `${ry}deg`);
-    card.style.setProperty('--mx', `${x}px`);
-    card.style.setProperty('--my', `${y}px`);
+  protected resumeRecipe(recipe: Recipe): void {
+    this.stateService.setRecipe(recipe);
+    this.router.navigate(APP_ROUTES.recipeSteps(recipe.id));
   }
-
-  protected onCardMouseLeave(card: HTMLElement): void {
-    card.style.setProperty('--rx', '0deg');
-    card.style.setProperty('--ry', '0deg');
-  }
-
-  protected getBentoClasses(index: number, total: number): string {
-    if (total === 5) {
-      if (index === 0) return 'col-span-1 row-span-2';
-      if (index === 1) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
-      if (index === 2 || index === 3) return 'col-span-1 row-span-1';
-      return 'col-span-1 sm:col-span-2 lg:col-span-3 row-span-1';
-    }
-    if (total === 7) {
-      if (index === 0) return 'col-span-1 row-span-1';
-      if (index === 1) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
-      if (index === 2) return 'col-span-1 row-span-2';
-      if (index === 3 || index === 4) return 'col-span-1 row-span-1';
-      if (index === 5) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
-      return 'col-span-1 sm:col-span-2 lg:col-span-3 row-span-1';
-    }
-    const r = index % 6;
-    if (r === 0) return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
-    if (r === 1) return 'col-span-1 row-span-1';
-    if (r === 2) return 'col-span-1 row-span-2';
-    if (r === 3 || r === 4) return 'col-span-1 row-span-1';
-    return 'col-span-1 sm:col-span-2 lg:col-span-2 row-span-1';
-  }
-
 
   private openInterviewForSearch(query: string): void {
     this.customizationQuery.set(query);

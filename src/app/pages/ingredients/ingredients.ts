@@ -26,7 +26,6 @@ export class IngredientsComponent {
   protected readonly routes = APP_ROUTES;
   protected readonly recipe = signal<Recipe | null>(null);
   protected readonly isLoading = signal<boolean>(true);
-  protected readonly checkedIngredients = signal<ReadonlySet<string>>(new Set());
   protected readonly isModifyOpen = signal<boolean>(false);
   protected readonly isSubmittingModification = signal<boolean>(false);
 
@@ -41,7 +40,6 @@ export class IngredientsComponent {
 
   private async loadRecipe(id: string): Promise<void> {
     this.isLoading.set(true);
-    this.checkedIngredients.set(new Set());
     try {
       const recipe = await this.stateService.resolveRecipe(id);
       this.recipe.set(recipe);
@@ -51,22 +49,6 @@ export class IngredientsComponent {
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  protected toggleIngredient(name: string): void {
-    this.checkedIngredients.update((set) => {
-      const next = new Set(set);
-      if (next.has(name)) {
-        next.delete(name);
-      } else {
-        next.add(name);
-      }
-      return next;
-    });
-  }
-
-  protected isChecked(name: string): boolean {
-    return this.checkedIngredients().has(name);
   }
 
   protected async goToSteps(): Promise<void> {

@@ -5,60 +5,60 @@
   aria-labelledby="auth-modal-title"
 >
   <!-- Widescreen Glass Bento Card Container -->
-  <div class="relative w-full max-w-3xl bg-[#fbfbfa]/95 backdrop-blur-xl border border-white/65 shadow-[0_25px_65px_-15px_rgba(0,0,0,0.18)] rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row min-h-[500px] md:h-[490px] auth-modal-card">
+  <div class="relative w-full max-w-3xl bg-[#fbfbfa]/95 backdrop-blur-xl border border-white/65 shadow-[0_25px_65px_-15px_rgba(0,0,0,0.18)] rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row min-h-[500px] auth-modal-card">
     
-    <!-- Left Side: Atmospheric Culinary Panel (Desktop Only) -->
-    <div class="hidden md:flex md:w-[42%] relative overflow-hidden flex-col justify-between p-6 text-white select-none shrink-0 md:h-full">
-      <!-- Background Image using NgOptimizedImage -->
-      <img ngSrc="login-banner.png" fill class="object-cover z-0 bg-cover bg-center" alt="Culinary raw ingredients with gold sparkles" priority>
-      
-      <!-- Dark/Gold Glass Overlay -->
-      <div class="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/75 to-slate-950/90 z-10"></div>
-      
+    <!-- Left Side: Culinary Zen Photo Panel (Desktop Only) -->
+    <div
+      class="hidden md:flex md:w-[42%] relative overflow-hidden flex-col justify-between p-6 text-slate-900 select-none shrink-0 bg-cover bg-center"
+      style="background-image: url('/cooking-hero.png');"
+    >
+      <!-- Warm cream glass overlay for text legibility, keeping the photo bright -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#fbf9f6]/55 via-[#fbf9f6]/45 to-[#fbf9f6]/92 z-10"></div>
+
       <!-- Top Monogram/Logo -->
       <div class="relative z-20 flex items-center gap-2">
         <div class="relative w-10 h-10 shrink-0">
           <img ngSrc="logo.png" fill class="object-contain" alt="Kivora AI logo" priority>
         </div>
-        <span class="font-extrabold tracking-widest text-xs">KIVORA AI</span>
+        <span class="font-extrabold tracking-widest text-xs text-amber-800">KIVORA AI</span>
       </div>
 
-      <!-- Center Dynamic Graphic/Content -->
+      <!-- Center Headline -->
       <div class="relative z-20 space-y-6 my-auto">
-        <h3 class="text-xl font-black leading-tight tracking-wide">
-          Unlock Your <br />
-          <span class="text-[#fbbf24] bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-400">Culinary Profile</span>
+        <h3 class="text-xl font-black leading-tight tracking-wide text-slate-900">
+          Cook Exactly <br />
+          <span class="text-amber-600">What You Crave</span>
         </h3>
         <div class="space-y-4 pt-2">
           <div class="flex items-center gap-3 animate-slide-up" style="animation-delay: 100ms;">
-            <div class="w-6 h-6 rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/30 flex items-center justify-center shrink-0">
-              <span class="text-[#fbbf24] text-[10px]">✨</span>
+            <div class="w-6 h-6 rounded-full bg-white/80 border border-amber-400/40 flex items-center justify-center shrink-0 shadow-sm">
+              <span class="text-amber-600 text-[10px]">✨</span>
             </div>
-            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">AI Generation Engine</p>
+            <p class="text-[9px] font-black text-slate-700 uppercase tracking-widest leading-relaxed">Speak, We'll Cook</p>
           </div>
           <div class="flex items-center gap-3 animate-slide-up" style="animation-delay: 200ms;">
-            <div class="w-6 h-6 rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/30 flex items-center justify-center shrink-0">
-              <span class="text-[#fbbf24] text-[10px]">⚖️</span>
+            <div class="w-6 h-6 rounded-full bg-white/80 border border-amber-400/40 flex items-center justify-center shrink-0 shadow-sm">
+              <span class="text-amber-600 text-[10px]">⚖️</span>
             </div>
-            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">Portion Customizer</p>
+            <p class="text-[9px] font-black text-slate-700 uppercase tracking-widest leading-relaxed">Perfect Portions, Every Time</p>
           </div>
           <div class="flex items-center gap-3 animate-slide-up" style="animation-delay: 300ms;">
-            <div class="w-6 h-6 rounded-full bg-[#fbbf24]/10 border border-[#fbbf24]/30 flex items-center justify-center shrink-0">
-              <span class="text-[#fbbf24] text-[10px]">📋</span>
+            <div class="w-6 h-6 rounded-full bg-white/80 border border-amber-400/40 flex items-center justify-center shrink-0 shadow-sm">
+              <span class="text-amber-600 text-[10px]">📋</span>
             </div>
-            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">Checklist & History</p>
+            <p class="text-[9px] font-black text-slate-700 uppercase tracking-widest leading-relaxed">Your Recipe Vault</p>
           </div>
         </div>
       </div>
 
       <!-- Bottom Branding Footer -->
-      <div class="relative z-20 text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+      <div class="relative z-20 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">
         Kivora AI © 2026
       </div>
     </div>
 
     <!-- Right Side: Frosted Form Panel -->
-    <div class="flex-grow flex flex-col justify-between p-5 sm:p-6 md:p-7 relative z-10 bg-white/10 md:h-full">
+    <div class="flex-grow flex flex-col justify-between p-5 sm:p-6 md:p-7 relative z-10 bg-white/10">
       
       <!-- Top header line with close button -->
       <div class="flex items-center justify-between mb-2">
@@ -86,7 +86,7 @@
             {{ isLoginMode() ? 'Welcome back, Chef' : 'Join Kivora Kitchen' }}
           </h2>
           <p class="text-[9px] font-bold text-slate-400 mt-1.5 uppercase tracking-widest leading-relaxed">
-            {{ isLoginMode() ? 'Log in to continue your session' : 'Create an account to scale and customize recipes' }}
+            {{ isLoginMode() ? "Let's get back to cooking" : 'Your first custom recipe is 30 seconds away' }}
           </p>
         </div>
 
@@ -105,7 +105,7 @@
           >
             Sign In
           </button>
-          <button 
+          <button
             type="button"
             (click)="switchMode(false)"
             class="flex-1 text-center py-2.5 text-xs font-black relative z-10 transition-colors duration-300 focus:outline-none cursor-pointer"
@@ -114,6 +114,27 @@
           >
             Join Kitchen
           </button>
+        </div>
+
+        <!-- Google connect profile -->
+        <button
+          type="button"
+          (click)="loginWithGoogle()"
+          class="w-full py-3 border border-slate-200 bg-white/60 hover:bg-white text-slate-700 rounded-2xl transition-all duration-300 font-extrabold text-[9px] uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.01)] active:scale-98 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400/20"
+        >
+          <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24 c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039 l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571 c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <!-- Social/email divider -->
+        <div class="relative my-1 flex items-center justify-center">
+          <div class="border-t border-slate-200/80 w-full absolute top-1/2"></div>
+          <span class="relative px-3 bg-[#fbfbfa] text-[9px] font-bold text-slate-400 uppercase tracking-widest">Or email</span>
         </div>
 
         <!-- Credentials Form -->
@@ -132,7 +153,7 @@
                 type="text" 
                 formControlName="name"
                 placeholder=" "
-                class="peer w-full px-4 pt-4.5 pb-1 bg-white/60 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
+                class="peer w-full px-4 pt-4.5 pb-1 bg-white/70 border border-amber-900/10 rounded-[18px] text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
                 [class.border-amber-500]="nameControl?.touched && nameControl?.invalid"
               />
               <label 
@@ -157,7 +178,7 @@
               type="email" 
               formControlName="email"
               placeholder=" "
-              class="peer w-full px-4 pt-4.5 pb-1 bg-white/60 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
+              class="peer w-full px-4 pt-4.5 pb-1 bg-white/70 border border-amber-900/10 rounded-[18px] text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
               [class.border-amber-500]="emailControl?.touched && emailControl?.invalid"
             />
             <label 
@@ -181,7 +202,7 @@
               [type]="showPassword() ? 'text' : 'password'" 
               formControlName="password"
               placeholder=" "
-              class="peer w-full px-4 pr-12 pt-4.5 pb-1 bg-white/60 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
+              class="peer w-full px-4 pr-12 pt-4.5 pb-1 bg-white/70 border border-amber-900/10 rounded-[18px] text-xs font-bold text-slate-800 placeholder-transparent focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
               [class.border-amber-500]="passwordControl?.touched && passwordControl?.invalid"
             />
             <label 
@@ -220,7 +241,7 @@
             type="submit" 
             class="bg-[#fbbf24] hover:bg-[#e0a820] text-slate-900 font-extrabold text-[10px] uppercase tracking-widest py-3 rounded-2xl w-full transition-all duration-300 shadow-[0_4px_14px_rgba(251,191,36,0.25)] hover:shadow-[0_6px_20px_rgba(251,191,36,0.4)] active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-2.5"
           >
-            <span>{{ isLoginMode() ? 'Sign In & Cook' : 'Create Account' }}</span>
+            <span>{{ isLoginMode() ? 'Sign In & Cook' : 'Start Cooking' }}</span>
             <svg aria-hidden="true" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -228,23 +249,10 @@
         </form>
       </div>
 
-      <!-- Social login divider separator -->
-      <div class="relative my-3 flex items-center justify-center">
-        <div class="border-t border-slate-200/80 w-full absolute top-1/2"></div>
-        <span class="relative px-3 bg-[#fbfbfa] text-[9px] font-bold text-slate-400 uppercase tracking-widest">Or connect with</span>
-      </div>
-
-      <!-- Google connect profile -->
-      <button 
-        type="button" 
-        (click)="loginWithGoogle()"
-        class="w-full py-3 border border-slate-200 bg-white/60 hover:bg-white text-slate-700 rounded-2xl transition-all duration-300 font-extrabold text-[9px] uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.01)] active:scale-98 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400/20"
-      >
-        <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-          <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.137 4.114-3.41 0-6.173-2.763-6.173-6.173s2.763-6.173 6.173-6.173c1.554 0 2.969.58 4.053 1.536l3.073-3.073C19.23 2.112 16.033 1 12.24 1 5.928 1 12.24 1 5.928 1 12.24s4.928 11.24 11.24 11.24c6.643 0 11.24-4.667 11.24-11.24 0-.766-.08-1.5-.236-2.185l-10.97.03z"/>
-        </svg>
-        <span>Google Account</span>
-      </button>
+      <!-- Safety disclaimer footer -->
+      <p class="text-center text-[8px] font-bold text-slate-400/80 uppercase tracking-widest leading-relaxed max-w-[300px] mx-auto">
+        AI-generated recipes should always be reviewed for allergens and safety before cooking.
+      </p>
 
     </div>
   </div>

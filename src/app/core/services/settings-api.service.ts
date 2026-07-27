@@ -1,13 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS, APP_ROUTES, STORAGE_KEYS } from '../constants/app.constants';
-import {
-  ApiErrorResponse,
-  FeedbackRequest,
-  Recipe,
-  RecipeGenerationRequest,
-  RecipeModificationRequest,
-} from '../interfaces/recipe.interface';
+import { AiProvider } from '../enums/recipe.enum';
+import { ApiErrorResponse } from '../interfaces/recipe.interface';
+import { AiSettings } from '../interfaces/settings.interface';
 import { fetchJson } from '../utils/http.util';
 import { ToastService } from './toast.service';
 
@@ -18,14 +14,13 @@ interface ApiEnvelope<T> {
 @Injectable({
   providedIn: 'root',
 })
-export class RecipeApiService {
+export class SettingsApiService {
   private readonly baseUrl = environment.apiUrl;
   private readonly toast = inject(ToastService);
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const { response, result } = await fetchJson(`${this.baseUrl}${endpoint}`, options);
 
-    // Check for token expiration / unauthorized
     if (response.status === 401) {
       localStorage.removeItem(STORAGE_KEYS.USER);
       this.toast.error('Your session has expired. Please sign in again.', 'Session Expired');
@@ -34,42 +29,35 @@ export class RecipeApiService {
     }
 
     if (!response.ok) {
-      // Throw structured API error response if available
       const errPayload = result as ApiErrorResponse;
       throw Object.assign(new Error(errPayload.message || 'Server request failed.'), { code: errPayload.code });
     }
 
-    // Adapt to standard server response formatting
     const payload = result as ApiEnvelope<T>;
     return (payload.data !== undefined ? payload.data : (result as T));
   }
 
-  public generateRecipe(payload: RecipeGenerationRequest): Promise<Recipe> {
-    return this.request<Recipe>(API_ENDPOINTS.RECIPES_GENERATE, {
+  public getAiSettings(): Promise<AiSettings> {
+    return this.request<AiSettings>(API_ENDPOINTS.SETTINGS_AI_GET);
+  }
+
+  public saveApiKey(provider: AiProvider, apiKey: string): Promise<AiSettings> {
+    return this.request<AiSettings>(API_ENDPOINTS.SETTINGS_AI_SAVE_KEY, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ provider, apiKey }),
     });
   }
 
-  public modifyRecipe(id: string, payload: RecipeModificationRequest): Promise<Recipe> {
-    return this.request<Recipe>(API_ENDPOINTS.recipeModify(id), {
-      method: 'POST',
-      body: JSON.stringify(payload),
+  public removeApiKey(provider: AiProvider): Promise<AiSettings> {
+    return this.request<AiSettings>(API_ENDPOINTS.settingsAiRemoveKey(provider), {
+      method: 'DELETE',
     });
   }
 
-  public fetchRecipes(): Promise<Recipe[]> {
-    return this.request<Recipe[]>(API_ENDPOINTS.RECIPES_LIST);
-  }
-
-  public fetchRecipeById(id: string): Promise<Recipe> {
-    return this.request<Recipe>(API_ENDPOINTS.recipeById(id));
-  }
-
-  public submitBugReport(payload: FeedbackRequest): Promise<void> {
-    return this.request<void>(API_ENDPOINTS.FEEDBACK_SUBMIT, {
-      method: 'POST',
-      body: JSON.stringify(payload),
+  public setPreferredProvider(provider: AiProvider): Promise<AiSettings> {
+    return this.request<AiSettings>(API_ENDPOINTS.SETTINGS_AI_PREFERRED, {
+      method: 'PATCH',
+      body: JSON.stringify({ provider }),
     });
   }
 }

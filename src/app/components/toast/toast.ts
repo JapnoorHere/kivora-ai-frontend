@@ -14,13 +14,19 @@ export class ToastComponent {
   protected readonly toasts = this.toastService.toasts;
   protected readonly exitingIds = this.toastService.exitingIds;
 
-  private static readonly CARD_COLORS: Record<ToastType, string> = {
-    success: '#38A169',
-    error:   '#E53E3E',
-    warning: '#DD6B20',
-    info:    '#3182CE',
+  private static readonly BG_COLORS: Record<ToastType, string> = {
+    success: '#14532D',
+    error:   '#7F1D1D',
+    warning: '#78350F',
+    info:    '#1E3A8A',
   };
 
+  private static readonly ICON_COLORS: Record<ToastType, string> = {
+    success: '#22C55E',
+    error:   '#EF4444',
+    warning: '#F59E0B',
+    info:    '#3B82F6',
+  };
 
   protected isExiting(id: string): boolean {
     return this.exitingIds().includes(id);
@@ -30,8 +36,12 @@ export class ToastComponent {
     this.toastService.dismiss(id);
   }
 
-  protected cardColor(type: ToastType): string {
-    return ToastComponent.CARD_COLORS[type];
+  protected bgColor(type: ToastType): string {
+    return ToastComponent.BG_COLORS[type];
+  }
+
+  protected iconColor(type: ToastType): string {
+    return ToastComponent.ICON_COLORS[type];
   }
 
 }
