@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
@@ -13,6 +13,7 @@ import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../
 import { DietaryPreference } from '../../core/enums/recipe.enum';
 import { PresetRecipe, Recipe } from '../../core/interfaces/recipe.interface';
 import { AuthService } from '../../core/services/auth.service';
+import { CookIntentService } from '../../core/services/cook-intent.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
@@ -39,6 +40,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 export class HomeComponent implements OnInit, OnDestroy {
   protected readonly stateService = inject(RecipeStateService);
   private readonly authService = inject(AuthService);
+  private readonly cookIntent = inject(CookIntentService);
   private readonly apiService = inject(RecipeApiService);
   private readonly loaderService = inject(LoaderService);
   private readonly toastService = inject(ToastService);
@@ -70,17 +72,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   protected readonly isAuthenticated = this.authService.isAuthenticated;
-  private pendingAction: (() => void) | null = null;
-
-  constructor() {
-    effect(() => {
-      if (this.isAuthenticated() && this.pendingAction) {
-        this.pendingAction();
-        this.pendingAction = null;
-        this.authService.isAuthModalOpen.set(false);
-      }
-    });
-  }
 
   protected readonly searchControl = new FormControl('');
   protected readonly categories = ['All', ...DISCOVERY_CATEGORIES];
@@ -137,6 +128,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.isAuthenticated()) {
       // Best-effort — Continue Cooking simply stays empty if this fails
       this.stateService.loadRecentRecipes().catch(() => undefined);
+      this.resumePendingCook();
+    }
+  }
+
+  /** Picks up whatever the visitor was about to cook before signing in. */
+  private resumePendingCook(): void {
+    const intent = this.cookIntent.consume();
+    if (!intent) return;
+
+    if (intent.kind === 'search') {
+      this.openInterviewForSearch(intent.query);
+    } else {
+      this.openInterviewForPreset(intent.recipe);
     }
   }
 
@@ -232,8 +236,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.isAuthenticated()) {
       this.openInterviewForSearch(query);
     } else {
-      this.pendingAction = () => this.openInterviewForSearch(query);
-      this.authService.isAuthModalOpen.set(true);
+      this.cookIntent.remember({ kind: 'search', query });
+      this.authService.promptLogin('login', APP_ROUTES.HOME);
     }
   }
 
@@ -241,8 +245,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.isAuthenticated()) {
       this.openInterviewForPreset(recipe);
     } else {
-      this.pendingAction = () => this.openInterviewForPreset(recipe);
-      this.authService.isAuthModalOpen.set(true);
+      this.cookIntent.remember({ kind: 'preset', recipe });
+      this.authService.promptLogin('login', APP_ROUTES.HOME);
     }
   }
 

@@ -7,6 +7,13 @@ html {
   scrollbar-color: #fbbf24 rgba(244, 238, 219, 0.3);
 }
 
+/* A custom element is inline by default, so <app-root> sat on a text baseline
+   and left a few pixels of descender space under the layout — the white strip
+   at the very bottom of every page. */
+app-root {
+  display: block;
+}
+
 /* Hide scrollbar on horizontally-scrolling pill/chip rows */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
@@ -218,16 +225,196 @@ html {
 }
 
 /* ── Scroll-progress-driven story chapters (landing page) ────────────── */
+/* `--vis` is a plateau, not a ramp: the chapter reaches full weight early and
+   holds it for the whole middle of its crossing. A linear fade against scroll
+   position looks elegant in isolation and leaves body copy sitting at half
+   opacity exactly while someone is trying to read it. */
 .story-chapter {
-  opacity: calc(0.25 + 0.75 * var(--progress, 0));
-  transform: translateY(calc((1 - var(--progress, 0)) * 50px)) scale(calc(0.94 + 0.06 * var(--progress, 0)));
+  --vis: clamp(0, calc((min(var(--progress, 0), 1 - var(--progress, 0)) - 0.08) * 6), 1);
+  opacity: calc(0.1 + 0.9 * var(--vis));
+  transform: translateY(calc((1 - var(--vis)) * 42px));
   will-change: transform, opacity;
 }
+.story-ghost {
+  position: absolute;
+  top: -0.42em;
+  left: -0.05em;
+  z-index: -1;
+  font-size: clamp(7rem, 13vw, 11rem);
+  line-height: 0.8;
+  font-weight: 900;
+  color: rgb(251 191 36 / 0.16);
+  pointer-events: none;
+  user-select: none;
+  transform: translateY(calc((1 - var(--vis, 1)) * -26px));
+}
 @media (prefers-reduced-motion: reduce) {
-  .story-chapter {
+  .story-chapter,
+  .story-ghost {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SIGN-IN MOTION SET — used by the /login page
+
+   Four independent primitives: a curtain wipe (appBoxReveal), a breathing
+   ripple field, orbiting garnish, and a pointer spotlight on inputs. All of
+   them animate transform/opacity or a background only, so the whole page
+   composites without layout work.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Curtain wipe (BoxRevealComponent) ───────────────────────────────── */
+/* `display: block` is load-bearing: the host is a custom element, which is
+   inline by default, and an inline box ignores both width and overflow. */
+.box-reveal {
+  display: block;
+  position: relative;
+}
+/* Content resolves behind a travelling light edge rather than from under a solid
+   panel — a slab of brand colour flashing over every field reads as a loading
+   failure, not as craft. The clip ends on a negative inset so nothing stays
+   clipped afterwards: shadows, focus rings and the magnetic nudge all need to
+   paint outside the box once the reveal is done. */
+.box-reveal-content {
+  opacity: 0;
+  clip-path: inset(-120px 100% -120px -120px);
+  transform: translateY(14px);
+}
+.box-reveal-curtain {
+  position: absolute;
+  top: 6%;
+  bottom: 6%;
+  left: 0;
+  z-index: 20;
+  width: 2px;
+  opacity: 0;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, var(--curtain-color, #fbbf24), transparent);
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--curtain-color, #fbbf24) 55%, transparent);
+}
+.box-reveal.is-revealed .box-reveal-content {
+  animation: box-reveal-sweep var(--curtain-duration, 0.5s) cubic-bezier(0.22, 1, 0.36, 1)
+    var(--curtain-delay, 0ms) forwards;
+}
+.box-reveal.is-revealed .box-reveal-curtain {
+  animation: box-reveal-edge calc(var(--curtain-duration, 0.5s) + 120ms) cubic-bezier(0.22, 1, 0.36, 1)
+    var(--curtain-delay, 0ms) forwards;
+}
+@keyframes box-reveal-sweep {
+  from {
+    opacity: 0;
+    clip-path: inset(-120px 100% -120px -120px);
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(-120px -120px -120px -120px);
+    transform: none;
+  }
+}
+@keyframes box-reveal-edge {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  75% {
+    opacity: 0.55;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* ── Ripple field ────────────────────────────────────────────────────── */
+.ripple-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 9999px;
+  border-width: 1px;
+  /* Also the resting state: without it the rings sit half-a-diameter off centre
+     whenever the animation is suppressed. */
+  transform: translate(-50%, -50%);
+  animation: ripple-breathe 2s ease infinite;
+  animation-delay: var(--ripple-delay, 0s);
+}
+@keyframes ripple-breathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+/* ── Orbiting garnish ────────────────────────────────────────────────── */
+.orbit-item {
+  position: absolute;
+  transform-origin: center;
+  animation: orbit calc(var(--orbit-duration, 20) * 1s) linear infinite;
+  animation-delay: calc(var(--orbit-delay, 0) * -1s);
+  will-change: transform;
+}
+.orbit-item.is-reverse {
+  animation-direction: reverse;
+}
+/* The counter-rotation on the far side keeps each garnish upright as it travels. */
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateY(calc(var(--orbit-radius, 100) * 1px)) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateY(calc(var(--orbit-radius, 100) * 1px)) rotate(-360deg);
+  }
+}
+
+/* ── Pointer spotlight on form fields ────────────────────────────────── */
+.spotlight-field {
+  border-radius: 22px;
+  padding: 2px;
+  transition: background 0.3s ease;
+  background: radial-gradient(
+    var(--spot-size, 0px) circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    #fbbf24,
+    transparent 80%
+  );
+}
+
+/* ── Hairline that lights up under a button on hover ─────────────────── */
+.underglow {
+  position: relative;
+}
+.underglow::after,
+.underglow::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  height: 1px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.underglow::before {
+  left: 0;
+  right: 0;
+  background: linear-gradient(to right, transparent, #d97706, transparent);
+}
+.underglow::after {
+  left: 2.5rem;
+  right: 2.5rem;
+  filter: blur(2px);
+  background: linear-gradient(to right, transparent, #fbbf24, transparent);
+}
+.underglow:hover::after,
+.underglow:hover::before {
+  opacity: 1;
 }
 
 /* ── Respect reduced motion everywhere in this system ─────────────────── */
@@ -236,6 +423,20 @@ html {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  /* The clip would otherwise sit frozen over the content it hides. */
+  .box-reveal-content {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+  .box-reveal-curtain,
+  .ripple-ring,
+  .orbit-item {
+    animation: none;
+  }
+  .box-reveal-curtain {
+    display: none;
   }
   .tilt-card,
   .magnetic {
@@ -253,4 +454,444 @@ html {
     }
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SCROLL SCENES — scrubbed, sticky-pinned storytelling (landing page)
+
+   A scene is a section taller than the viewport whose inner stage is
+   `position: sticky`. [appScene] publishes scroll progress through it as
+   `--p` (0 → 1, eased), and everything below is pure calc() off that one
+   number — no per-frame JS beyond a single custom-property write.
+
+   Only transform and opacity are animated, so scrubbing stays on the
+   compositor. Under prefers-reduced-motion the directive pins `--p` to 1,
+   which resolves every formula here to its finished state — a composed
+   static layout rather than a broken one.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Split type (SplitTextComponent) ─────────────────────────────────── */
+.split-text {
+  display: inline;
+}
+.split-word {
+  display: inline-block;
+  white-space: pre;
+}
+.split-char {
+  display: inline-block;
+}
+.split-space {
+  display: inline-block;
+  white-space: pre;
+}
+
+/* ── Hero: load-in timeline ──────────────────────────────────────────── */
+.hero-intro .split-word {
+  animation: hero-word-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--i) * 130ms + 120ms);
+}
+@keyframes hero-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.3em) scale(1.55);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-rise {
+  animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Hero: ingredients converging into the dish ──────────────────────── */
+.hero-orbit-item {
+  --r: 38vmin;
+  --a: 0deg;
+  /* Ring geometry is tuned per breakpoint here rather than inline, so the
+     per-item angle/radius bindings stay the only inline styles. */
+  --ring: 1;
+  --fade: 1;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(var(--a))
+    translate(calc(var(--r) * var(--ring) * (1 - 0.86 * var(--p, 0)))) rotate(calc(-1 * var(--a)))
+    scale(calc(1 - 0.5 * var(--p, 0)));
+  opacity: calc(var(--fade) * (1 - 0.92 * clamp(0, (var(--p, 0) - 0.5) * 2, 1)));
+}
+@media (max-width: 767px) {
+  /* Phones have no room to keep the ring clear of the headline: push it wider
+     and drop it back so it reads as texture behind the copy, not clutter. */
+  .hero-orbit-item {
+    --ring: 1.3;
+    --fade: 0.4;
+  }
+}
+.hero-dish {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(calc(0.5 + 0.5 * var(--p, 0)))
+    rotate(calc(var(--p, 0) * 16deg));
+  opacity: clamp(0, calc((var(--p, 0) - 0.18) * 2.4), 1);
+}
+.hero-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(calc(0.6 + 0.7 * var(--p, 0)));
+  opacity: calc(0.15 + 0.35 * var(--p, 0));
+}
+
+/* ── Scrubbed reveals, driven by a scene's own progress ──────────────── */
+.hero-late {
+  --lp: clamp(0, calc((var(--p, 0) - 0.45) * 3), 1);
+  opacity: var(--lp);
+  transform: translateY(calc((1 - var(--lp)) * 26px));
+}
+/* Fizzi's per-character entrance, scrubbed to scroll instead of a timeline */
+.hero-late-heading .split-char {
+  /* Steeper than the block it sits in, so the last character still reaches
+     full weight by the time the scene ends. */
+  --cp: clamp(0, calc((var(--p, 0) - 0.45) * 4 - var(--i) * 0.055), 1);
+  opacity: var(--cp);
+  transform: translateY(calc((1 - var(--cp)) * 30px)) rotate(calc((1 - var(--cp)) * -14deg))
+    scale(calc(1 + (1 - var(--cp)) * 0.3));
+}
+
+/* ── Story: pinned dish, alternating sides, warming background ───────── */
+.story-visual {
+  /* Cosine gives a smooth left/right alternation across the four chapters
+     with no per-chapter breakpoints: one period every two chapters. */
+  --shift: 0;
+  transform: translate3d(calc(var(--shift) * 18vw), 0, 0) rotate(calc(var(--shift) * -3deg))
+    scale(calc(0.92 + 0.08 * var(--p, 0)));
+}
+@supports (width: calc(cos(45deg) * 1px)) {
+  .story-visual {
+    --shift: cos(calc(var(--p, 0) * 540deg));
+  }
+}
+/* Journey rail — the four steps as a fixed index down the side, so the
+   pinned card is never floating in the page without context. Each item
+   lights as the scene passes it; `max(a - b, b - a)` is absolute distance
+   without relying on CSS abs(), which is still too new to depend on. */
+.story-rail-fill {
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+}
+.story-rail-item {
+  --near: clamp(0, calc((0.16 - max(var(--p, 0) - var(--at), var(--at) - var(--p, 0))) * 10), 1);
+}
+.story-rail-dot {
+  transform: scale(calc(1 + 0.55 * var(--near)));
+}
+.story-rail-dot-on {
+  opacity: var(--near);
+}
+.story-rail-label {
+  opacity: calc(0.28 + 0.72 * var(--near));
+  transform: translateX(calc(var(--near) * 5px));
+}
+
+/* The one detail that sells the device as live rather than a screenshot. */
+.type-caret {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Chapter tint behind the pinned device, one glow per chapter. */
+.story-glow {
+  position: absolute;
+  inset: -18%;
+  border-radius: 9999px;
+  filter: none;
+  pointer-events: none;
+}
+
+/* Panels cross-fade inside the pinned card, one per chapter. `--in`/`--out`
+   are set per panel in the template; the trapezoid keeps neighbours
+   overlapping so the card is never briefly blank. */
+.story-panel {
+  position: absolute;
+  inset: 0;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: clamp(0, calc(min(var(--p, 0) - var(--in), var(--out) - var(--p, 0)) * 10), 1);
+}
+.story-wash-2 {
+  opacity: clamp(0, calc((var(--p, 0) - 0.28) * 4), 1);
+}
+.story-wash-3 {
+  opacity: clamp(0, calc((var(--p, 0) - 0.62) * 4), 1);
+}
+
+/* ── Kinetic type: words assembling, then rushing past the viewer ─────
+   Fizzi's skydive sends its words through the camera on a Z axis; this is
+   that beat in CSS. Two acts, both read off the same scene progress:
+
+     act one  — each line arrives out of depth, letters dropping into place
+                one by one and closing up their spacing
+     act two  — the whole stack accelerates through the camera and out
+
+   "Spacing" is per-character translateX against the character's own index,
+   never letter-spacing: real tracking reflows the text every frame, and at
+   22vw that is a full layout pass per line per frame. The line counter-
+   shifts by half its length so the word stays centred while it spreads. */
+.rush {
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+.rush-line {
+  --o: 0;
+  --dir: 1;
+  --len: 4;
+  --wp: clamp(0, calc((var(--p, 0) - var(--o)) * 2.6), 1);
+  --out: clamp(0, calc((var(--p, 0) - 0.66) * 3), 1);
+  --spread: calc((1 - var(--wp)) + var(--out) * 1.6);
+
+  /* Z is capped at 430px against a 1100px perspective — a 1.6x maximum scale.
+     Pushing translateZ toward the perspective value makes the computed scale
+     approach infinity, and the frames either side of that are an enormous
+     raster the compositor cannot keep up with: that is what reads as the
+     section sticking, especially scrubbing back through it. The words are
+     fully faded well before the cap. */
+  transform: translate3d(
+      calc(var(--dir) * (1 - var(--wp)) * 26vw + var(--spread) * var(--len) * -0.07em),
+      0,
+      calc(-900px * (1 - var(--wp)) + var(--out) * 430px)
+    )
+    rotateX(calc((1 - var(--wp)) * 14deg));
+  opacity: calc(var(--wp) * clamp(0, 1 - var(--out) * 1.35, 1));
+  backface-visibility: hidden;
+}
+.rush-line .split-char {
+  --cp: clamp(0, calc(var(--wp) * 1.6 - var(--i) * 0.08), 1);
+  transform: translateX(calc(var(--i) * var(--spread) * 0.14em))
+    translateY(calc((1 - var(--cp)) * 0.32em)) rotate(calc((1 - var(--cp)) * -7deg));
+  opacity: var(--cp);
+}
+.rush-outline {
+  color: transparent;
+}
+@supports (-webkit-text-stroke: 1px currentColor) {
+  .rush-outline {
+    -webkit-text-stroke: 0.014em #fbbf24;
+  }
+}
+.rush-glow {
+  transform: scale(calc(0.5 + var(--p, 0) * 1.1));
+  opacity: calc(0.25 + var(--p, 0) * 0.45);
+}
+
+/* ── Cuisine carousel ────────────────────────────────────────────────── */
+/* Fizzi puts wavy concentric circles behind its can and recolours them with
+   the flavour. Same idea, drawn as dashed rings that turn at different rates
+   and directions — a set of dials the dish sits at the centre of. The whole
+   assembly also scrubs with scroll, so the backdrop and the dish move at
+   different speeds as the section passes: parallax with depth, not a slide. */
+.carousel-rings {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: rgb(255 255 255 / 0.4);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(calc(0.82 + var(--progress, 0) * 0.34))
+    rotate(calc(var(--progress, 0) * 22deg + var(--spin, 0) * -0.06deg));
+  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.carousel-rings circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-turn linear infinite;
+}
+.carousel-rings circle:nth-child(1) {
+  animation-duration: 64s;
+}
+.carousel-rings circle:nth-child(2) {
+  animation-duration: 88s;
+  animation-direction: reverse;
+}
+.carousel-rings circle:nth-child(3) {
+  animation-duration: 116s;
+}
+.carousel-rings circle:nth-child(4) {
+  animation-duration: 150s;
+  animation-direction: reverse;
+}
+@keyframes ring-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Scroll parallax: heading, dish and caption ride at three different rates. */
+.carousel-lift-slow {
+  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * 44px), 0);
+}
+.carousel-lift-fast {
+  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * -68px), 0);
+}
+.carousel-lift-drift {
+  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * 26px), 0);
+}
+
+.carousel-stage {
+  perspective: 1200px;
+}
+.carousel-card {
+  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+  transform: rotateY(calc(var(--spin, 0) * 1deg));
+}
+.carousel-tint {
+  transition: background-color 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.carousel-label {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.carousel-swapping .carousel-label {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* ── Finale: marquee bands closing the page ──────────────────────────
+   Two belts of real dishes running opposite ways, tilted just off level.
+   They carry the same photographs as the hero ring and the carousel, which
+   is what stops the closing screen reading as a detached button on cream.
+   The infinite run stays paused until the section is revealed, so a belt
+   nobody has scrolled to yet costs nothing. */
+.marquee-band {
+  overflow: hidden;
+}
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee var(--speed, 44s) linear infinite;
+  animation-play-state: paused;
+}
+.is-revealed .marquee-track {
+  animation-play-state: running;
+  will-change: transform;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+@keyframes marquee {
+  to {
+    /* The track holds exactly two copies of the list. */
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+/* Scroll parallax on the belts themselves, on top of their own run. */
+.finale-drift-a {
+  transform: translate3d(calc((0.5 - var(--progress, 0)) * 7vw), 0, 0);
+}
+.finale-drift-b {
+  transform: translate3d(calc((var(--progress, 0) - 0.5) * 7vw), 0, 0);
+}
+.finale-glow {
+  transform: translate(-50%, -50%) scale(calc(0.7 + var(--progress, 0) * 0.6));
+  opacity: calc(0.3 + var(--progress, 0) * 0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .finale-drift-a,
+  .finale-drift-b,
+  .finale-glow,
+  .carousel-lift-slow,
+  .carousel-lift-fast,
+  .carousel-lift-drift {
+    transform: none;
+  }
+  .carousel-rings circle {
+    animation: none;
+  }
+}
+
+/* ── Shared WebGL canvas ─────────────────────────────────────────────── */
+/* One fixed, transparent canvas for the whole page, drawn only inside the
+   rects claimed by [appWebglView]. It sits above section backgrounds but
+   below page content (z-30), so copy always stays readable over it. */
+.webgl-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 20;
+  pointer-events: none;
+}
+/* Photos the 3D scene replaces, crossfading out only once it is actually
+   drawing. Nothing here is load-bearing if the stage never starts. */
+.webgl-fallback {
+  transition: opacity 0.7s ease;
+}
+.webgl-on .webgl-fallback {
+  opacity: 0;
+}
+
+/* ── Compositor hints, only while a scene is actually on screen ──────── */
+.scene-active .hero-orbit-item,
+.scene-active .hero-dish,
+.scene-active .hero-halo,
+.scene-active .hero-late,
+.scene-active .story-visual,
+.scene-active .rush-line {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-intro .split-word,
+  .hero-rise {
+    animation: none;
+  }
+  .carousel-card,
+  .carousel-tint,
+  .carousel-label {
+    transition: none;
+  }
+  /* `--p` rests at 1, which resolves most formulas to their finished state.
+     These few would land mid-formula, so they get pinned explicitly. */
+  .hero-late-heading .split-char {
+    opacity: 1;
+    transform: none;
+  }
+  /* At rest the kinetic type would be mid-flight and invisible; hold it at
+     the assembled frame instead. */
+  .rush-line {
+    --wp: 1;
+    --out: 0;
+  }
+  .rush-line .split-char {
+    --cp: 1;
+  }
+}
+
 

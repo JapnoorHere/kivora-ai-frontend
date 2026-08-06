@@ -1,0 +1,1 @@
+@for (word of words(); track word.index) {<span class="split-word" [style.--i]="word.index" aria-hidden="true">@if (unit() === 'char') {@for (char of word.chars; track char.index) {<span class="split-char" [style.--i]="char.index">{{ char.value }}</span>}} @else {{{ word.text }}}</span>@if (!$last) {<span class="split-space" aria-hidden="true">&ngsp;</span>}}

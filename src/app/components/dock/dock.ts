@@ -69,7 +69,7 @@ export class DockComponent {
   }
 
   protected redirectToLogin(): void {
-    this.authService.isAuthModalOpen.set(true);
+    this.authService.promptLogin();
   }
 
   protected newRecipe(): void {

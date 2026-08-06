@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { APP_ROUTES } from '../constants/app.constants';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = async (): Promise<boolean> => {
+export const authGuard: CanActivateFn = async (_route, state: RouterStateSnapshot): Promise<boolean> => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -13,6 +13,8 @@ export const authGuard: CanActivateFn = async (): Promise<boolean> => {
     return true;
   }
 
-  router.navigate([APP_ROUTES.HOME]);
+  // Carry the blocked destination so signing in resumes it rather than dumping
+  // the visitor on the home page.
+  router.navigate([APP_ROUTES.LOGIN], { queryParams: { returnUrl: state.url } });
   return false;
 };

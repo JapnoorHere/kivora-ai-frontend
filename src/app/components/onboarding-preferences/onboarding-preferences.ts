@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, output, signal } from '@angular/core';
 import { DISCOVERY_CATEGORIES } from '../../core/constants/recipe.constants';
 import { DietaryPreference, LanguageCode } from '../../core/enums/recipe.enum';
+import { AuthService } from '../../core/services/auth.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UserApiService } from '../../core/services/user-api.service';
@@ -19,6 +20,7 @@ import { SteamWispComponent } from '../ui/steam-wisp/steam-wisp';
 export class OnboardingPreferencesComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly userApi = inject(UserApiService);
+  private readonly authService = inject(AuthService);
   private readonly stateService = inject(RecipeStateService);
   private readonly toast = inject(ToastService);
 
@@ -124,6 +126,7 @@ export class OnboardingPreferencesComponent implements OnInit, OnDestroy {
         favoriteDishes: this.favoriteDishes(),
         preferredLanguage: this.preferredLanguage(),
       });
+      this.authService.markOnboardingCompleted();
       this.stateService.setLanguage(this.preferredLanguage());
       this.toast.success("Your kitchen is set up. Let's cook!", 'All Set');
     } catch (err: unknown) {
@@ -145,6 +148,7 @@ export class OnboardingPreferencesComponent implements OnInit, OnDestroy {
         favoriteDishes: [],
         preferredLanguage: this.stateService.currentLanguage(),
       });
+      this.authService.markOnboardingCompleted();
     } catch {
       // Best-effort — the app works fine without saved preferences either way.
     } finally {

@@ -6,6 +6,9 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Every dish photo comes from here; opening the connection early saves a
+         DNS + TLS round trip before the first image can even start. -->
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
   </head>
   <body>
     <app-root></app-root>

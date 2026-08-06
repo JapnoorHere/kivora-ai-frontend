@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
   AUTH_LOGIN: '/auth/login',
   AUTH_SIGNUP: '/auth/signup',
   AUTH_LOGOUT: '/auth/logout',
+  AUTH_ME: '/auth/me',
   RECIPES_GENERATE: '/recipes/generate',
   RECIPES_LIST: '/recipes',
   recipeById: (id: string): string => `/recipes/${id}`,
@@ -21,6 +22,7 @@ export const API_ENDPOINTS = {
 
 export const APP_ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
   RECENT: '/recent',
   SETTINGS: '/settings',
   recipeIngredients: (id: string): string[] => ['/recipes', id, 'ingredients'],
@@ -28,3 +30,6 @@ export const APP_ROUTES = {
 } as const;
 
 export const MOBILE_BREAKPOINT_PX = 768;
+
+// Mirrors the signup rule in the backend's auth.validator.js — keep the two in step
+export const PASSWORD_MIN_LENGTH = 8;

@@ -1,5 +1,6 @@
 import { Directive, ElementRef, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { ScrollTrackerService } from '../../core/services/scroll-tracker.service';
+import { prefersReducedMotion, whileVisible } from '../../core/utils/visibility.util';
 
 /**
  * Classic scroll parallax — translates the element vertically based on how
@@ -15,22 +16,30 @@ export class ScrollParallaxDirective implements OnInit, OnDestroy {
 
   public readonly appParallaxSpeed = input<number>(0.15);
 
-  private unregister: (() => void) | null = null;
+  private offset = 0;
+  private detach: (() => void) | null = null;
 
   public ngOnInit(): void {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (prefersReducedMotion()) return;
 
-    this.unregister = this.tracker.register(() => {
-      const element = this.elementRef.nativeElement;
-      const rect = element.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const elementCenter = rect.top + rect.height / 2;
-      const delta = (viewportCenter - elementCenter) * this.appParallaxSpeed();
-      element.style.transform = `translate3d(0, ${delta}px, 0)`;
-    });
+    const element = this.elementRef.nativeElement;
+
+    this.detach = whileVisible(element, () =>
+      this.tracker.register({
+        measure: () => {
+          const rect = element.getBoundingClientRect();
+          const viewportCenter = window.innerHeight / 2;
+          const elementCenter = rect.top + rect.height / 2;
+          this.offset = (viewportCenter - elementCenter) * this.appParallaxSpeed();
+        },
+        apply: () => {
+          element.style.transform = `translate3d(0, ${this.offset.toFixed(2)}px, 0)`;
+        },
+      }),
+    );
   }
 
   public ngOnDestroy(): void {
-    this.unregister?.();
+    this.detach?.();
   }
 }

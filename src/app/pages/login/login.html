@@ -1,0 +1,238 @@
+<section class="relative flex min-h-[100dvh] w-full overflow-hidden bg-[#fbfbfa]">
+
+  <!-- Ambient warmth: never transformed, so it never re-blurs during motion -->
+  <div class="pointer-events-none absolute inset-0 bg-dot-grid opacity-40"></div>
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute -left-[10%] top-[4%] h-[420px] w-[420px] rounded-full bg-amber-400/14 blur-[120px]"></div>
+    <div class="absolute -right-[8%] bottom-[2%] h-[460px] w-[460px] rounded-full bg-amber-300/12 blur-[130px]"></div>
+  </div>
+
+  <!-- ════════════ Left: orbiting garnish over a breathing ripple field ════════════ -->
+  <div class="relative hidden w-1/2 flex-col justify-center lg:flex">
+    <app-ripple [baseSize]="120" [ringCount]="11" />
+    <app-orbit-display [items]="orbitItems" [ringRadii]="guideRings" text="Kivora" />
+
+    <p class="absolute bottom-10 left-0 right-0 text-center text-[9px] font-black uppercase tracking-widest text-slate-400">
+      Cook exactly what you crave
+    </p>
+  </div>
+
+  <!-- ════════════════════════ Right: the form ════════════════════════ -->
+  <div class="relative z-10 flex w-full flex-col justify-center px-6 py-10 sm:px-10 lg:w-1/2 lg:px-12 xl:px-16">
+    <div class="mx-auto flex w-full max-w-[30rem] flex-col gap-5">
+
+      <!-- Wordmark + escape hatch back to the marketing page -->
+      <app-box-reveal width="100%" [duration]="400">
+        <div class="flex items-center justify-between">
+          <a [routerLink]="routes.HOME" class="group flex items-center gap-2 focus:outline-none">
+            <div class="relative h-9 w-9 shrink-0">
+              <img src="logo.png" alt="Kivora AI" width="36" height="36" class="h-full w-full object-contain" />
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-amber-800">Kivora AI</span>
+          </a>
+          <a
+            [routerLink]="routes.HOME"
+            class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400 transition-colors hover:bg-slate-900/5 hover:text-slate-700 focus:outline-none"
+          >
+            <svg aria-hidden="true" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </a>
+        </div>
+      </app-box-reveal>
+
+      <!-- Glass card: gives the column a real surface instead of type floating on cream -->
+      <div class="rounded-[2.25rem] border border-white/70 bg-white/70 p-7 shadow-[0_25px_65px_-20px_rgba(120,53,15,0.22)] backdrop-blur-xl sm:p-9">
+
+        <app-box-reveal [duration]="400" [delay]="60">
+          <h1 class="text-3xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-[2.6rem]">
+            {{ heading() }}
+          </h1>
+        </app-box-reveal>
+
+        <app-box-reveal width="100%" [duration]="400" [delay]="120">
+          <p class="mt-2.5 text-xs font-bold leading-relaxed text-slate-500">
+            {{ subHeading() }}
+          </p>
+        </app-box-reveal>
+
+      <form [formGroup]="authForm" (ngSubmit)="onSubmit()" class="mt-6 flex flex-col gap-3">
+
+        <!-- Chef name — collapses away in sign-in mode -->
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out"
+          [style.max-height]="isLoginMode() ? '0px' : '108px'"
+          [style.opacity]="isLoginMode() ? '0' : '1'"
+        >
+          <app-box-reveal width="100%" [duration]="400" [delay]="180">
+            <label for="chef-name" class="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-slate-600">
+              Chef Name <span class="text-amber-600">*</span>
+            </label>
+            <div appSpotlight>
+              <input
+                id="chef-name"
+                type="text"
+                formControlName="name"
+                autocomplete="name"
+                placeholder="What should we call you?"
+                class="w-full rounded-[20px] border border-amber-900/10 bg-white/80 px-4 py-3 text-xs font-bold text-slate-800 shadow-[0_1px_0_0_rgba(25,28,33,0.02)] transition-all duration-300 placeholder:font-semibold placeholder:text-slate-300 focus:border-[#fbbf24] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/10"
+                [class.border-amber-500]="nameControl.touched && nameControl.invalid"
+              />
+            </div>
+            <div class="h-4 pt-1">
+              @if (nameControl.touched && nameControl.invalid) {
+                <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">
+                  Name is required (min 2 characters)
+                </span>
+              }
+            </div>
+          </app-box-reveal>
+        </div>
+
+        <!-- Email -->
+        <app-box-reveal width="100%" [duration]="400" [delay]="180">
+          <label for="chef-email" class="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-slate-600">
+            Email Address <span class="text-amber-600">*</span>
+          </label>
+          <div appSpotlight>
+            <input
+              id="chef-email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="you@kitchen.com"
+              class="w-full rounded-[20px] border border-amber-900/10 bg-white/80 px-4 py-3 text-xs font-bold text-slate-800 shadow-[0_1px_0_0_rgba(25,28,33,0.02)] transition-all duration-300 placeholder:font-semibold placeholder:text-slate-300 focus:border-[#fbbf24] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/10"
+              [class.border-amber-500]="emailControl.touched && emailControl.invalid"
+            />
+          </div>
+          <div class="h-4 pt-1">
+            @if (emailControl.touched && emailControl.invalid) {
+              <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">
+                A valid email address is required
+              </span>
+            }
+          </div>
+        </app-box-reveal>
+
+        <!-- Password -->
+        <app-box-reveal width="100%" [duration]="400" [delay]="240">
+          <label for="chef-password" class="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-slate-600">
+            Password <span class="text-amber-600">*</span>
+          </label>
+          <div appSpotlight class="relative">
+            <input
+              id="chef-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              [autocomplete]="isLoginMode() ? 'current-password' : 'new-password'"
+              placeholder="Your secret ingredient"
+              class="w-full rounded-[20px] border border-amber-900/10 bg-white/80 px-4 py-3 pr-12 text-xs font-bold text-slate-800 shadow-[0_1px_0_0_rgba(25,28,33,0.02)] transition-all duration-300 placeholder:font-semibold placeholder:text-slate-300 focus:border-[#fbbf24] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/10"
+              [class.border-amber-500]="passwordControl.touched && passwordControl.invalid"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 transition-colors hover:text-slate-700 focus:outline-none"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            >
+              <svg aria-hidden="true" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                @if (showPassword()) {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                } @else {
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                }
+              </svg>
+            </button>
+          </div>
+          <div class="h-4 pt-1">
+            @if (passwordControl.touched && passwordControl.invalid) {
+              <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">{{ passwordError }}</span>
+            }
+          </div>
+        </app-box-reveal>
+
+        <!-- Server-side rejection (bad credentials, email taken, rate limited) -->
+        @if (formError()) {
+          <p class="rounded-2xl border border-amber-500/30 bg-amber-50/80 px-4 py-2.5 text-[10px] font-bold leading-relaxed text-amber-800">
+            {{ formError() }}
+          </p>
+        }
+
+        <app-box-reveal width="100%" overflow="visible" [duration]="400" [delay]="300">
+          <button
+            type="submit"
+            appMagnetic
+            [appMagneticStrength]="0.2"
+            [disabled]="isSubmitting()"
+            class="underglow flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#fbbf24] py-3.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-900 shadow-[0_4px_14px_rgba(251,191,36,0.25)] transition-all duration-300 hover:bg-[#e0a820] hover:shadow-[0_6px_20px_rgba(251,191,36,0.4)] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/25 active:scale-98 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span>{{ isLoginMode() ? 'Sign In & Cook' : 'Start Cooking' }}</span>
+            <svg aria-hidden="true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </app-box-reveal>
+
+        <app-box-reveal width="100%" [duration]="400" [delay]="360">
+          <div class="text-center">
+            <button
+              type="button"
+              (click)="switchMode()"
+              class="cursor-pointer text-[10px] font-bold text-slate-500 transition-colors hover:text-amber-700 focus:outline-none"
+            >
+              {{ isLoginMode() ? 'New to Kivora? Create an account' : 'Already have an account? Sign in' }}
+            </button>
+          </div>
+        </app-box-reveal>
+      </form>
+
+        <!-- Live preview of the catalogue waiting on the other side of the form.
+             Re-keyed on the dish name so the crossfade replays on every swap. -->
+        <app-box-reveal width="100%" [duration]="400" [delay]="420">
+          <div class="mt-7 flex items-center gap-3 border-t border-amber-900/10 pt-5">
+            @for (dish of [tickerDish()]; track dish.name) {
+              <img
+                [src]="dish.image"
+                alt=""
+                width="44"
+                height="44"
+                loading="lazy"
+                decoding="async"
+                class="animate-fade-in h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-white/80"
+                aria-hidden="true"
+              />
+              <div class="animate-fade-in min-w-0">
+                <p class="text-[8px] font-black uppercase tracking-widest text-slate-400">Tonight you could cook</p>
+                <p class="truncate text-xs font-black text-slate-800">{{ dish.name }}</p>
+              </div>
+              <span class="ml-auto shrink-0 rounded-full bg-amber-400/15 px-2.5 py-1 text-[8px] font-black uppercase tracking-widest text-amber-800">
+                {{ dish.cuisine }}
+              </span>
+            }
+          </div>
+        </app-box-reveal>
+      </div>
+
+      <!-- What the account actually buys — the reason to finish the form -->
+      <app-box-reveal width="100%" [duration]="400" [delay]="480">
+        <ul class="grid grid-cols-3 gap-2">
+          @for (perk of perks; track perk.label) {
+            <li class="flex flex-col items-center gap-1.5 rounded-2xl border border-white/60 bg-white/45 px-2 py-3 text-center backdrop-blur-sm">
+              <span aria-hidden="true" class="text-sm">{{ perk.icon }}</span>
+              <span class="text-[8px] font-black uppercase leading-tight tracking-widest text-slate-500">{{ perk.label }}</span>
+            </li>
+          }
+        </ul>
+      </app-box-reveal>
+
+      <app-box-reveal width="100%" [duration]="400" [delay]="540">
+        <p class="mx-auto max-w-[320px] text-center text-[8px] font-bold uppercase leading-relaxed tracking-widest text-slate-400/80">
+          AI-generated recipes should always be reviewed for allergens and safety before cooking.
+        </p>
+      </app-box-reveal>
+
+    </div>
+  </div>
+</section>

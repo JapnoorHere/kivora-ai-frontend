@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { API_ENDPOINTS, APP_ROUTES, STORAGE_KEYS } from '../constants/app.constants';
+import { API_ENDPOINTS } from '../constants/app.constants';
 import { ApiErrorResponse } from '../interfaces/recipe.interface';
 import { SavePreferencesRequest, UserPreferences } from '../interfaces/preferences.interface';
 import { fetchJson } from '../utils/http.util';
-import { ToastService } from './toast.service';
+import { AuthService } from './auth.service';
 
 interface ApiEnvelope<T> {
   readonly data?: T;
@@ -15,15 +15,13 @@ interface ApiEnvelope<T> {
 })
 export class UserApiService {
   private readonly baseUrl = environment.apiUrl;
-  private readonly toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const { response, result } = await fetchJson(`${this.baseUrl}${endpoint}`, options);
 
     if (response.status === 401) {
-      localStorage.removeItem(STORAGE_KEYS.USER);
-      this.toast.error('Your session has expired. Please sign in again.', 'Session Expired');
-      window.location.href = APP_ROUTES.HOME;
+      this.authService.handleUnauthorized();
       throw new Error('Session expired. Please log in again.');
     }
 

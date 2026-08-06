@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
-import { AuthModalComponent } from './components/auth-modal/auth-modal';
 import { DockComponent } from './components/dock/dock';
 import { FooterComponent } from './components/footer/footer';
 import { LoaderComponent } from './components/loader/loader';
@@ -13,7 +12,7 @@ import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoaderComponent, DockComponent, FooterComponent, AuthModalComponent, ToastComponent, OnboardingPreferencesComponent],
+  imports: [RouterOutlet, LoaderComponent, DockComponent, FooterComponent, ToastComponent, OnboardingPreferencesComponent],
   template: `
     @if (!isLoginRoute()) {
       <div class="flex min-h-screen relative bg-[#fbfbfa]">
@@ -33,17 +32,13 @@ import { AuthService } from './core/services/auth.service';
 
       </div>
     } @else {
-      <main class="relative min-h-screen bg-slate-950 text-slate-900">
+      <main class="relative min-h-screen bg-[#fbfbfa] text-slate-900">
         <router-outlet />
       </main>
     }
 
     <app-loader />
     <app-toast />
-
-    @if (authService.isAuthModalOpen()) {
-      <app-auth-modal (close)="closeAuthModal()" (authSuccess)="closeAuthModal()" />
-    }
 
     @if (showOnboarding()) {
       <app-onboarding-preferences (completed)="showOnboarding.set(false)" />
@@ -80,14 +75,20 @@ export class App implements OnInit {
   protected readonly title = signal('kivora-ai-frontend');
   protected readonly showOnboarding = signal<boolean>(false);
 
-  public async ngOnInit(): Promise<void> {
-    await this.authService.checkSession();
+  constructor() {
+    /**
+     * Reacts to the user signal rather than firing once at startup, so it covers
+     * both a restored session and a brand-new signup. Held back on /login so the
+     * sheet never flashes over the form during the post-signup navigation.
+     */
+    effect(() => {
+      if (!this.isLoginRoute() && this.authService.currentUser()?.onboardingCompleted === false) {
+        this.showOnboarding.set(true);
+      }
+    });
   }
 
-  protected closeAuthModal(): void {
-    this.authService.isAuthModalOpen.set(false);
-    if (this.authService.currentUser()?.onboardingCompleted === false) {
-      this.showOnboarding.set(true);
-    }
+  public async ngOnInit(): Promise<void> {
+    await this.authService.checkSession();
   }
 }
