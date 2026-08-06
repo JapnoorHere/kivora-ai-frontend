@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { DietaryPreference, LanguageCode } from '../../core/enums/recipe.enum';
+import { MagneticDirective } from '../ui/magnetic.directive';
 
 export interface InterviewResult {
   readonly servings: number;
@@ -11,6 +12,7 @@ export interface InterviewResult {
 
 @Component({
   selector: 'app-cooking-interview',
+  imports: [MagneticDirective],
   templateUrl: './cooking-interview.html',
   styleUrl: './cooking-interview.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

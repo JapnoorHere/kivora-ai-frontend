@@ -42,16 +42,20 @@
 
     <!-- Action Buttons Row -->
     <div class="flex items-center gap-3 w-full pt-2">
-      <button 
-        type="button" 
+      <button
+        type="button"
         (click)="cancel.emit()"
+        appMagnetic
+        [appMagneticStrength]="0.15"
         class="flex-1 py-2.5 rounded-full border border-slate-300 hover:bg-slate-900/5 text-slate-700 font-bold text-xs transition-all duration-200 cursor-pointer active:scale-98"
       >
         {{ cancelText() }}
       </button>
-      <button 
-        type="button" 
+      <button
+        type="button"
         (click)="confirm.emit()"
+        appMagnetic
+        [appMagneticStrength]="0.2"
         class="flex-1 py-2.5 rounded-full font-black text-xs tracking-wider uppercase shadow-md transition-all duration-200 cursor-pointer active:scale-98 bg-[#fcd34d] hover:bg-[#fbbf24] text-slate-900"
       >
         {{ confirmText() }}

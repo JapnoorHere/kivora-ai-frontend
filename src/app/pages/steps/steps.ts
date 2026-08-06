@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { RecipeModifyModalComponent } from '../../components/recipe-modify-modal/recipe-modify-modal';
+import { MagneticDirective } from '../../components/ui/magnetic.directive';
+import { RevealDirective } from '../../components/ui/reveal.directive';
+import { StepTimerComponent } from '../../components/ui/step-timer/step-timer';
+import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
 import { LanguageCode } from '../../core/enums/recipe.enum';
 import { Recipe } from '../../core/interfaces/recipe.interface';
@@ -11,7 +15,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-steps',
-  imports: [RecipeModifyModalComponent, RouterLink],
+  imports: [RecipeModifyModalComponent, RouterLink, RevealDirective, TiltDirective, MagneticDirective, StepTimerComponent],
   templateUrl: './steps.html',
   styleUrl: './steps.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,6 +35,7 @@ export class StepsComponent {
   protected readonly stepDirection = signal<'next' | 'back'>('next');
   protected readonly isModifyOpen = signal<boolean>(false);
   protected readonly isSubmittingModification = signal<boolean>(false);
+  protected readonly checkedIngredients = signal<ReadonlySet<string>>(new Set());
 
   protected readonly isLastStep = computed(() => {
     const recipe = this.recipe();
@@ -82,6 +87,37 @@ export class StepsComponent {
 
   protected paddedStepNumber(stepNumber: number): string {
     return stepNumber < 10 ? `0${stepNumber}` : `${stepNumber}`;
+  }
+
+  protected isIngredientChecked(name: string): boolean {
+    return this.checkedIngredients().has(name);
+  }
+
+  protected toggleIngredientCheck(name: string): void {
+    this.checkedIngredients.update((current) => {
+      const next = new Set(current);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  }
+
+  // Best-effort extraction from free-text AI output like "3 mins" or "30-45 sec".
+  // Returns 0 (hides the timer) when nothing parseable is found.
+  protected parseTimerSeconds(timeRequired?: string): number {
+    if (!timeRequired) return 0;
+    const match = timeRequired.match(/(\d+)(?:\s*[-–]\s*(\d+))?\s*(sec|second|min|minute|hour|hr)/i);
+    if (!match) return 0;
+
+    const value = match[2] ? Number(match[2]) : Number(match[1]);
+    const unit = match[3].toLowerCase();
+
+    if (unit.startsWith('sec')) return value;
+    if (unit.startsWith('hour') || unit.startsWith('hr')) return value * 3600;
+    return value * 60;
   }
 
   protected async onModify(modificationText: string): Promise<void> {

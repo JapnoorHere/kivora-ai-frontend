@@ -55,6 +55,8 @@
       <button
         type="button"
         (click)="dismiss(toast.id)"
+        appMagnetic
+        [appMagneticStrength]="0.2"
         class="shrink-0 w-7 h-7 rounded-full border border-white/25 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 focus:outline-none cursor-pointer transition-colors duration-150"
         aria-label="Dismiss"
       >

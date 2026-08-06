@@ -1,6 +1,7 @@
 import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, effect, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MagneticDirective } from '../ui/magnetic.directive';
 import { AuthService } from '../../core/services/auth.service';
 import { LoaderService } from '../../core/services/loader.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -8,7 +9,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-auth-modal',
-  imports: [ReactiveFormsModule, NgOptimizedImage],
+  imports: [ReactiveFormsModule, NgOptimizedImage, MagneticDirective],
   templateUrl: './auth-modal.html',
   styleUrl: './auth-modal.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +23,7 @@ export class AuthModalComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     // Lock page background scrolling
     document.body.style.overflow = 'hidden';
+    this.isLoginMode.set(this.authService.authModalMode() !== 'signup');
   }
 
   public ngOnDestroy(): void {

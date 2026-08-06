@@ -94,3 +94,163 @@ html {
   animation: toastOut 0.35s cubic-bezier(0.55, 0, 1, 0.45) forwards;
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   KINETIC KITCHEN COUNTER — signature motion system
+   Scroll reveal, pointer-tilt "countertop" cards, magnetic pull, and a
+   recurring steam-wisp motif. Everything here degrades to a plain static
+   layout under prefers-reduced-motion.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Scroll reveal (appReveal directive) ─────────────────────────────── */
+[appReveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--reveal-delay, 0) * 1ms);
+  will-change: opacity, transform;
+}
+[appReveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Pointer tilt "countertop" cards (appTilt directive) ─────────────── */
+.tilt-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.tilt-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--glare-opacity, 0);
+  background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.55), transparent 55%);
+  transition: opacity 0.35s ease;
+  mix-blend-mode: soft-light;
+}
+
+/* ── Magnetic pull (appMagnetic directive) ───────────────────────────── */
+.magnetic {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+/* ── Steam wisp motif — a recurring signature detail ─────────────────── */
+.steam-wisp {
+  width: 60px;
+  height: 120px;
+  overflow: visible;
+}
+.steam-wisp-sm {
+  width: 34px;
+  height: 68px;
+}
+.steam-wisp path {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: steam-draw 4.5s ease-in-out infinite;
+}
+.steam-wisp path:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.steam-wisp path:nth-child(3) {
+  animation-delay: 1s;
+}
+@keyframes steam-draw {
+  0% {
+    stroke-dashoffset: 220;
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.6;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+  85% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: -220;
+    opacity: 0;
+  }
+}
+
+/* ── Native View Transitions — a "liquid pour" wipe between routes ──── */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: kivora-recede 0.65s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+  }
+  ::view-transition-new(root) {
+    animation: kivora-pour-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes kivora-pour-in {
+    from {
+      clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+    to {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+  }
+  @keyframes kivora-recede {
+    from {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      opacity: 1;
+    }
+    to {
+      clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+      opacity: 0.4;
+    }
+  }
+}
+
+/* ── Circular timer ring (steps / cooking mode) ──────────────────────── */
+.timer-ring circle {
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* ── Scroll-progress-driven story chapters (landing page) ────────────── */
+.story-chapter {
+  opacity: calc(0.25 + 0.75 * var(--progress, 0));
+  transform: translateY(calc((1 - var(--progress, 0)) * 50px)) scale(calc(0.94 + 0.06 * var(--progress, 0)));
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-chapter {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Respect reduced motion everywhere in this system ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  [appReveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .tilt-card,
+  .magnetic {
+    transition: none !important;
+  }
+  .steam-wisp path {
+    animation: none;
+    opacity: 0.15;
+    stroke-dashoffset: 0;
+  }
+  @supports (view-transition-name: root) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+    }
+  }
+}
+

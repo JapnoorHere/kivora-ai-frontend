@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ToastType } from '../../core/interfaces/toast.interface';
 import { ToastService } from '../../core/services/toast.service';
+import { MagneticDirective } from '../ui/magnetic.directive';
 
 @Component({
   selector: 'app-toast',
-  imports: [],
+  imports: [MagneticDirective],
   templateUrl: './toast.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

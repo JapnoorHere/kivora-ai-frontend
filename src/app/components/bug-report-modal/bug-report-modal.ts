@@ -4,11 +4,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../core/services/auth.service';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { ToastService } from '../../core/services/toast.service';
+import { MagneticDirective } from '../ui/magnetic.directive';
 import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-bug-report-modal',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MagneticDirective],
   templateUrl: './bug-report-modal.html',
   host: {
     '(document:keydown.escape)': 'onEscape()',

@@ -120,6 +120,8 @@
         <button
           type="button"
           (click)="loginWithGoogle()"
+          appMagnetic
+          [appMagneticStrength]="0.15"
           class="w-full py-3 border border-slate-200 bg-white/60 hover:bg-white text-slate-700 rounded-2xl transition-all duration-300 font-extrabold text-[9px] uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.01)] active:scale-98 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400/20"
         >
           <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 48 48">
@@ -237,8 +239,10 @@
           </div>
 
           <!-- Submit Button -->
-          <button 
-            type="submit" 
+          <button
+            type="submit"
+            appMagnetic
+            [appMagneticStrength]="0.2"
             class="bg-[#fbbf24] hover:bg-[#e0a820] text-slate-900 font-extrabold text-[10px] uppercase tracking-widest py-3 rounded-2xl w-full transition-all duration-300 shadow-[0_4px_14px_rgba(251,191,36,0.25)] hover:shadow-[0_6px_20px_rgba(251,191,36,0.4)] active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-2.5"
           >
             <span>{{ isLoginMode() ? 'Sign In & Cook' : 'Start Cooking' }}</span>

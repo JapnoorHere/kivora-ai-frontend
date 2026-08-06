@@ -1,9 +1,11 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { LoaderService } from '../../core/services/loader.service';
+import { SteamWispComponent } from '../ui/steam-wisp/steam-wisp';
 
 @Component({
   selector: 'app-loader',
+  imports: [SteamWispComponent],
   template: `
     @if (isLoading()) {
       <div
@@ -16,6 +18,9 @@ import { LoaderService } from '../../core/services/loader.service';
         <div class="relative w-44 h-44 flex items-center justify-center">
           <!-- Ambient Liquid Glass glow ring -->
           <div class="absolute inset-0 rounded-full border border-amber-500/10 bg-gradient-to-tr from-[#fcd34d]/10 to-[#fbbf24]/10 shadow-2xl animate-pulse"></div>
+
+          <!-- Rising steam, as if something's cooking while we wait -->
+          <app-steam-wisp size="sm" class="absolute -top-6 left-1/2 -translate-x-1/2 text-amber-300/70" />
 
           <!-- Placeholder ID for Lottie View -->
           <div id="lottie-view" class="relative w-28 h-28 flex items-center justify-center text-amber-500 font-bold text-lg select-none">

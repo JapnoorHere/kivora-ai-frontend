@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RevealDirective } from '../ui/reveal.directive';
 
 @Component({
   selector: 'app-footer',
+  imports: [RevealDirective],
   template: `
-    <footer class="w-full bg-[#fbfbfa]/20 backdrop-blur-md border-t border-slate-700/10 px-6 py-6 mt-auto select-none text-slate-500">
+    <footer appReveal class="w-full bg-[#fbfbfa]/20 backdrop-blur-md border-t border-slate-700/10 px-6 py-6 mt-auto select-none text-slate-500">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold">
 
         <!-- Branding & Copy -->

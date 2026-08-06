@@ -85,120 +85,146 @@
   </nav>
 }
 
-<!-- ── DESKTOP: floating pill, centered → slides to bottom-right on collapse ── -->
+<!-- ── DESKTOP: persistent left sidebar (Stitch layout) ── -->
 @if (!isMobileView()) {
-  <nav
-    class="fixed bottom-4 z-40 flex items-center select-none transition-all duration-500 ease-in-out"
-    [style.right]="isCollapsed() ? '16px' : '50%'"
-    [style.transform]="isCollapsed() ? 'translateX(0)' : 'translateX(50%)'"
-    [style.gap]="isCollapsed() ? '0px' : '8px'"
-    [style.padding]="isCollapsed() ? '0px' : '8px'"
-    [style.background-color]="isCollapsed() ? 'transparent' : 'rgba(250,250,248,0.82)'"
-    [style.border]="isCollapsed() ? '1px solid transparent' : '1px solid rgba(251,191,36,0.5)'"
-    [style.box-shadow]="isCollapsed() ? 'none' : '0 8px 32px rgba(251,191,36,0.22)'"
-    [style.backdrop-filter]="isCollapsed() ? 'none' : 'blur(20px)'"
-    [style.border-radius]="'24px'"
-  >
+  <aside class="fixed left-0 top-0 h-screen w-60 z-40 flex flex-col bg-[#fbfbfa]/95 backdrop-blur-xl border-r border-amber-200/40 select-none animate-fade-in">
 
-    <!-- Collapsible items -->
-    <div
-      class="flex items-center gap-1 overflow-hidden transition-all duration-300 ease-in-out"
-      [style.max-width]="isCollapsed() ? '0px' : '820px'"
-      [style.opacity]="isCollapsed() ? '0' : '1'"
-      [style.pointer-events]="isCollapsed() ? 'none' : 'auto'"
-    >
+    <!-- Logo / brand -->
+    <a routerLink="/" class="flex items-center gap-2.5 px-6 pt-7 pb-6 shrink-0 cursor-pointer group focus:outline-none">
+      <div class="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center text-slate-900 font-black text-sm shrink-0 group-hover:scale-105 transition-transform duration-200">K</div>
+      <div class="min-w-0">
+        <p class="font-black text-xs text-slate-900 tracking-widest leading-none">KIVORA AI</p>
+        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Culinary Zen</p>
+      </div>
+    </a>
 
+    <!-- Nav -->
+    <nav class="flex-1 px-3 space-y-1 overflow-y-auto scrollbar-none">
       <a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive #navHome="routerLinkActive"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
+        appMagnetic [appMagneticStrength]="0.08"
+        class="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 focus:outline-none cursor-pointer"
+        [class.bg-amber-400]="navHome.isActive"
+        [class.text-slate-900]="navHome.isActive"
+        [class.font-black]="navHome.isActive"
+        [class.text-slate-500]="!navHome.isActive"
+        [class.font-bold]="!navHome.isActive"
+        [class.hover:bg-slate-900/5]="!navHome.isActive"
         aria-label="Discover Recipes">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navHome.isActive">
-          <svg aria-hidden="true" class="w-5 h-5 transition-colors duration-200" [class.text-slate-900]="navHome.isActive" [class.text-slate-400]="!navHome.isActive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        </div>
-        <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navHome.isActive" [class.text-slate-400]="!navHome.isActive">Discover</span>
+        <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <span>Discover</span>
       </a>
 
       <a routerLink="/recent" routerLinkActive #navRecent="routerLinkActive"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
+        appMagnetic [appMagneticStrength]="0.08"
+        class="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 focus:outline-none cursor-pointer"
+        [class.bg-amber-400]="navRecent.isActive"
+        [class.text-slate-900]="navRecent.isActive"
+        [class.font-black]="navRecent.isActive"
+        [class.text-slate-500]="!navRecent.isActive"
+        [class.font-bold]="!navRecent.isActive"
+        [class.hover:bg-slate-900/5]="!navRecent.isActive"
         aria-label="Recent Recipes">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navRecent.isActive">
-          <svg aria-hidden="true" class="w-5 h-5" [class.text-slate-900]="navRecent.isActive" [class.text-slate-400]="!navRecent.isActive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navRecent.isActive" [class.text-slate-400]="!navRecent.isActive">History</span>
+        <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>History</span>
+      </a>
+
+      <a routerLink="/settings" routerLinkActive #navSettings="routerLinkActive"
+        appMagnetic [appMagneticStrength]="0.08"
+        class="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 focus:outline-none cursor-pointer"
+        [class.bg-amber-400]="navSettings.isActive"
+        [class.text-slate-900]="navSettings.isActive"
+        [class.font-black]="navSettings.isActive"
+        [class.text-slate-500]="!navSettings.isActive"
+        [class.font-bold]="!navSettings.isActive"
+        [class.hover:bg-slate-900/5]="!navSettings.isActive"
+        aria-label="AI Settings">
+        <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span>Settings</span>
       </a>
 
       @if (currentRecipe(); as recipe) {
+        <div class="pt-4 pb-1 px-3.5">
+          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Recipe</span>
+        </div>
+
         <a [routerLink]="routes.recipeIngredients(recipe.id)" routerLinkActive #navIngredients="routerLinkActive"
-          class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
+          appMagnetic [appMagneticStrength]="0.08"
+          class="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 focus:outline-none cursor-pointer"
+          [class.bg-amber-400]="navIngredients.isActive"
+          [class.text-slate-900]="navIngredients.isActive"
+          [class.font-black]="navIngredients.isActive"
+          [class.text-slate-500]="!navIngredients.isActive"
+          [class.font-bold]="!navIngredients.isActive"
+          [class.hover:bg-slate-900/5]="!navIngredients.isActive"
           aria-label="Ingredient Checklist">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navIngredients.isActive">
-            <svg aria-hidden="true" class="w-5 h-5" [class.text-slate-900]="navIngredients.isActive" [class.text-slate-400]="!navIngredients.isActive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          </div>
-          <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navIngredients.isActive" [class.text-slate-400]="!navIngredients.isActive">Checklist</span>
+          <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <span>Checklist</span>
         </a>
 
         <a [routerLink]="routes.recipeSteps(recipe.id)" routerLinkActive #navSteps="routerLinkActive"
-          class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none"
+          appMagnetic [appMagneticStrength]="0.08"
+          class="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 focus:outline-none cursor-pointer"
+          [class.bg-amber-400]="navSteps.isActive"
+          [class.text-slate-900]="navSteps.isActive"
+          [class.font-black]="navSteps.isActive"
+          [class.text-slate-500]="!navSteps.isActive"
+          [class.font-bold]="!navSteps.isActive"
+          [class.hover:bg-slate-900/5]="!navSteps.isActive"
           aria-label="Cooking Steps">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200" [class.bg-amber-400]="navSteps.isActive">
-            <svg aria-hidden="true" class="w-5 h-5" [class.text-slate-900]="navSteps.isActive" [class.text-slate-400]="!navSteps.isActive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
-          <span class="text-[9px] font-bold whitespace-nowrap" [class.text-slate-900]="navSteps.isActive" [class.text-slate-400]="!navSteps.isActive">Steps</span>
+          <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span>Steps</span>
         </a>
       }
+    </nav>
 
-      <div class="w-px h-6 bg-slate-900/10 shrink-0 mx-1"></div>
-
-      <button type="button" (click)="isFeedbackOpen.set(true)"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-amber-50 focus:outline-none cursor-pointer"
-        aria-label="Report a bug">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:bg-amber-400/15">
-          <svg aria-hidden="true" class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">Report</span>
+    <!-- Bottom actions -->
+    <div class="px-3 pb-6 pt-3 border-t border-amber-200/30 space-y-1 shrink-0">
+      <button type="button" (click)="newRecipe()"
+        appMagnetic [appMagneticStrength]="0.15"
+        class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs transition-all duration-200 cursor-pointer"
+        aria-label="New Recipe">
+        <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>New Recipe</span>
       </button>
 
-      <button type="button" (click)="newRecipe()"
-        class="group flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-amber-50 focus:outline-none cursor-pointer"
-        aria-label="New Recipe">
-        <div class="w-9 h-9 rounded-xl bg-amber-400 group-hover:bg-amber-300 flex items-center justify-center transition-all duration-200">
-          <svg aria-hidden="true" class="w-5 h-5 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-        </div>
-        <span class="text-[9px] font-black text-slate-700 whitespace-nowrap">New</span>
+      <button type="button" (click)="isFeedbackOpen.set(true)"
+        appMagnetic [appMagneticStrength]="0.08"
+        class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-slate-500 hover:bg-amber-50 hover:text-amber-700 font-bold text-xs transition-all duration-200 cursor-pointer"
+        aria-label="Report a bug">
+        <svg aria-hidden="true" class="w-4.5 h-4.5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Report</span>
       </button>
 
       <div class="relative">
         <button type="button"
           (click)="onAccountButtonClick()"
-          class="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-2xl transition-all duration-200 hover:bg-slate-900/5 focus:outline-none cursor-pointer"
+          appMagnetic [appMagneticStrength]="0.08"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-slate-900/5 transition-all duration-200 cursor-pointer focus:outline-none"
           [attr.aria-label]="isAuthenticated() ? 'Account menu' : 'Sign In'">
-          <div class="w-9 h-9 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase transition-all hover:ring-2 hover:ring-amber-400/30">
+          <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/25 flex items-center justify-center text-amber-700 font-black text-xs uppercase shrink-0">
             {{ isAuthenticated() ? (currentUser()?.name?.charAt(0) || 'C') : 'G' }}
           </div>
-          <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">{{ isAuthenticated() ? 'Account' : 'Sign In' }}</span>
+          <span class="text-xs font-bold text-slate-600 truncate">{{ isAuthenticated() ? (currentUser()?.name || 'Account') : 'Sign In' }}</span>
         </button>
 
         @if (isAccountMenuOpen()) {
           <div class="fixed inset-0 z-[45]" (click)="closeAccountMenu()"></div>
-          <div class="absolute bottom-full right-0 mb-3 w-44 bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] p-1.5 animate-slide-up z-50">
-            <a routerLink="/settings" (click)="closeAccountMenu()" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-900/5 transition-colors cursor-pointer">
-              <svg aria-hidden="true" class="w-4 h-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span class="text-xs font-bold text-slate-700">AI Settings</span>
-            </a>
+          <div class="absolute bottom-full left-0 mb-2 w-full bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] p-1.5 animate-slide-up z-50">
             <button type="button" (click)="triggerLogoutConfirm()" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors cursor-pointer">
               <svg aria-hidden="true" class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -208,27 +234,8 @@
           </div>
         }
       </div>
-
-      <div class="w-1 shrink-0"></div>
     </div>
-
-    <!-- Toggle button — morphs into amber FAB when collapsed -->
-    <button type="button" (click)="toggleDock()"
-      class="flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none cursor-pointer shrink-0"
-      [style.width]="isCollapsed() ? '44px' : '36px'"
-      [style.height]="isCollapsed() ? '44px' : '36px'"
-      [style.border-radius]="isCollapsed() ? '50%' : '10px'"
-      [style.background-color]="isCollapsed() ? 'rgba(251,191,36,1)' : 'rgba(251,191,36,0.15)'"
-      [style.box-shadow]="isCollapsed() ? '0 6px 28px rgba(251,191,36,0.55)' : 'none'"
-      [style.color]="isCollapsed() ? 'rgb(15,23,42)' : 'rgb(180,83,9)'"
-      [attr.aria-label]="isCollapsed() ? 'Expand dock' : 'Collapse dock'"
-    >
-      <svg aria-hidden="true" class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="!isCollapsed()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-
-  </nav>
+  </aside>
 }
 
 @if (isLogoutConfirmOpen()) {

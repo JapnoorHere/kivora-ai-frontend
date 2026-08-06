@@ -23,6 +23,7 @@ export class AuthService {
   public readonly currentUser = this.userSignal.asReadonly();
   public readonly isAuthenticated = computed(() => this.userSignal() !== null);
   public readonly isAuthModalOpen = signal<boolean>(false);
+  public readonly authModalMode = signal<'login' | 'signup'>('login');
 
   /**
    * Private helper to perform auth requests with credentials.

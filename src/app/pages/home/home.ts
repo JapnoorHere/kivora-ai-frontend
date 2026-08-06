@@ -2,7 +2,12 @@ import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, computed
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
+import { LandingComponent } from '../../components/landing/landing';
+import { MagneticDirective } from '../../components/ui/magnetic.directive';
 import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
+import { RevealDirective } from '../../components/ui/reveal.directive';
+import { SteamWispComponent } from '../../components/ui/steam-wisp/steam-wisp';
+import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
 import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
 import { DietaryPreference } from '../../core/enums/recipe.enum';
@@ -16,7 +21,17 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, CookingInterviewComponent, FloatingComponent, FloatingElementComponent],
+  imports: [
+    ReactiveFormsModule,
+    CookingInterviewComponent,
+    FloatingComponent,
+    FloatingElementComponent,
+    RevealDirective,
+    TiltDirective,
+    MagneticDirective,
+    SteamWispComponent,
+    LandingComponent,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

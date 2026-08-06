@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RecipeModifyModalComponent } from '../../components/recipe-modify-modal/recipe-modify-modal';
+import { MagneticDirective } from '../../components/ui/magnetic.directive';
+import { RevealDirective } from '../../components/ui/reveal.directive';
+import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
 import { LanguageCode } from '../../core/enums/recipe.enum';
 import { Recipe } from '../../core/interfaces/recipe.interface';
@@ -11,7 +14,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-ingredients',
-  imports: [RecipeModifyModalComponent],
+  imports: [RecipeModifyModalComponent, RevealDirective, TiltDirective, MagneticDirective],
   templateUrl: './ingredients.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

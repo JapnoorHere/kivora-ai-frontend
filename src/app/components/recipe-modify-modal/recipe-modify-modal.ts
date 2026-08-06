@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { LanguageCode } from '../../core/enums/recipe.enum';
+import { MagneticDirective } from '../ui/magnetic.directive';
 
 type ModifyModalTab = 'modify' | 'translate';
 
 @Component({
   selector: 'app-recipe-modify-modal',
+  imports: [MagneticDirective],
   template: `
     <div
       class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 select-none animate-fade-in"
@@ -79,6 +81,7 @@ type ModifyModalTab = 'modify' | 'translate';
             type="button"
             [disabled]="isSubmitting() || !canSubmit()"
             (click)="submit()"
+            appMagnetic
             class="flex-1 py-2.5 rounded-full font-black text-xs tracking-wider uppercase shadow-md transition-all duration-200 cursor-pointer active:scale-98 bg-[#fcd34d] hover:bg-[#fbbf24] text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
           >{{ isSubmitting() ? 'Working...' : 'Apply' }}</button>
         </div>

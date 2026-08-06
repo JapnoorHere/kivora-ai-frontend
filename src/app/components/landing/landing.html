@@ -1,0 +1,160 @@
+<div class="relative">
+
+  <!-- ══════════════════════ HERO ══════════════════════ -->
+  <section class="relative min-h-[92vh] flex flex-col items-center justify-center px-6 overflow-hidden text-center">
+
+    <div class="absolute inset-0 z-0 bg-dot-grid opacity-40 pointer-events-none"></div>
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-[10%] left-[12%] w-[400px] h-[400px] rounded-full bg-amber-400/14 blur-[120px] animate-drift-1"></div>
+      <div class="absolute bottom-[12%] right-[10%] w-[440px] h-[440px] rounded-full bg-amber-400/10 blur-[130px] animate-drift-2"></div>
+    </div>
+
+    <!-- Slow-drifting food imagery, parallax at different speeds/depths -->
+    <img appParallax [appParallaxSpeed]="0.12" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80" alt=""
+      class="hidden md:block absolute top-[14%] left-[6%] w-36 h-44 object-cover rounded-3xl shadow-2xl rotate-[-6deg] opacity-90" aria-hidden="true" />
+    <img appParallax [appParallaxSpeed]="-0.18" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=500&q=80" alt=""
+      class="hidden md:block absolute top-[10%] right-[8%] w-32 h-40 object-cover rounded-3xl shadow-2xl rotate-[7deg] opacity-90" aria-hidden="true" />
+    <img appParallax [appParallaxSpeed]="0.2" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=500&q=80" alt=""
+      class="hidden md:block absolute bottom-[12%] left-[10%] w-40 h-32 object-cover rounded-3xl shadow-2xl rotate-[5deg] opacity-90" aria-hidden="true" />
+    <img appParallax [appParallaxSpeed]="-0.1" src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=500&q=80" alt=""
+      class="hidden md:block absolute bottom-[16%] right-[9%] w-36 h-36 object-cover rounded-3xl shadow-2xl rotate-[-4deg] opacity-90" aria-hidden="true" />
+
+    <div appReveal class="relative z-10 max-w-2xl mx-auto">
+      <app-steam-wisp class="absolute -top-8 left-1/2 -translate-x-1/2 hidden sm:block" />
+
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em] mb-7">
+        ✦ AI-Powered Recipes, Made For You
+      </div>
+
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-900 leading-[1.05] tracking-tight mb-6">
+        Cook Exactly What<br>You're <span class="text-amber-500">Craving</span>
+      </h1>
+
+      <p class="text-base sm:text-lg font-semibold text-slate-500 max-w-lg mx-auto mb-10 leading-relaxed">
+        Type any dish. Kivora AI builds a full recipe around your taste, your diet, and your language — then walks you through cooking it, step by step.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button
+          type="button"
+          (click)="startSignup()"
+          appMagnetic
+          [appMagneticStrength]="0.2"
+          class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer shadow-lg shadow-amber-400/25"
+        >Start Cooking Free →</button>
+
+        <button
+          type="button"
+          (click)="scrollToStory()"
+          appMagnetic
+          [appMagneticStrength]="0.15"
+          class="w-full sm:w-auto px-8 py-4 rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-md hover:bg-white text-slate-700 font-bold text-xs uppercase tracking-widest transition-all duration-200 cursor-pointer"
+        >See How It Works ↓</button>
+      </div>
+
+      <button type="button" (click)="startLogin()" class="mt-6 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+        Already have an account? <span class="text-amber-600 font-black">Sign in</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ HONEST FEATURE STRIP ══════════════════════ -->
+  <section class="relative z-10 border-y border-slate-200/60 bg-white/40 backdrop-blur-md py-5">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
+      <span>3 Languages</span>
+      <span class="text-amber-400">✦</span>
+      <span>Any Cuisine</span>
+      <span class="text-amber-400">✦</span>
+      <span>Zero Ads</span>
+      <span class="text-amber-400">✦</span>
+      <span>Bring Your Own AI Key</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ SCROLL-DRIVEN STORY ══════════════════════ -->
+  <section #storySection class="relative z-10 max-w-5xl mx-auto px-6 py-28 sm:py-36 space-y-36 sm:space-y-48">
+
+    <!-- Chapter 1 -->
+    <div appScrollProgress class="story-chapter grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <span class="text-6xl font-black text-amber-400/25 leading-none">01</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mt-2 mb-4">Tell us what<br>you're craving</h2>
+        <p class="text-sm font-semibold text-slate-500 leading-relaxed max-w-sm">No browsing endless blogs. Just type a dish — in English, Hindi, or Punjabi — and Kivora AI takes it from there.</p>
+      </div>
+      <div appTilt [appTiltMax]="4" class="bg-white/70 backdrop-blur-xl border border-white/70 rounded-[2rem] p-6 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.15)]">
+        <div class="flex items-center gap-2 bg-[#fbfbfa] border border-slate-200 rounded-2xl px-4 py-3.5">
+          <span class="text-amber-500">✦</span>
+          <span class="text-sm font-bold text-slate-400">e.g., Butter Chicken</span>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          @for (cuisine of cuisines; track cuisine) {
+            <span class="text-[10px] font-black text-slate-500 bg-slate-900/5 px-3 py-1.5 rounded-full">{{ cuisine }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter 2 -->
+    <div appScrollProgress class="story-chapter grid md:grid-cols-2 gap-10 items-center">
+      <div appTilt [appTiltMax]="4" class="md:order-1 bg-white/70 backdrop-blur-xl border border-white/70 rounded-[2rem] p-6 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.15)]">
+        <span class="text-[9px] font-black text-amber-600 uppercase tracking-[0.2em]">Indian · Chef's Pick</span>
+        <h3 class="text-lg font-black text-slate-900 mt-1 mb-3">Butter Chicken</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="text-[10px] font-black text-slate-600 bg-slate-900/5 px-3 py-1.5 rounded-full">35 mins total</span>
+          <span class="text-[10px] font-black text-slate-600 bg-slate-900/5 px-3 py-1.5 rounded-full">4 servings</span>
+          <span class="text-[10px] font-black text-emerald-700 bg-emerald-500/10 px-3 py-1.5 rounded-full">Non-Veg</span>
+        </div>
+      </div>
+      <div class="md:order-2">
+        <span class="text-6xl font-black text-amber-400/25 leading-none">02</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mt-2 mb-4">AI plates a full<br>recipe in seconds</h2>
+        <p class="text-sm font-semibold text-slate-500 leading-relaxed max-w-sm">Ingredients, timing, servings, nutrition — a complete recipe built specifically for what you asked for, not a generic search result.</p>
+      </div>
+    </div>
+
+    <!-- Chapter 3 -->
+    <div appScrollProgress class="story-chapter grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <span class="text-6xl font-black text-amber-400/25 leading-none">03</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mt-2 mb-4">Cook hands-free,<br>step by step</h2>
+        <p class="text-sm font-semibold text-slate-500 leading-relaxed max-w-sm">Cooking mode walks you through one step at a time, with a live timer for anything that needs watching on the stove.</p>
+      </div>
+      <div appTilt [appTiltMax]="4" class="bg-white/70 backdrop-blur-xl border border-white/70 rounded-[2rem] p-6 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.15)] flex items-center gap-5">
+        <app-step-timer [totalSeconds]="180" />
+        <p class="text-sm font-bold text-slate-700 leading-relaxed">Simmer the sauce until it thickens, stirring occasionally.</p>
+      </div>
+    </div>
+
+    <!-- Chapter 4 -->
+    <div appScrollProgress class="story-chapter grid md:grid-cols-2 gap-10 items-center">
+      <div appTilt [appTiltMax]="4" class="md:order-1 bg-white/70 backdrop-blur-xl border border-white/70 rounded-[2rem] p-6 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.15)]">
+        <div class="flex flex-wrap gap-2">
+          <span class="text-[10px] font-black text-slate-900 bg-amber-400 px-3 py-1.5 rounded-full">Vegetarian</span>
+          <span class="text-[10px] font-black text-slate-500 bg-slate-900/5 px-3 py-1.5 rounded-full">Italian</span>
+          <span class="text-[10px] font-black text-slate-500 bg-slate-900/5 px-3 py-1.5 rounded-full">हिन्दी</span>
+        </div>
+      </div>
+      <div class="md:order-2">
+        <span class="text-6xl font-black text-amber-400/25 leading-none">04</span>
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mt-2 mb-4">Perfectly tuned<br>to your taste</h2>
+        <p class="text-sm font-semibold text-slate-500 leading-relaxed max-w-sm">Tell us your diet, favorite cuisines, and language once — every recipe after that is built around you.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════ FINAL CTA ══════════════════════ -->
+  <section appReveal class="relative z-10 px-6 py-24 sm:py-32 text-center">
+    <app-steam-wisp class="mx-auto mb-4" />
+    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4">Ready to cook something great?</h2>
+    <p class="text-sm font-semibold text-slate-500 mb-8">Free to start. No credit card, no ads.</p>
+    <button
+      type="button"
+      (click)="startSignup()"
+      appMagnetic
+      [appMagneticStrength]="0.2"
+      class="px-9 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer shadow-lg shadow-amber-400/25"
+    >Start Cooking Free →</button>
+  </section>
+
+</div>

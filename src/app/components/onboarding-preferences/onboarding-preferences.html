@@ -1,0 +1,279 @@
+<div
+  class="fixed inset-0 z-50 flex flex-col animate-onboarding-in"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="onboarding-question"
+>
+  <div class="absolute inset-0 bg-slate-950/92 backdrop-blur-xl"></div>
+
+  <div class="relative z-10 flex flex-col h-full">
+
+    @if (isSubmitting()) {
+      <!-- Plating screen — a brief, thematic close-out instead of a bare spinner -->
+      <div class="flex-1 flex flex-col items-center justify-center gap-5">
+        <app-steam-wisp class="text-amber-400/70 animate-plating" />
+        <p class="text-xs font-black text-slate-400 uppercase tracking-[0.22em]">Plating your kitchen…</p>
+      </div>
+    } @else {
+
+      <!-- Top bar -->
+      <div class="flex items-center justify-between px-6 sm:px-10 pt-7 pb-4 shrink-0">
+        <div class="flex flex-col gap-1 min-w-0">
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">One-Time Setup</span>
+          <div class="flex items-center gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 animate-pulse"></div>
+            <span class="text-xs font-black text-amber-400 uppercase tracking-[0.15em]">Set Up Your Kitchen</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="skip()"
+          class="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-[0.18em] transition-colors focus:outline-none cursor-pointer shrink-0"
+        >Skip for now</button>
+      </div>
+
+      <!-- Center: Question + Answer -->
+      <div class="flex-1 flex items-center justify-center px-6 overflow-hidden">
+        <div class="w-full max-w-sm text-center">
+
+          @switch (step()) {
+
+            @case (1) {
+              <div [class]="stepAnimClass()">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-[0.22em] mb-8">Step 1 of {{ totalSteps }}</p>
+                <h2 id="onboarding-question" class="text-3xl sm:text-4xl font-black text-white leading-tight mb-10">
+                  What's on your<br>plate, usually?
+                </h2>
+
+                <div class="space-y-2.5">
+                  <button
+                    type="button"
+                    (click)="selectDiet(Diet.VEGETARIAN)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="dietaryPreference() === Diet.VEGETARIAN"
+                    [class.border-amber-400]="dietaryPreference() === Diet.VEGETARIAN"
+                    [class.text-slate-900]="dietaryPreference() === Diet.VEGETARIAN"
+                    [class.bg-white/5]="dietaryPreference() !== Diet.VEGETARIAN"
+                    [class.border-white/8]="dietaryPreference() !== Diet.VEGETARIAN"
+                    [class.text-slate-500]="dietaryPreference() !== Diet.VEGETARIAN"
+                    [class.hover:bg-white/10]="dietaryPreference() !== Diet.VEGETARIAN"
+                    [class.hover:text-slate-200]="dietaryPreference() !== Diet.VEGETARIAN"
+                  >Vegetarian</button>
+
+                  <button
+                    type="button"
+                    (click)="selectDiet(Diet.NON_VEGETARIAN)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="dietaryPreference() === Diet.NON_VEGETARIAN"
+                    [class.border-amber-400]="dietaryPreference() === Diet.NON_VEGETARIAN"
+                    [class.text-slate-900]="dietaryPreference() === Diet.NON_VEGETARIAN"
+                    [class.bg-white/5]="dietaryPreference() !== Diet.NON_VEGETARIAN"
+                    [class.border-white/8]="dietaryPreference() !== Diet.NON_VEGETARIAN"
+                    [class.text-slate-500]="dietaryPreference() !== Diet.NON_VEGETARIAN"
+                    [class.hover:bg-white/10]="dietaryPreference() !== Diet.NON_VEGETARIAN"
+                    [class.hover:text-slate-200]="dietaryPreference() !== Diet.NON_VEGETARIAN"
+                  >Non-Vegetarian</button>
+
+                  <button
+                    type="button"
+                    (click)="selectDiet(Diet.VEGAN)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="dietaryPreference() === Diet.VEGAN"
+                    [class.border-amber-400]="dietaryPreference() === Diet.VEGAN"
+                    [class.text-slate-900]="dietaryPreference() === Diet.VEGAN"
+                    [class.bg-white/5]="dietaryPreference() !== Diet.VEGAN"
+                    [class.border-white/8]="dietaryPreference() !== Diet.VEGAN"
+                    [class.text-slate-500]="dietaryPreference() !== Diet.VEGAN"
+                    [class.hover:bg-white/10]="dietaryPreference() !== Diet.VEGAN"
+                    [class.hover:text-slate-200]="dietaryPreference() !== Diet.VEGAN"
+                  >Vegan</button>
+                </div>
+              </div>
+            }
+
+            @case (2) {
+              <div [class]="stepAnimClass()">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-[0.22em] mb-8">Step 2 of {{ totalSteps }}</p>
+                <h2 id="onboarding-question" class="text-3xl sm:text-4xl font-black text-white leading-tight mb-3">
+                  Pick a few cuisines<br>you love
+                </h2>
+                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.15em] mb-8">Choose at least one</p>
+
+                <div class="flex flex-wrap justify-center gap-2">
+                  @for (cuisine of cuisines; track cuisine) {
+                    <button
+                      type="button"
+                      (click)="toggleCuisine(cuisine)"
+                      class="px-4 py-2.5 rounded-full font-black text-[11px] uppercase tracking-wider transition-all duration-200 focus:outline-none cursor-pointer border"
+                      [class.bg-amber-400]="isCuisineSelected(cuisine)"
+                      [class.border-amber-400]="isCuisineSelected(cuisine)"
+                      [class.text-slate-900]="isCuisineSelected(cuisine)"
+                      [class.bg-white/5]="!isCuisineSelected(cuisine)"
+                      [class.border-white/8]="!isCuisineSelected(cuisine)"
+                      [class.text-slate-400]="!isCuisineSelected(cuisine)"
+                      [class.hover:bg-white/10]="!isCuisineSelected(cuisine)"
+                      [class.hover:text-slate-200]="!isCuisineSelected(cuisine)"
+                    >{{ cuisine }}</button>
+                  }
+                </div>
+              </div>
+            }
+
+            @case (3) {
+              <div [class]="stepAnimClass()">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-[0.22em] mb-8">Step 3 of {{ totalSteps }}</p>
+                <h2 id="onboarding-question" class="text-3xl sm:text-4xl font-black text-white leading-tight mb-3">
+                  Any dishes you<br>always come back to?
+                </h2>
+                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.15em] mb-8">Up to {{ maxDishes }} — optional</p>
+
+                <div class="flex items-center gap-2 mb-5">
+                  <input
+                    type="text"
+                    [value]="dishDraft()"
+                    (input)="onDishInput($event)"
+                    (keydown.enter)="addDish()"
+                    [disabled]="favoriteDishes().length >= maxDishes"
+                    placeholder="e.g. Butter chicken, Rajma chawal..."
+                    aria-label="Add a favorite dish"
+                    class="flex-1 min-w-0 bg-white/5 border border-white/8 rounded-2xl px-5 py-3.5 text-sm font-bold text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/60 focus:ring-4 focus:ring-amber-400/10 transition-all duration-300 disabled:opacity-40"
+                  />
+                  <button
+                    type="button"
+                    (click)="addDish()"
+                    [disabled]="!dishDraft().trim() || favoriteDishes().length >= maxDishes"
+                    appMagnetic
+                    [appMagneticStrength]="0.25"
+                    class="shrink-0 w-11 h-11 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 text-xl font-black flex items-center justify-center transition-all duration-150 active:scale-90 focus:outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed select-none"
+                    aria-label="Add dish"
+                  >+</button>
+                </div>
+
+                @if (favoriteDishes().length > 0) {
+                  <div class="flex flex-wrap justify-center gap-2">
+                    @for (dish of favoriteDishes(); track dish) {
+                      <button
+                        type="button"
+                        (click)="removeDish(dish)"
+                        class="group flex items-center gap-2 pl-4 pr-3 py-2.5 rounded-full bg-amber-400 border border-amber-400 text-slate-900 font-black text-[11px] uppercase tracking-wider transition-all duration-200 focus:outline-none cursor-pointer"
+                        [attr.aria-label]="'Remove ' + dish"
+                      >
+                        <span>{{ dish }}</span>
+                        <span class="text-sm leading-none opacity-50 group-hover:opacity-100 transition-opacity">×</span>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <button
+                    type="button"
+                    (click)="skipDishesStep()"
+                    class="text-[10px] font-black text-slate-500 hover:text-slate-300 uppercase tracking-[0.18em] transition-colors focus:outline-none cursor-pointer"
+                  >Skip this one</button>
+                }
+              </div>
+            }
+
+            @case (4) {
+              <div [class]="stepAnimClass()">
+                <p class="text-xs font-black text-slate-400 uppercase tracking-[0.22em] mb-8">Step 4 of {{ totalSteps }}</p>
+                <h2 id="onboarding-question" class="text-3xl sm:text-4xl font-black text-white leading-tight mb-10">
+                  Which language<br>should we cook in?
+                </h2>
+
+                <div class="space-y-2.5">
+                  <button
+                    type="button"
+                    (click)="selectLanguage(Language.ENGLISH)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="preferredLanguage() === Language.ENGLISH"
+                    [class.border-amber-400]="preferredLanguage() === Language.ENGLISH"
+                    [class.text-slate-900]="preferredLanguage() === Language.ENGLISH"
+                    [class.bg-white/5]="preferredLanguage() !== Language.ENGLISH"
+                    [class.border-white/8]="preferredLanguage() !== Language.ENGLISH"
+                    [class.text-slate-500]="preferredLanguage() !== Language.ENGLISH"
+                    [class.hover:bg-white/10]="preferredLanguage() !== Language.ENGLISH"
+                    [class.hover:text-slate-200]="preferredLanguage() !== Language.ENGLISH"
+                  >English</button>
+
+                  <button
+                    type="button"
+                    (click)="selectLanguage(Language.HINDI)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="preferredLanguage() === Language.HINDI"
+                    [class.border-amber-400]="preferredLanguage() === Language.HINDI"
+                    [class.text-slate-900]="preferredLanguage() === Language.HINDI"
+                    [class.bg-white/5]="preferredLanguage() !== Language.HINDI"
+                    [class.border-white/8]="preferredLanguage() !== Language.HINDI"
+                    [class.text-slate-500]="preferredLanguage() !== Language.HINDI"
+                    [class.hover:bg-white/10]="preferredLanguage() !== Language.HINDI"
+                    [class.hover:text-slate-200]="preferredLanguage() !== Language.HINDI"
+                  >हिन्दी</button>
+
+                  <button
+                    type="button"
+                    (click)="selectLanguage(Language.PUNJABI)"
+                    class="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 focus:outline-none cursor-pointer border"
+                    [class.bg-amber-400]="preferredLanguage() === Language.PUNJABI"
+                    [class.border-amber-400]="preferredLanguage() === Language.PUNJABI"
+                    [class.text-slate-900]="preferredLanguage() === Language.PUNJABI"
+                    [class.bg-white/5]="preferredLanguage() !== Language.PUNJABI"
+                    [class.border-white/8]="preferredLanguage() !== Language.PUNJABI"
+                    [class.text-slate-500]="preferredLanguage() !== Language.PUNJABI"
+                    [class.hover:bg-white/10]="preferredLanguage() !== Language.PUNJABI"
+                    [class.hover:text-slate-200]="preferredLanguage() !== Language.PUNJABI"
+                  >ਪੰਜਾਬੀ</button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Bottom: Progress + Navigation -->
+      <div class="flex flex-col items-center gap-5 px-6 pb-8 sm:pb-10 shrink-0">
+        <div class="flex items-center gap-1.5">
+          @for (dot of [1, 2, 3, 4]; track dot) {
+            <div
+              class="h-1 rounded-full transition-all duration-300"
+              [class.w-6]="step() === dot"
+              [class.w-1.5]="step() !== dot"
+              [class.bg-amber-400]="step() === dot"
+              [class.bg-slate-700]="step() !== dot"
+            ></div>
+          }
+        </div>
+
+        <div class="flex items-center gap-5">
+          @if (step() > 1) {
+            <button
+              type="button"
+              (click)="back()"
+              class="text-xs font-black text-slate-400 hover:text-white uppercase tracking-[0.2em] transition-colors focus:outline-none cursor-pointer"
+            >← Back</button>
+          } @else {
+            <div class="w-14"></div>
+          }
+
+          @if (step() < totalSteps) {
+            <button
+              type="button"
+              (click)="next()"
+              [disabled]="!canContinue()"
+              appMagnetic
+              class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >Continue →</button>
+          } @else {
+            <button
+              type="button"
+              (click)="finish()"
+              appMagnetic
+              class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer"
+            >Set Up My Kitchen →</button>
+          }
+        </div>
+      </div>
+
+    }
+  </div>
+</div>

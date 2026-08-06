@@ -1,0 +1,30 @@
+@keyframes onboardingIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-onboarding-in {
+  animation: onboardingIn 0.25s ease-out forwards;
+}
+
+@keyframes stepFromRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes stepFromLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-step-forward {
+  animation: stepFromRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-step-backward {
+  animation: stepFromLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes platingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+.animate-plating {
+  animation: platingPulse 1.6s ease-in-out infinite;
+}

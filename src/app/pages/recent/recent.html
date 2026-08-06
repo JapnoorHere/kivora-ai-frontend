@@ -12,15 +12,20 @@
         <p class="text-sm font-bold text-slate-500">No recipes yet — go cook something!</p>
         <a
           [routerLink]="[routes.HOME]"
+          appMagnetic
           class="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer"
         >Discover Recipes</a>
       </div>
     } @else {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
-        @for (recipe of recipes(); track recipe.id) {
+        @for (recipe of recipes(); track recipe.id; let idx = $index) {
           <button
             type="button"
             (click)="openRecipe(recipe.id)"
+            appReveal
+            [appRevealDelay]="idx * 40"
+            appTilt
+            [appTiltMax]="4"
             class="text-left bg-white/60 hover:bg-white border border-slate-200 rounded-3xl p-5 space-y-2.5 transition-all duration-200 cursor-pointer"
           >
             @if (recipe.cuisine) {

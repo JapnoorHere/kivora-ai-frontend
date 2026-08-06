@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { MagneticDirective } from '../../components/ui/magnetic.directive';
+import { RevealDirective } from '../../components/ui/reveal.directive';
+import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -7,7 +10,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-recent',
-  imports: [RouterLink],
+  imports: [RouterLink, RevealDirective, TiltDirective, MagneticDirective],
   templateUrl: './recent.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

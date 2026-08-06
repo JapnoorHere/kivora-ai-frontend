@@ -82,9 +82,10 @@
             Cancel
           </button>
           
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             [disabled]="feedbackForm.invalid || isSubmitting()"
+            appMagnetic
             class="px-5 py-2.5 rounded-xl bg-[#fcd34d] hover:bg-[#fbbf24] active:scale-98 text-slate-900 font-bold text-xs shadow-md transition-all duration-300 cursor-pointer disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none"
           >
             @if (isSubmitting()) {

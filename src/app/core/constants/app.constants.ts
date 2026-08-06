@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   SETTINGS_AI_SAVE_KEY: '/settings/ai/keys',
   settingsAiRemoveKey: (provider: string): string => `/settings/ai/keys/${provider}`,
   SETTINGS_AI_PREFERRED: '/settings/ai/preferred',
+  USER_PREFERENCES: '/user/preferences',
 } as const;
 
 export const APP_ROUTES = {

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { MagneticDirective } from '../ui/magnetic.directive';
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [],
+  imports: [MagneticDirective],
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

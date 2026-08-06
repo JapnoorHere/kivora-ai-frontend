@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
+import { RevealDirective } from '../../components/ui/reveal.directive';
+import { TiltDirective } from '../../components/ui/tilt.directive';
 import { AiProvider } from '../../core/enums/recipe.enum';
 import { AiSettings } from '../../core/interfaces/settings.interface';
 import { SettingsApiService } from '../../core/services/settings-api.service';
@@ -9,7 +11,7 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [ReactiveFormsModule, ConfirmDialogComponent, RevealDirective, TiltDirective],
   templateUrl: './settings.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,6 +43,10 @@ export class SettingsComponent {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  protected scrollToSection(sectionId: string): void {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   protected providerLabel(provider: AiProvider): string {

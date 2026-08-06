@@ -62,6 +62,8 @@
                 <button
                   type="button"
                   (click)="decrement()"
+                  appMagnetic
+                  [appMagneticStrength]="0.25"
                   class="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xl font-black flex items-center justify-center transition-all duration-150 active:scale-90 focus:outline-none cursor-pointer select-none"
                   aria-label="Decrease"
                 >−</button>
@@ -73,6 +75,8 @@
                 <button
                   type="button"
                   (click)="increment()"
+                  appMagnetic
+                  [appMagneticStrength]="0.25"
                   class="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xl font-black flex items-center justify-center transition-all duration-150 active:scale-90 focus:outline-none cursor-pointer select-none"
                   aria-label="Increase"
                 >+</button>
@@ -274,12 +278,14 @@
           <button
             type="button"
             (click)="next()"
+            appMagnetic
             class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer"
           >Continue →</button>
         } @else {
           <button
             type="button"
             (click)="submit()"
+            appMagnetic
             class="px-7 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-amber-400/15 active:scale-95 focus:outline-none cursor-pointer"
           >Start Cooking →</button>
         }
