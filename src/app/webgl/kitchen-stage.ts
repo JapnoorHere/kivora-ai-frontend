@@ -1,6 +1,7 @@
 import {
   AmbientLight,
-  CircleGeometry,
+  BufferGeometry,
+  CanvasTexture,
   Color,
   DirectionalLight,
   Group,
@@ -84,8 +85,9 @@ interface ViewScene {
   readonly bowl: Group;
   readonly contents: Mesh;
   readonly steam: SteamCloud;
+  /** Ceramic materials, kept for the fade. Steam manages its own opacity. */
+  readonly surfaces: readonly MeshPhysicalMaterial[];
   textureUrl: string | null;
-  spin: number;
 }
 
 export function createStage(options: StageOptions): StageHandle {
@@ -124,6 +126,13 @@ export function createStage(options: StageOptions): StageHandle {
     if (!texture) {
       texture = loader.load(url, undefined, undefined, () => undefined);
       texture.colorSpace = SRGBColorSpace;
+      // Stock food photography frames the plate, the table and usually a fork.
+      // Mapped whole onto the dish that surrounding context is what gives the
+      // sticker impression, so only the middle of the frame reaches the bowl.
+      // Scaling about `center` is the whole crop — adding an `offset` on top
+      // would shift the window a second time and sample a corner instead.
+      texture.center.set(0.5, 0.5);
+      texture.repeat.set(FOOD_CROP, FOOD_CROP);
       textures.set(url, texture);
       disposables.push(texture);
     }
@@ -143,21 +152,32 @@ export function createStage(options: StageOptions): StageHandle {
 
     const contents = bowl.getObjectByName('contents') as Mesh;
 
+    // Collected before the steam joins the group, so the fade never fights the
+    // steam's own opacity.
+    const surfaces: MeshPhysicalMaterial[] = [];
+    bowl.traverse((object) => {
+      const material = (object as Mesh).material;
+      if (material instanceof MeshPhysicalMaterial) surfaces.push(material);
+    });
+
     const steam = createSteam();
     bowl.add(steam.mesh);
 
-    scene.add(new AmbientLight(0xfff6e5, 1.1));
+    // Exposure is deliberately restrained. White glazed ceramic under a bright
+    // rig clips to flat white, and once the bowl clips the food clips with it —
+    // the dish stops reading as a separate object sitting inside.
+    scene.add(new AmbientLight(0xfff6e5, 0.7));
 
-    const key = new DirectionalLight(0xffffff, 2.4);
+    const key = new DirectionalLight(0xffffff, 1.5);
     key.position.set(2.5, 4, 2.5);
     scene.add(key);
 
     // A warm bounce from the side, standing in for a kitchen window.
-    const warm = new PointLight(0xffb347, 14, 12, 2);
+    const warm = new PointLight(0xffb347, 7, 12, 2);
     warm.position.set(-2.2, 1.4, 1.6);
     scene.add(warm);
 
-    return { scene, camera, bowl, contents, steam, textureUrl: null, spin: 0 };
+    return { scene, camera, bowl, contents, steam, surfaces, textureUrl: null };
   }
 
   function syncViews(next: readonly StageView[]): void {
@@ -268,13 +288,16 @@ export function createStage(options: StageOptions): StageHandle {
       view.bowl.position.y = -0.55 + p * 0.35 + Math.sin(time * 1.1) * 0.03;
       const scale = 0.72 + p * 0.38;
       view.bowl.scale.setScalar(scale);
-      view.steam.setStrength(Math.max(0, p - 0.25) * 1.4);
+      view.steam.setStrength(Math.max(0, p - 0.45) * 1.8);
+
+      // Held back until the first screen's copy has scrolled clear — the bowl
+      // lands centre-screen, which is exactly where the headline sits.
+      setSurfaceOpacity(view, Math.min(1, Math.max(0, (p - 0.38) * 4)));
     } else {
-      // Carousel: the arrows publish an absolute angle in degrees; easing
-      // toward it keeps the 3D turn in step with the card's CSS transition.
-      const target = (progress('carousel-spin') * Math.PI) / 180;
-      view.spin += (target - view.spin) * Math.min(1, delta * 4.5);
-      view.bowl.rotation.y = view.spin;
+      // The wheel's hub. The bowl turns with the trolley, against the plates
+      // orbiting it, and holds a steady simmer throughout.
+      const p = progress('wheel');
+      view.bowl.rotation.y = p * Math.PI * 2;
       view.bowl.rotation.x = 0.36;
       view.bowl.position.y = -0.35 + Math.sin(time * 1.3) * 0.045;
       view.bowl.scale.setScalar(0.98);
@@ -282,6 +305,12 @@ export function createStage(options: StageOptions): StageHandle {
     }
 
     view.steam.update(delta);
+  }
+
+  function setSurfaceOpacity(view: ViewScene, opacity: number): void {
+    for (const material of view.surfaces) {
+      material.opacity = opacity;
+    }
   }
 
   function start(): void {
@@ -322,6 +351,7 @@ export function createStage(options: StageOptions): StageHandle {
       views.forEach(disposeScene);
       views.clear();
       disposables.forEach((item) => item.dispose());
+      disposeGeneratedTextures();
       environment.dispose();
       pmrem.dispose();
       renderer.dispose();
@@ -369,35 +399,203 @@ function createBowl(): Group {
   const shell = new Mesh(
     new LatheGeometry(profile, 72),
     new MeshPhysicalMaterial({
-      color: 0xfffdf7,
-      roughness: 0.32,
+      color: 0xf7f3ea,
+      roughness: 0.42,
       metalness: 0,
-      clearcoat: 0.7,
-      clearcoatRoughness: 0.22,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.28,
+      // Declared transparent up front so the scene can fade in without a
+      // per-frame shader recompile, which toggling `transparent` would cost.
+      transparent: true,
     }),
   );
   group.add(shell);
 
+  // A fine glaze line, not a band: a thick saturated ring reads as a toy.
   const rim = new Mesh(
-    new TorusGeometry(0.98, 0.022, 10, 72),
-    new MeshPhysicalMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.2 }),
+    new TorusGeometry(0.985, 0.013, 10, 72),
+    new MeshPhysicalMaterial({
+      color: 0xdca94e,
+      roughness: 0.35,
+      metalness: 0.15,
+      transparent: true,
+    }),
   );
   rim.rotation.x = Math.PI / 2;
   rim.position.y = 0.69;
   group.add(rim);
 
-  // The dish itself — a disc sitting in the bowl that takes the page's own
-  // food photograph as its texture.
-  const contents = new Mesh(
-    new CircleGeometry(0.86, 64),
-    new MeshPhysicalMaterial({ color: 0xd97706, roughness: 0.55, clearcoat: 0.35 }),
-  );
-  contents.name = 'contents';
-  contents.rotation.x = -Math.PI / 2;
-  contents.position.y = 0.42;
+  const contents = createFoodSurface();
   group.add(contents);
 
   return group;
+}
+
+/**
+ * The fill line has to sit on the bowl's inner wall, or the food cuts through
+ * the ceramic and reads as a lid rather than contents. The lathe profile runs
+ * through (0.72, 0.40) and (0.88, 0.60), so radius 0.848 meets the wall at
+ * height 0.56. Move one of these and the other has to move with it.
+ *
+ * Sitting high is deliberate: viewed from above, a bowl filled near the rim
+ * shows food across most of its opening, where a low fill line shows mostly
+ * empty white wall — which is what made the dish look lost inside it.
+ */
+const FOOD_RADIUS = 0.848;
+const FOOD_LINE = 0.56;
+/** Mound above the fill line. Must keep the crown under the 0.70 rim. */
+const FOOD_RISE = 0.1;
+/** Fraction of the source photograph that survives the crop. */
+const FOOD_CROP = 0.6;
+
+/**
+ * The dish sitting in the bowl.
+ *
+ * A flat disc with a photograph on it always reads as a sticker, whatever the
+ * photograph is. Three things fix that, and none of them costs a download:
+ *
+ *  - the surface is a shallow dome, so it catches light across a curve the way
+ *    a sauce or a mound of rice does, and the photo shifts as the bowl turns
+ *  - a generated radial gradient serves as both alpha and ambient occlusion,
+ *    so the food fades into shadow where it meets the wall instead of ending
+ *    at a hard circle
+ *  - generated two-octave noise drives a bump map, giving the surface relief
+ *    that breaks up the flatness of the photograph under moving light
+ */
+function createFoodSurface(): Mesh {
+  const falloff = foodFalloffTexture();
+
+  const mesh = new Mesh(
+    domeGeometry(FOOD_RADIUS, FOOD_RISE),
+    new MeshPhysicalMaterial({
+      color: 0xd97706,
+      roughness: 0.76,
+      metalness: 0,
+      // Food has a wet sheen, not a lacquered one.
+      clearcoat: 0.16,
+      clearcoatRoughness: 0.55,
+      envMapIntensity: 0.55,
+      bumpMap: foodReliefTexture(),
+      bumpScale: 0.012,
+      alphaMap: falloff,
+      aoMap: falloff,
+      aoMapIntensity: 0.9,
+      transparent: true,
+    }),
+  );
+
+  mesh.name = 'contents';
+  mesh.position.y = FOOD_LINE;
+  return mesh;
+}
+
+/**
+ * A spherical cap of the given base radius and height, re-projected so its UVs
+ * are a straight top-down plan. The sphere's own equirectangular UVs would
+ * smear the photograph radially out of the centre like a polar map.
+ */
+function domeGeometry(radius: number, rise: number): BufferGeometry {
+  const sphereRadius = (rise * rise + radius * radius) / (2 * rise);
+  const cap = Math.asin(radius / sphereRadius);
+
+  const geometry = new SphereGeometry(sphereRadius, 64, 24, 0, Math.PI * 2, 0, cap);
+  // Drop the sphere so the cap's rim sits at y = 0 and its crown at y = rise.
+  geometry.translate(0, -(sphereRadius - rise), 0);
+
+  const position = geometry.attributes['position'];
+  const uv = geometry.attributes['uv'];
+  for (let i = 0; i < position.count; i++) {
+    uv.setXY(i, 0.5 + position.getX(i) / (2 * radius), 0.5 - position.getZ(i) / (2 * radius));
+  }
+  uv.needsUpdate = true;
+
+  // aoMap reads the second UV channel, and here it wants the same projection.
+  geometry.setAttribute('uv1', uv.clone());
+
+  return geometry;
+}
+
+let falloffTexture: CanvasTexture | null = null;
+let reliefTexture: CanvasTexture | null = null;
+
+/** White at the centre, black at the rim: transparency and occlusion in one map. */
+function foodFalloffTexture(): CanvasTexture {
+  if (falloffTexture) return falloffTexture;
+
+  const size = 256;
+  const context = createCanvasContext(size);
+  const gradient = context.createRadialGradient(
+    size / 2,
+    size / 2,
+    size * 0.2,
+    size / 2,
+    size / 2,
+    size * 0.5,
+  );
+  gradient.addColorStop(0, '#ffffff');
+  gradient.addColorStop(0.68, '#efefef');
+  gradient.addColorStop(0.92, '#4a4a4a');
+  gradient.addColorStop(1, '#000000');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, size, size);
+
+  falloffTexture = new CanvasTexture(context.canvas);
+  return falloffTexture;
+}
+
+/** Two octaves of value noise, smoothed by the canvas's own bilinear upscale. */
+function foodReliefTexture(): CanvasTexture {
+  if (reliefTexture) return reliefTexture;
+
+  const size = 256;
+  const context = createCanvasContext(size);
+  context.fillStyle = '#808080';
+  context.fillRect(0, 0, size, size);
+
+  drawNoiseOctave(context, size, 14, 0.65);
+  drawNoiseOctave(context, size, 44, 0.35);
+  context.globalAlpha = 1;
+
+  reliefTexture = new CanvasTexture(context.canvas);
+  return reliefTexture;
+}
+
+function drawNoiseOctave(
+  context: CanvasRenderingContext2D,
+  size: number,
+  cells: number,
+  alpha: number,
+): void {
+  const source = createCanvasContext(cells);
+  const image = source.createImageData(cells, cells);
+
+  for (let i = 0; i < image.data.length; i += 4) {
+    const value = 70 + Math.random() * 185;
+    image.data[i] = value;
+    image.data[i + 1] = value;
+    image.data[i + 2] = value;
+    image.data[i + 3] = 255;
+  }
+  source.putImageData(image, 0, 0);
+
+  context.globalAlpha = alpha;
+  context.drawImage(source.canvas, 0, 0, size, size);
+}
+
+function createCanvasContext(size: number): CanvasRenderingContext2D {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('2D canvas unavailable');
+  return context;
+}
+
+function disposeGeneratedTextures(): void {
+  falloffTexture?.dispose();
+  reliefTexture?.dispose();
+  falloffTexture = null;
+  reliefTexture = null;
 }
 
 interface SteamCloud {

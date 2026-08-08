@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { DISCOVERY_CATEGORIES } from '../../core/constants/recipe.constants';
 import { AuthService } from '../../core/services/auth.service';
-import { CuisineCarouselComponent } from '../cuisine-carousel/cuisine-carousel';
+import { CuisineWheelComponent } from '../cuisine-wheel/cuisine-wheel';
+import { TicketRailComponent } from '../ticket-rail/ticket-rail';
 import { MagneticDirective } from '../ui/magnetic.directive';
-import { RevealDirective } from '../ui/reveal.directive';
 import { ScrollProgressDirective } from '../ui/scroll-progress.directive';
 import { ScrollSceneDirective } from '../ui/scroll-scene.directive';
 import { SplitTextComponent } from '../ui/split-text/split-text';
@@ -16,6 +16,7 @@ interface OrbitItem {
   readonly alt: string;
   /** Where the ingredient sits on the ring before it converges. */
   readonly angle: number;
+  /** Multiplier on the ring's base radius, which CSS derives from the viewport. */
   readonly radius: number;
   readonly sizeClass: string;
   /** Small screens carry a lighter ring — fewer images behind the copy. */
@@ -34,14 +35,14 @@ interface OrbitItem {
 @Component({
   selector: 'app-landing',
   imports: [
-    RevealDirective,
     MagneticDirective,
     SteamWispComponent,
     ScrollProgressDirective,
     ScrollSceneDirective,
     SplitTextComponent,
     StepTimerComponent,
-    CuisineCarouselComponent,
+    CuisineWheelComponent,
+    TicketRailComponent,
     WebglViewDirective,
   ],
   templateUrl: './landing.html',
@@ -53,7 +54,14 @@ export class LandingComponent {
   protected readonly cuisines = DISCOVERY_CATEGORIES;
   protected readonly storySection = viewChild<ElementRef<HTMLElement>>('storySection');
 
-  /** Shown as the hero's plated dish, and mapped onto the 3D bowl if it loads. */
+  /**
+   * Shown as the hero's plated dish, and mapped onto the 3D bowl if it loads.
+   *
+   * Every photograph on this page is used exactly once — the hero dish, the
+   * ring, the story bowl, the two dishes inside COOK and the wheel all draw
+   * from disjoint sets. Repeats are obvious on a page that scrolls past the
+   * same food twice.
+   */
   protected readonly heroDish =
     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=520&q=72';
 
@@ -105,86 +113,149 @@ export class LandingComponent {
   ];
 
   /**
-   * The closing belts. Same photographs the hero ring and the carousel use,
-   * so the last screen reads as the end of this page rather than a generic
-   * sign-up panel.
+   * The dish inside the travelling bowl, one per story chapter. The windows
+   * match the device panels exactly, so the food and the screen change on the
+   * same frame: ingredients, then a plated dish, then something cooking, then
+   * the personalised result.
    */
-  protected readonly marqueeDishes = [
-    { name: 'Butter Chicken', url: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Tonkotsu Ramen', url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Margherita', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Street Tacos', url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Cacio e Pepe', url: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Dim Sum', url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Belgian Waffles', url: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=80&q=70' },
-    { name: 'Salmon Nigiri', url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=80&q=70' },
+  protected readonly storyDishes = [
+    {
+      url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=420&q=72',
+      in: -0.2,
+      out: 0.2,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=420&q=72',
+      in: 0.13,
+      out: 0.53,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=420&q=72',
+      in: 0.47,
+      out: 0.87,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=420&q=72',
+      in: 0.8,
+      out: 1.2,
+    },
   ];
 
-  /** Ingredients that spiral inward into the dish as the hero scrubs. */
+  /** The pair standing in for the two O's of COOK — round dishes read as O's. */
+  protected readonly cookDishes = [
+    'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=300&q=72',
+    'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=72',
+  ];
+
+  /** Three claims that carry the hero's closing screen. */
+  protected readonly heroProof = [
+    { label: 'Scaled to your table', detail: 'Quantities recalculated for however many are eating.' },
+    { label: 'Timed, not guessed', detail: 'Every stage that can go wrong gets its own timer.' },
+    { label: 'In your language', detail: 'English, हिन्दी or ਪੰਜਾਬੀ — the whole recipe, not just the title.' },
+  ];
+
+  /**
+   * Ingredients that spiral inward into the dish as the hero scrubs. Twelve
+   * evenly spaced points at alternating radii: fewer, and a widescreen shows
+   * a bunched ring with dead space down both sides. `radius` is a multiplier
+   * on the base radius CSS derives from the viewport.
+   */
   protected readonly orbit: readonly OrbitItem[] = [
     {
-      url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=200&q=70',
       alt: '',
       angle: 205,
-      radius: 36,
+      radius: 0.9,
       sizeClass: 'w-16 h-16 md:w-24 md:h-24',
       onMobile: true,
     },
     {
-      url: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=200&q=70',
       alt: '',
-      angle: 250,
-      radius: 42,
+      angle: 235,
+      radius: 1.06,
       sizeClass: 'w-14 h-14 md:w-20 md:h-20',
       onMobile: false,
     },
     {
-      url: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=200&q=70',
+      alt: '',
+      angle: 265,
+      radius: 0.86,
+      sizeClass: 'w-16 h-16 md:w-24 md:h-24',
+      onMobile: true,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=200&q=70',
       alt: '',
       angle: 295,
-      radius: 34,
-      sizeClass: 'w-16 h-16 md:w-24 md:h-24',
-      onMobile: true,
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=200&q=70',
-      alt: '',
-      angle: 340,
-      radius: 40,
+      radius: 1.1,
       sizeClass: 'w-14 h-14 md:w-20 md:h-20',
       onMobile: false,
     },
     {
-      url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1626804475297-41608ea09aeb?auto=format&fit=crop&w=200&q=70',
+      alt: '',
+      angle: 325,
+      radius: 0.92,
+      sizeClass: 'w-16 h-16 md:w-24 md:h-24',
+      onMobile: true,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=200&q=70',
+      alt: '',
+      angle: 355,
+      radius: 1.04,
+      sizeClass: 'w-14 h-14 md:w-20 md:h-20',
+      onMobile: false,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=200&q=70',
       alt: '',
       angle: 25,
-      radius: 36,
+      radius: 0.88,
       sizeClass: 'w-16 h-16 md:w-24 md:h-24',
       onMobile: true,
     },
     {
-      url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=200&q=70',
       alt: '',
-      angle: 70,
-      radius: 43,
+      angle: 55,
+      radius: 1.08,
       sizeClass: 'w-14 h-14 md:w-20 md:h-20',
       onMobile: false,
     },
     {
-      url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=200&q=70',
+      alt: '',
+      angle: 85,
+      radius: 0.94,
+      sizeClass: 'w-14 h-14 md:w-20 md:h-20',
+      onMobile: false,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&w=200&q=70',
       alt: '',
       angle: 115,
-      radius: 35,
+      radius: 0.87,
       sizeClass: 'w-16 h-16 md:w-24 md:h-24',
       onMobile: true,
     },
     {
-      url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=200&q=70',
+      url: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=200&q=70',
       alt: '',
-      angle: 160,
-      radius: 41,
+      angle: 145,
+      radius: 1.05,
       sizeClass: 'w-14 h-14 md:w-20 md:h-20',
       onMobile: false,
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=200&q=70',
+      alt: '',
+      angle: 175,
+      radius: 0.98,
+      sizeClass: 'w-16 h-16 md:w-24 md:h-24',
+      onMobile: true,
     },
   ];
 

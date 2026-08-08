@@ -1,0 +1,109 @@
+<section #scene appScene="wheel" class="wheel-scene relative bg-slate-950">
+
+  <div class="sticky top-0 h-screen -mb-[100vh] overflow-hidden">
+    <div class="relative w-full h-full flex items-center justify-center">
+
+      <!-- Cuisine colour. Each layer owns a slot's fade window, so the
+           section is whatever the dish at the top is. -->
+      @for (slot of slots; track slot.name) {
+        <div
+          class="wheel-tint absolute inset-0"
+          [style.--in]="slot.in"
+          [style.--out]="slot.out"
+          [style.backgroundColor]="slot.tint"
+          aria-hidden="true"
+        ></div>
+      }
+      <div class="absolute inset-0 bg-dot-grid opacity-[0.06] pointer-events-none"></div>
+
+      <!-- Two organic shapes turning against each other behind everything -->
+      <svg class="wheel-blobs absolute w-[130vmin] h-[130vmin] pointer-events-none" viewBox="0 0 200 200" aria-hidden="true">
+        <path
+          class="wheel-blob-outer"
+          fill="currentColor"
+          opacity="0.16"
+          d="M100 8c26 0 39 18 57 30s34 22 34 62-24 44-40 60-25 32-51 32-40-19-58-33-32-21-32-59 21-45 37-61S74 8 100 8z"
+        />
+        <path
+          class="wheel-blob-inner"
+          fill="currentColor"
+          opacity="0.14"
+          d="M100 34c19 0 27 15 40 24s26 13 26 42-17 32-29 44-18 22-37 22-30-14-43-24-24-14-24-42 15-33 27-45 21-21 40-21z"
+        />
+      </svg>
+
+      <!-- Curved text around the rim, turning against the wheel -->
+      <svg class="wheel-rim absolute w-[86vmin] h-[86vmin] pointer-events-none" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="wheel-rim-path" fill="none" d="M100 18a82 82 0 1 1 0 164a82 82 0 1 1 0-164" />
+        </defs>
+        <text class="wheel-rim-text" fill="currentColor">
+          <textPath href="#wheel-rim-path" startOffset="0">
+            KIVORA · EVERY CUISINE, PROPERLY · KIVORA · EVERY CUISINE, PROPERLY ·
+          </textPath>
+        </text>
+      </svg>
+
+      <!-- The wheel. Rotation is scroll and nothing else. -->
+      <div class="wheel-turn absolute w-[68vmin] h-[68vmin]">
+        @for (slot of slots; track slot.name) {
+          <button
+            type="button"
+            (click)="select(slot)"
+            class="wheel-plate absolute left-1/2 top-1/2 cursor-pointer focus:outline-none"
+            [style.--slot]="slot.slot"
+            [style.--at]="slot.at"
+            [attr.aria-label]="'Show ' + slot.name"
+          >
+            <span class="wheel-plate-level block">
+              <img
+                [src]="slot.image"
+                alt=""
+                width="440"
+                height="440"
+                loading="lazy"
+                decoding="async"
+                class="wheel-plate-face w-[15vmin] h-[15vmin] max-w-40 max-h-40 rounded-full object-cover"
+              />
+              <span class="wheel-plate-name block mt-3 text-[10px] font-black uppercase tracking-[0.18em] text-white text-center">{{ slot.name }}</span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <!-- Hub: the bowl that has travelled the whole page, and the label of
+           whichever dish is currently at the top. -->
+      <div class="relative z-20 flex flex-col items-center text-center px-6 pointer-events-none">
+        <div
+          appWebglView="wheel"
+          [appWebglTexture]="hubDish"
+          class="relative w-[26vmin] h-[26vmin] max-w-64 max-h-64"
+        >
+          <img
+            [src]="hubDish"
+            alt=""
+            width="440"
+            height="440"
+            loading="lazy"
+            decoding="async"
+            class="webgl-fallback w-full h-full object-cover rounded-full ring-8 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
+            aria-hidden="true"
+          />
+        </div>
+
+        <div class="relative mt-8 h-28 w-full max-w-sm">
+          @for (slot of slots; track slot.name) {
+            <div class="wheel-label absolute inset-0" [style.--in]="slot.in" [style.--out]="slot.out">
+              <p class="text-2xl sm:text-3xl font-black text-white">{{ slot.name }}</p>
+              <p class="text-xs font-semibold text-white/60 leading-relaxed mt-2">{{ slot.note }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scroll runway the wheel turns over -->
+  <div class="h-[320vh]" aria-hidden="true"></div>
+</section>

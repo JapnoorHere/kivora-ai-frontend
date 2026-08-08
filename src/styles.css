@@ -516,36 +516,53 @@ app-root {
 }
 
 /* ── Hero: ingredients converging into the dish ──────────────────────── */
+/* The whole hero assembly — ring, halo, dish and the WebGL slot — travels
+   left together as the scene scrubs, clearing the right half for the closing
+   copy. Moving one wrapper keeps the 3D viewport locked to the artwork,
+   because the slot's rect inherits this transform. */
+.hero-assembly {
+  transform: translate3d(calc(var(--p, 0) * -19vw), 0, 0);
+}
+
 .hero-orbit-item {
-  --r: 38vmin;
+  /* `vmin` alone ignores viewport width, so on a wide display the ring stays
+     bunched around the centre with dead space down both sides. Taking the
+     larger of a height-based and a width-based radius lets it reach the
+     edges of a widescreen while staying sane on a phone. */
+  --ring-base: max(38vmin, 26vw);
+  --r: 1;
   --a: 0deg;
-  /* Ring geometry is tuned per breakpoint here rather than inline, so the
-     per-item angle/radius bindings stay the only inline styles. */
   --ring: 1;
   --fade: 1;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) rotate(var(--a))
-    translate(calc(var(--r) * var(--ring) * (1 - 0.86 * var(--p, 0)))) rotate(calc(-1 * var(--a)))
-    scale(calc(1 - 0.5 * var(--p, 0)));
+    translate(calc(var(--ring-base) * var(--r) * var(--ring) * (1 - 0.86 * var(--p, 0))))
+    rotate(calc(-1 * var(--a))) scale(calc(1 - 0.5 * var(--p, 0)));
   opacity: calc(var(--fade) * (1 - 0.92 * clamp(0, (var(--p, 0) - 0.5) * 2, 1)));
 }
 @media (max-width: 767px) {
   /* Phones have no room to keep the ring clear of the headline: push it wider
      and drop it back so it reads as texture behind the copy, not clutter. */
   .hero-orbit-item {
-    --ring: 1.3;
+    --ring: 1.25;
     --fade: 0.4;
   }
+  .hero-assembly {
+    transform: none;
+  }
 }
+/* The dish only materialises once the copy on the first screen has scrolled
+   clear. Appearing early puts a photograph directly behind the subheading and
+   the buttons, which no amount of z-index makes readable. */
 .hero-dish {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%) scale(calc(0.5 + 0.5 * var(--p, 0)))
+  transform: translate(-50%, -50%) scale(calc(0.62 + 0.38 * var(--p, 0)))
     rotate(calc(var(--p, 0) * 16deg));
-  opacity: clamp(0, calc((var(--p, 0) - 0.18) * 2.4), 1);
+  opacity: clamp(0, calc((var(--p, 0) - 0.38) * 4), 1);
 }
 .hero-halo {
   position: absolute;
@@ -572,17 +589,33 @@ app-root {
 }
 
 /* ── Story: pinned dish, alternating sides, warming background ───────── */
-.story-visual {
-  /* Cosine gives a smooth left/right alternation across the four chapters
-     with no per-chapter breakpoints: one period every two chapters. */
+/* Cosine gives a smooth left/right alternation across the four chapters with
+   no per-chapter breakpoints: one period every two chapters. Declared on the
+   stage so the device and the bowl can take opposite signs of the same wave
+   and trade sides as a pair. */
+.story-stage {
   --shift: 0;
+}
+@supports (width: calc(cos(45deg) * 1px)) {
+  .story-stage {
+    --shift: cos(calc(var(--p, 0) * 540deg));
+  }
+}
+.story-visual {
   transform: translate3d(calc(var(--shift) * 18vw), 0, 0) rotate(calc(var(--shift) * -3deg))
     scale(calc(0.92 + 0.08 * var(--p, 0)));
 }
-@supports (width: calc(cos(45deg) * 1px)) {
-  .story-visual {
-    --shift: cos(calc(var(--p, 0) * 540deg));
-  }
+
+/* The bowl follows the story instead of being left behind in the hero: it
+   takes the opposite side to the device, turns a full revolution across the
+   four chapters, and swaps its dish for the one the chapter is describing. */
+.story-bowl {
+  transform: translate3d(calc(var(--shift) * -21vw), 0, 0)
+    rotate(calc(var(--p, 0) * 360deg)) scale(calc(0.8 + 0.2 * var(--p, 0)));
+}
+.story-dish-layer {
+  position: absolute;
+  inset: 0;
 }
 /* Journey rail — the four steps as a fixed index down the side, so the
    pinned card is never floating in the page without context. Each item
@@ -640,6 +673,11 @@ app-root {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+/* One fade window, shared by the device's panels and the bowl's dishes, so
+   the card and the food always change chapter on exactly the same frame. */
+.story-panel,
+.story-dish-layer {
   opacity: clamp(0, calc(min(var(--p, 0) - var(--in), var(--out) - var(--p, 0)) * 10), 1);
 }
 .story-wash-2 {
@@ -694,6 +732,32 @@ app-root {
     translateY(calc((1 - var(--cp)) * 0.32em)) rotate(calc((1 - var(--cp)) * -7deg));
   opacity: var(--cp);
 }
+/* Two dishes stand in for the OO of COOK. They roll in from opposite edges —
+   travelling and spinning together, so they read as wheels rather than as
+   images being slid into place — and settle into the word as it assembles.
+   They carry the line's own `--spread` too, so when the word opens up the
+   dishes move with the letters instead of being left behind. */
+.dish-o {
+  display: inline-block;
+  position: relative;
+  top: 0.05em;
+  width: 0.74em;
+  height: 0.74em;
+  vertical-align: baseline;
+  border-radius: 9999px;
+  overflow: hidden;
+  box-shadow: 0 0.03em 0.1em rgb(0 0 0 / 0.5);
+  transform: translateX(calc(var(--i) * var(--spread, 0) * 0.14em))
+    translateX(calc((1 - var(--wp, 1)) * var(--roll-from, 0) * 1vw))
+    rotate(calc((1 - var(--wp, 1)) * var(--roll-spin, 0) * 1deg));
+}
+.dish-o img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .rush-outline {
   color: transparent;
 }
@@ -707,131 +771,193 @@ app-root {
   opacity: calc(0.25 + var(--p, 0) * 0.45);
 }
 
-/* ── Cuisine carousel ────────────────────────────────────────────────── */
-/* Fizzi puts wavy concentric circles behind its can and recolours them with
-   the flavour. Same idea, drawn as dashed rings that turn at different rates
-   and directions — a set of dials the dish sits at the centre of. The whole
-   assembly also scrubs with scroll, so the backdrop and the dish move at
-   different speeds as the section passes: parallax with depth, not a slide. */
-.carousel-rings {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  color: rgb(255 255 255 / 0.4);
-  pointer-events: none;
-  transform: translate(-50%, -50%) scale(calc(0.82 + var(--progress, 0) * 0.34))
-    rotate(calc(var(--progress, 0) * 22deg + var(--spin, 0) * -0.06deg));
-  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+
+/* ══════════════════════════════════════════════════════════════════════
+   THE WHEEL — a trolley of dishes that scroll turns
+
+   Six plates on a wheel. Scroll rotates it 300° (five slots), so slot k is
+   at the top exactly at `--p = k/5`: the first dish is plated the moment the
+   scene begins and the last as it ends, with no dead scroll at either edge.
+
+   The wheel has exactly one input, `--p`. Nothing here transitions, because
+   a transition on a scroll-driven property retargets every frame and the
+   element spends its life chasing a value it never reaches — which reads as
+   jitter, and damps the movement away to nothing besides.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.wheel-scene {
+  --sweep: 300deg;
+  --radius: 26vmin;
 }
-.carousel-rings circle {
+.wheel-turn {
+  transform: rotate(calc(var(--p, 0) * var(--sweep) * -1));
+}
+.wheel-plate {
+  /* Out to the rim along the slot's own spoke. */
+  transform: translate(-50%, -50%) rotate(calc(var(--slot) * 60deg))
+    translateY(calc(var(--radius) * -1));
+}
+.wheel-plate-level {
+  /* Undo everything the wheel and the spoke did, so the plate hangs level
+     however far round it has travelled — a ferris wheel gondola. */
+  transform: rotate(calc(var(--slot) * -60deg + var(--p, 0) * var(--sweep)));
+}
+/* Distance from the top, without CSS abs(), which is still too new to use. */
+.wheel-plate-face {
+  --near: clamp(0, calc((0.13 - max(var(--p, 0) - var(--at), var(--at) - var(--p, 0))) * 9), 1);
+  transform: scale(calc(0.72 + var(--near) * 0.5));
+  opacity: calc(0.45 + var(--near) * 0.55);
+  box-shadow: 0 1.4vmin 3vmin rgb(0 0 0 / 0.45);
+  outline: calc(0.5vmin * var(--near)) solid rgb(251 191 36 / 0.9);
+  outline-offset: 0.4vmin;
+}
+.wheel-plate-name {
+  --near: clamp(0, calc((0.13 - max(var(--p, 0) - var(--at), var(--at) - var(--p, 0))) * 9), 1);
+  opacity: calc(var(--near) * 0.85);
+}
+
+/* Label and colour share one fade window with the plate highlight, so all
+   three change on the same frame by construction. */
+.wheel-tint,
+.wheel-label {
+  opacity: clamp(0, calc(min(var(--p, 0) - var(--in), var(--out) - var(--p, 0)) * 6), 1);
+}
+
+.wheel-blobs {
+  color: #fbbf24;
+}
+.wheel-blob-outer,
+.wheel-blob-inner {
   transform-box: fill-box;
   transform-origin: center;
-  animation: ring-turn linear infinite;
+  animation: blob-turn linear infinite;
 }
-.carousel-rings circle:nth-child(1) {
-  animation-duration: 64s;
-}
-.carousel-rings circle:nth-child(2) {
-  animation-duration: 88s;
+.wheel-blob-outer {
+  animation-duration: 22s;
   animation-direction: reverse;
 }
-.carousel-rings circle:nth-child(3) {
-  animation-duration: 116s;
+.wheel-blob-inner {
+  animation-duration: 16s;
 }
-.carousel-rings circle:nth-child(4) {
-  animation-duration: 150s;
-  animation-direction: reverse;
-}
-@keyframes ring-turn {
+@keyframes blob-turn {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* Scroll parallax: heading, dish and caption ride at three different rates. */
-.carousel-lift-slow {
-  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * 44px), 0);
+.wheel-rim {
+  color: rgb(255 255 255 / 0.35);
+  transform: rotate(calc(var(--p, 0) * 90deg));
 }
-.carousel-lift-fast {
-  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * -68px), 0);
-}
-.carousel-lift-drift {
-  transform: translate3d(0, calc((0.5 - var(--progress, 0)) * 26px), 0);
-}
-
-.carousel-stage {
-  perspective: 1200px;
-}
-.carousel-card {
-  transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
-  transform: rotateY(calc(var(--spin, 0) * 1deg));
-}
-.carousel-tint {
-  transition: background-color 1s cubic-bezier(0.65, 0, 0.35, 1);
-}
-.carousel-label {
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-}
-.carousel-swapping .carousel-label {
-  opacity: 0;
-  transform: translateY(-10px);
+.wheel-rim-text {
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
 }
 
-/* ── Finale: marquee bands closing the page ──────────────────────────
-   Two belts of real dishes running opposite ways, tilted just off level.
-   They carry the same photographs as the hero ring and the carousel, which
-   is what stops the closing screen reading as a detached button on cream.
-   The infinite run stays paused until the section is revealed, so a belt
-   nobody has scrolled to yet costs nothing. */
-.marquee-band {
-  overflow: hidden;
-}
-.marquee-track {
-  display: flex;
-  align-items: center;
-  width: max-content;
-  animation: marquee var(--speed, 44s) linear infinite;
-  animation-play-state: paused;
-}
-.is-revealed .marquee-track {
-  animation-play-state: running;
-  will-change: transform;
-}
-.marquee-reverse {
-  animation-direction: reverse;
-}
-@keyframes marquee {
-  to {
-    /* The track holds exactly two copies of the list. */
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-/* Scroll parallax on the belts themselves, on top of their own run. */
-.finale-drift-a {
-  transform: translate3d(calc((0.5 - var(--progress, 0)) * 7vw), 0, 0);
-}
-.finale-drift-b {
-  transform: translate3d(calc((var(--progress, 0) - 0.5) * 7vw), 0, 0);
-}
-.finale-glow {
-  transform: translate(-50%, -50%) scale(calc(0.7 + var(--progress, 0) * 0.6));
-  opacity: calc(0.3 + var(--progress, 0) * 0.45);
-}
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
+  .wheel-blob-outer,
+  .wheel-blob-inner {
     animation: none;
   }
-  .finale-drift-a,
-  .finale-drift-b,
-  .finale-glow,
-  .carousel-lift-slow,
-  .carousel-lift-fast,
-  .carousel-lift-drift {
-    transform: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THE PASS — order tickets clipping onto a rail
+
+   Each ticket owns a point on the scene, `--at`, and slides in from the
+   right as the scroll reaches it. `--land` is the ticket's own 0→1: it
+   drives entry, and once landed the ticket hands over to a gentle sway so
+   the rail stays alive when the scroll stops.
+
+   The torn bottom edge is a static clip-path, and the ruled lines are a
+   repeating gradient — no images, and nothing per-frame but a transform.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.pass-rail {
+  background: linear-gradient(180deg, #cbd5e1 0%, #64748b 45%, #94a3b8 55%, #475569 100%);
+  box-shadow: 0 2px 6px rgb(15 23 42 / 0.25);
+}
+.pass-ticket {
+  --land: clamp(0, calc((var(--p, 0) - var(--at)) * 7), 1);
+  transform: translate3d(calc((1 - var(--land)) * 42vw), calc((1 - var(--land)) * -8vh), 0)
+    rotate(calc(var(--tilt) * 1deg + (1 - var(--land)) * 14deg));
+  opacity: var(--land);
+  transform-origin: top center;
+}
+/* Once it has landed it hangs and sways, offset per ticket so the rail
+   doesn't move as one board. */
+.pass-ticket-swing {
+  animation: pass-sway 5.5s ease-in-out infinite;
+  animation-delay: calc(var(--at) * -4s);
+  transform-origin: top center;
+}
+@keyframes pass-sway {
+  0%,
+  100% {
+    transform: rotate(-0.7deg);
   }
-  .carousel-rings circle {
+  50% {
+    transform: rotate(0.7deg);
+  }
+}
+.pass-clip {
+  position: relative;
+  z-index: 2;
+  width: 0.9rem;
+  height: 1.1rem;
+  margin: -0.55rem auto 0;
+  border-radius: 0.2rem;
+  background: linear-gradient(180deg, #e2e8f0, #94a3b8);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.35);
+}
+.pass-paper {
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 1.35rem,
+      rgb(15 23 42 / 0.05) 1.35rem 1.4rem
+    ),
+    #fffdf7;
+  box-shadow: 0 14px 28px -14px rgb(15 23 42 / 0.45);
+  /* A torn-off bottom edge, cut once and never recomputed. */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 8px),
+    92% 100%,
+    83% calc(100% - 7px),
+    75% 100%,
+    66% calc(100% - 7px),
+    58% 100%,
+    49% calc(100% - 7px),
+    41% 100%,
+    32% calc(100% - 7px),
+    24% 100%,
+    15% calc(100% - 7px),
+    7% 100%,
+    0 calc(100% - 8px)
+  );
+}
+.pass-paper-own {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 1.35rem,
+      rgb(15 23 42 / 0.06) 1.35rem 1.4rem
+    ),
+    #fbbf24;
+  box-shadow: 0 20px 40px -16px rgb(180 83 9 / 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pass-ticket {
+    --land: 1;
+    transform: rotate(calc(var(--tilt) * 1deg));
+  }
+  .pass-ticket-swing {
     animation: none;
   }
 }
@@ -872,11 +998,6 @@ app-root {
   .hero-rise {
     animation: none;
   }
-  .carousel-card,
-  .carousel-tint,
-  .carousel-label {
-    transition: none;
-  }
   /* `--p` rests at 1, which resolves most formulas to their finished state.
      These few would land mid-formula, so they get pinned explicitly. */
   .hero-late-heading .split-char {
@@ -891,6 +1012,10 @@ app-root {
   }
   .rush-line .split-char {
     --cp: 1;
+  }
+  .dish-o,
+  .story-bowl {
+    transform: none;
   }
 }
 
