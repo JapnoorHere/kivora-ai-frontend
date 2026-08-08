@@ -12,6 +12,20 @@ import { RippleComponent } from '../../components/ui/ripple/ripple';
 import { SpotlightDirective } from '../../components/ui/spotlight.directive';
 import { MagneticDirective } from '../../components/ui/magnetic.directive';
 
+interface OrbitRing {
+  readonly radius: number;
+  /** Every item on a ring is the same size — mixed sizes read as clutter. */
+  readonly size: number;
+  readonly photos: readonly string[];
+}
+
+/**
+ * Pixels per second every garnish travels, whatever ring it is on. Speed is
+ * the property the eye reads as "these belong together"; equal durations
+ * across unequal circumferences would make the outer ring visibly race.
+ */
+const ORBIT_SPEED = 47;
+
 @Component({
   selector: 'app-login',
   imports: [
@@ -140,19 +154,83 @@ export class LoginComponent implements OnInit, OnDestroy {
       : `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
   }
 
-  protected readonly orbitItems: readonly OrbitItem[] = [
-    { url: this.photo('1565299585323-38d6b0865b47'), size: 34, radius: 100, duration: 26, delay: 20 },
-    { url: this.photo('1569718212165-3a8278d5f624'), size: 34, radius: 100, duration: 26, delay: 10 },
-    { url: this.photo('1513104890138-7c749659a591'), size: 52, radius: 160, duration: 30, delay: 0, reverse: true },
-    { url: this.photo('1512621776951-a57141f2eefd'), size: 40, radius: 160, duration: 30, delay: 15, reverse: true },
-    { url: this.photo('1563729784474-d77dbb933a9e'), size: 44, radius: 225, duration: 34, delay: 0 },
-    { url: this.photo('1568901346375-23c9450c58cd'), size: 52, radius: 225, duration: 34, delay: 17 },
-    { url: this.photo('1579871494447-9811cf80d66c'), size: 40, radius: 290, duration: 40, delay: 8, reverse: true },
-    { url: this.photo('1546549032-9571cd6b27df'), size: 52, radius: 290, duration: 40, delay: 28, reverse: true },
-    { url: this.photo('1563245372-f21724e3856d'), size: 44, radius: 350, duration: 46, delay: 12 },
+  /**
+   * Garnish orbiting the wordmark, described one ring at a time.
+   *
+   * Only the radius, the item size and the photographs are chosen here.
+   * Spacing and speed are derived in `buildOrbit`, because hand-picking a
+   * delay per item is how the garnish ended up unevenly bunched: the numbers
+   * look arbitrary on the page precisely because they were.
+   *
+   * On the radii: every one has to clear the wordmark, or an item travels
+   * through the word rather than around it. "Kivora" at the xl size is about
+   * 270px wide, so half of it is ~135px; add the largest item's own radius
+   * and a breathing gap and the innermost orbit lands at 195. Nothing may go
+   * inside that, and enlarging the wordmark means raising it. The outer limit
+   * is the panel — it is half the viewport, so much past 300 and items start
+   * clipping on narrower desktops.
+   */
+  private readonly orbitRings: readonly OrbitRing[] = [
+    {
+      radius: 195,
+      size: 40,
+      photos: ['1565299585323-38d6b0865b47', '1569718212165-3a8278d5f624', '1512621776951-a57141f2eefd'],
+    },
+    {
+      radius: 250,
+      size: 46,
+      photos: ['1513104890138-7c749659a591', '1563729784474-d77dbb933a9e', '1568901346375-23c9450c58cd'],
+    },
+    {
+      radius: 300,
+      size: 52,
+      photos: ['1579871494447-9811cf80d66c', '1546549032-9571cd6b27df', '1563245372-f21724e3856d'],
+    },
   ];
 
-  protected readonly guideRings: readonly number[] = [160, 290];
+  protected readonly orbitItems: readonly OrbitItem[] = this.buildOrbit(this.orbitRings);
+
+  /**
+   * Derived, never hand-listed. Kept as a separate array these had already
+   * drifted out of step with the orbits — two circles drawn for three rings,
+   * so a third of the garnish travelled with no visible track under it, which
+   * is what made an ordered layout look scattered.
+   */
+  protected readonly guideRings: readonly number[] = this.orbitRings.map((ring) => ring.radius);
+
+  /**
+   * Turns rings into items, deriving the two things that were wrong by hand:
+   *
+   *  - **Spacing.** The delay is a starting angle in disguise — phase is
+   *    `delay / duration` of a turn. Dividing the duration evenly across the
+   *    ring puts the garnish at exact equal angles, whatever the count.
+   *  - **Speed.** A fixed duration per ring makes the outer items visibly
+   *    race, since they cover a longer path in the same time. Deriving the
+   *    duration from the circumference instead gives every item the same
+   *    linear pace, so the whole set reads as one system turning together.
+   *
+   * Alternate rings run backwards: neighbouring rings passing each other in
+   * opposite directions never settle into a repeating pattern.
+   */
+  private buildOrbit(rings: readonly OrbitRing[]): readonly OrbitItem[] {
+    return rings.flatMap((ring, ringIndex) => {
+      const duration = Math.round((2 * Math.PI * ring.radius) / ORBIT_SPEED);
+      const spacing = duration / ring.photos.length;
+      // Without this every ring would start on the same angles and the garnish
+      // would line up as radial spokes; a fraction of a step per ring makes
+      // them interleave instead.
+      const ringPhase = spacing * (ringIndex / rings.length);
+
+      return ring.photos.map((id, index) => ({
+        url: this.photo(id),
+        size: ring.size,
+        radius: ring.radius,
+        duration,
+        delay: Number((spacing * index + ringPhase).toFixed(2)),
+        reverse: ringIndex % 2 === 1,
+      }));
+    });
+  }
 
   /**
    * Cycles the app's real preset catalogue rather than inventing activity stats.

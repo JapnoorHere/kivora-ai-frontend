@@ -354,9 +354,58 @@ app-root {
   }
 }
 
+/* ── Wordmark (OrbitDisplayComponent) ────────────────────────────────── */
+/* A gold sheen travelling across dark letterforms, the way light moves over
+   brushed metal. The gradient is dark at both ends so the word keeps its
+   contrast against the page at every point in the cycle — a wordmark that
+   fades to pale at the bottom, as a plain vertical gradient does, reads as
+   an unfinished render rather than a logo.
+   Only background-position animates: no layout, no filter. */
+.wordmark {
+  background-image: linear-gradient(
+    100deg,
+    #0f172a 0%,
+    #1e293b 32%,
+    #b45309 46%,
+    #f59e0b 50%,
+    #b45309 54%,
+    #1e293b 68%,
+    #0f172a 100%
+  );
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  animation: wordmark-sheen 7s ease-in-out infinite;
+}
+@keyframes wordmark-sheen {
+  0%,
+  100% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wordmark {
+    animation: none;
+    /* Parked just off the highlight, so the word still catches gold. */
+    background-position: 62% 0;
+  }
+}
+
 /* ── Orbiting garnish ────────────────────────────────────────────────── */
+/* Explicitly below the wordmark it orbits: the garnish passes behind the
+   name, never across it.
+   `inset: 0; margin: auto` centres each item on the panel. Left to their
+   static position, absolutely positioned items with auto offsets anchor
+   where they would have sat in the flex column — under the wordmark — so the
+   orbits would be centred lower than the guide rings they are meant to run
+   along, and would shift again every time anything is added to the column. */
 .orbit-item {
   position: absolute;
+  inset: 0;
+  margin: auto;
+  z-index: 0;
   transform-origin: center;
   animation: orbit calc(var(--orbit-duration, 20) * 1s) linear infinite;
   animation-delay: calc(var(--orbit-delay, 0) * -1s);

@@ -60,6 +60,82 @@ describe('LoginComponent', () => {
     input.dispatchEvent(new Event('input'));
   }
 
+  /**
+   * The garnish is meant to read as one system turning, and the two things
+   * that break that illusion are invisible in code review: uneven angles
+   * between items on a ring, and rings whose items travel at different
+   * speeds. Both were wrong when the delays and durations were written by
+   * hand, and both are derived now — this is what keeps them derived.
+   */
+  describe('orbiting garnish', () => {
+    interface Placed {
+      radius: number;
+      duration: number;
+      delay: number;
+    }
+
+    function readOrbits(element: HTMLElement): Map<number, Placed[]> {
+      const rings = new Map<number, Placed[]>();
+
+      element.querySelectorAll<HTMLElement>('.orbit-item').forEach((item) => {
+        const placed: Placed = {
+          radius: Number(item.style.getPropertyValue('--orbit-radius')),
+          duration: Number(item.style.getPropertyValue('--orbit-duration')),
+          delay: Number(item.style.getPropertyValue('--orbit-delay')),
+        };
+        rings.set(placed.radius, [...(rings.get(placed.radius) ?? []), placed]);
+      });
+
+      return rings;
+    }
+
+    it('spaces the items on each ring at equal angles', async () => {
+      const fixture = await render();
+      const rings = readOrbits(fixture.nativeElement as HTMLElement);
+
+      expect(rings.size).toBeGreaterThan(1);
+
+      for (const items of rings.values()) {
+        // The delay is a starting angle in disguise: phase is delay/duration.
+        const phases = items.map((item) => (item.delay / item.duration) % 1).sort((a, b) => a - b);
+        const step = 1 / phases.length;
+
+        phases.forEach((phase, index) => {
+          const expected = (phases[0] + index * step) % 1;
+          expect(Math.abs(phase - expected)).toBeLessThan(0.01);
+        });
+      }
+    });
+
+    it('moves every item at the same linear speed, whatever its ring', async () => {
+      const fixture = await render();
+      const rings = readOrbits(fixture.nativeElement as HTMLElement);
+
+      const speeds = [...rings.values()].map(
+        ([item]) => (2 * Math.PI * item.radius) / item.duration,
+      );
+
+      const slowest = Math.min(...speeds);
+      const fastest = Math.max(...speeds);
+      expect(fastest - slowest).toBeLessThan(2);
+    });
+
+    it('keeps every orbit outside the wordmark, and gives each one a track', async () => {
+      const fixture = await render();
+      const element = fixture.nativeElement as HTMLElement;
+      const rings = readOrbits(element);
+
+      // An orbit tighter than this carries its garnish through the word.
+      for (const radius of rings.keys()) {
+        expect(radius).toBeGreaterThanOrEqual(195);
+      }
+
+      // One drawn circle per orbit, or items appear to float with no path.
+      const guides = element.querySelectorAll('circle');
+      expect(guides.length).toBe(rings.size);
+    });
+  });
+
   it('opens in sign-in mode by default', async () => {
     const fixture = await render();
     const element = fixture.nativeElement as HTMLElement;

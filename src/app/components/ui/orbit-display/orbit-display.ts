@@ -14,9 +14,14 @@ export interface OrbitItem {
 }
 
 /**
- * Garnish orbiting a wordmark, on concentric rings. Each item is absolutely
- * positioned but given no offsets, so it starts at the flex-centred origin and
- * the CSS `orbit` keyframes swing it out to its own radius.
+ * Garnish orbiting a wordmark, on concentric rings. Each item is centred on
+ * the panel by `.orbit-item` and the CSS `orbit` keyframes swing it out to its
+ * own radius, so every orbit shares a centre with the guide rings and with the
+ * word itself.
+ *
+ * Radii are the caller's business, but they are not free choices: an orbit
+ * smaller than the wordmark's half-width carries its garnish straight through
+ * the word.
  */
 @Component({
   selector: 'app-orbit-display',
@@ -35,11 +40,36 @@ export interface OrbitItem {
       </svg>
     }
 
+    <!-- Warm ground under the wordmark, so it reads as lit from behind and
+         separates from whatever garnish is passing at the time. Static: a
+         blurred or animated backdrop would re-paint every frame. -->
+    <div
+      class="pointer-events-none absolute left-1/2 top-1/2 h-64 w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(251,191,36,0.32),rgba(251,191,36,0.08)_45%,transparent_70%)]"
+      aria-hidden="true"
+    ></div>
+
+    <!--
+      The stacking position here is load-bearing, not decoration. The wordmark
+      is in normal flow while the rings and the garnish are absolutely
+      positioned, and positioned boxes paint above in-flow content whatever
+      the DOM order — so without a z-index of its own the wordmark is covered
+      every time an orbit carries a garnish across it.
+    -->
     <span
-      class="pointer-events-none select-none bg-gradient-to-b from-slate-900 via-slate-800 to-amber-200/40 bg-clip-text text-center text-6xl xl:text-7xl font-black leading-none tracking-tight text-transparent"
+      class="wordmark relative z-10 pointer-events-none select-none bg-clip-text text-center text-6xl xl:text-7xl font-black leading-[0.85] tracking-[-0.045em] text-transparent"
     >
       {{ text() }}
     </span>
+
+    @if (caption()) {
+      <span
+        class="relative z-10 mt-5 h-px w-14 bg-gradient-to-r from-transparent via-amber-500/70 to-transparent"
+        aria-hidden="true"
+      ></span>
+      <span class="relative z-10 mt-4 text-[10px] font-black uppercase tracking-[0.34em] text-slate-500">
+        {{ caption() }}
+      </span>
+    }
 
     @for (item of items(); track item.url) {
       <span
@@ -71,5 +101,7 @@ export interface OrbitItem {
 export class OrbitDisplayComponent {
   public readonly items = input.required<readonly OrbitItem[]>();
   public readonly text = input<string>('Kivora');
+  /** Optional line under the wordmark. Omit it and the rule goes too. */
+  public readonly caption = input<string>('');
   public readonly ringRadii = input<readonly number[]>([]);
 }
