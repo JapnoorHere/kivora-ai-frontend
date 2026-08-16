@@ -18,9 +18,9 @@ describe('LandingComponent', () => {
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
 
-    // hero, story, kinetic type, wheel, pass
-    expect(element.querySelectorAll('[appScene]').length).toBe(5);
-    expect(element.querySelectorAll('.rush-line').length).toBe(3);
+    // hero, story, wheel, pass — the kinetic type is the intro splash now
+    expect(element.querySelectorAll('[appScene]').length).toBe(4);
+    expect(element.querySelectorAll('.rush-line').length).toBe(0);
     expect(element.querySelectorAll('.story-panel').length).toBe(4);
     expect(element.querySelectorAll('.story-chapter').length).toBe(4);
     expect(element.querySelector('app-cuisine-wheel')).toBeTruthy();

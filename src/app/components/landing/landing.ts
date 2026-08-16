@@ -141,12 +141,6 @@ export class LandingComponent {
     },
   ];
 
-  /** The pair standing in for the two O's of COOK — round dishes read as O's. */
-  protected readonly cookDishes = [
-    'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=300&q=72',
-    'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=72',
-  ];
-
   /** Three claims that carry the hero's closing screen. */
   protected readonly heroProof = [
     { label: 'Scaled to your table', detail: 'Quantities recalculated for however many are eating.' },

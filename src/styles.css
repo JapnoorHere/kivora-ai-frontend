@@ -736,56 +736,83 @@ app-root {
   opacity: clamp(0, calc((var(--p, 0) - 0.62) * 4), 1);
 }
 
-/* ── Kinetic type: words assembling, then rushing past the viewer ─────
-   Fizzi's skydive sends its words through the camera on a Z axis; this is
-   that beat in CSS. Two acts, both read off the same scene progress:
+/* ══════════════════════════════════════════════════════════════════════
+   INTRO SPLASH — kinetic type, three seconds, then the page
 
-     act one  — each line arrives out of depth, letters dropping into place
-                one by one and closing up their spacing
-     act two  — the whole stack accelerates through the camera and out
+   This ran on scroll once, as a chain of calc()s against a scrubbed `--p`.
+   Driving that same `--p` from a clock made it stutter, and for a reason
+   worth recording: writing a custom property on an ancestor invalidates the
+   whole subtree's style, so every frame re-styled three lines, fourteen
+   characters, two dishes and the backdrop — on the main thread, at the exact
+   moment Angular boots, two dozen images decode and the WebGL stage starts.
+   Scroll hid that cost because the reader set the pace.
 
-   "Spacing" is per-character translateX against the character's own index,
-   never letter-spacing: real tracking reflows the text every frame, and at
-   22vw that is a full layout pass per line per frame. The line counter-
-   shifts by half its length so the word stays centred while it spreads. */
+   As declarative keyframes on transform and opacity, the compositor runs the
+   whole thing off the main thread, so a busy boot cannot stutter it.
+
+   Timing. Every line ends at the same instant — delay plus duration is always
+   3s — so the exits are synchronised while the entrances stagger by `--n`.
+   Percentages then read as one shared score:
+
+     0-38%    fly in out of depth, decelerating
+     38-72%   hold, assembled and legible
+     72-100%  accelerate through the camera and away
+   ══════════════════════════════════════════════════════════════════════ */
+
 .rush {
   perspective: 1100px;
   perspective-origin: 50% 45%;
 }
-.rush-line {
-  --o: 0;
-  --dir: 1;
-  --len: 4;
-  --wp: clamp(0, calc((var(--p, 0) - var(--o)) * 2.6), 1);
-  --out: clamp(0, calc((var(--p, 0) - 0.66) * 3), 1);
-  --spread: calc((1 - var(--wp)) + var(--out) * 1.6);
 
-  /* Z is capped at 430px against a 1100px perspective — a 1.6x maximum scale.
-     Pushing translateZ toward the perspective value makes the computed scale
-     approach infinity, and the frames either side of that are an enormous
-     raster the compositor cannot keep up with: that is what reads as the
-     section sticking, especially scrubbing back through it. The words are
-     fully faded well before the cap. */
-  transform: translate3d(
-      calc(var(--dir) * (1 - var(--wp)) * 26vw + var(--spread) * var(--len) * -0.07em),
-      0,
-      calc(-900px * (1 - var(--wp)) + var(--out) * 430px)
-    )
-    rotateX(calc((1 - var(--wp)) * 14deg));
-  opacity: calc(var(--wp) * clamp(0, 1 - var(--out) * 1.35, 1));
+.rush-line {
+  --n: 0;
+  --dir: 1;
+  animation: rush-line calc(3s - var(--n) * 0.1s) cubic-bezier(0.22, 1, 0.36, 1)
+    calc(var(--n) * 0.1s) both;
   backface-visibility: hidden;
+  will-change: transform, opacity;
 }
+@keyframes rush-line {
+  0% {
+    /* Z stays well inside the 1100px perspective. Pushing translateZ toward
+       the perspective value sends the computed scale to infinity, and the
+       frames either side of it are an enormous raster nothing keeps up with. */
+    transform: translate3d(calc(var(--dir) * 26vw), 0, -900px) rotateX(14deg);
+    opacity: 0;
+  }
+  38%,
+  72% {
+    transform: translate3d(0, 0, 0) rotateX(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 430px) rotateX(0deg);
+    opacity: 0;
+  }
+}
+
+/* Letters drop into place one after another and close up their spacing as
+   they land. The offset is a per-character translateX against the character's
+   own index, never letter-spacing: real tracking reflows the line, and at
+   21vw that is a full layout pass per frame. */
 .rush-line .split-char {
-  --cp: clamp(0, calc(var(--wp) * 1.6 - var(--i) * 0.08), 1);
-  transform: translateX(calc(var(--i) * var(--spread) * 0.14em))
-    translateY(calc((1 - var(--cp)) * 0.32em)) rotate(calc((1 - var(--cp)) * -7deg));
-  opacity: var(--cp);
+  animation: rush-char 0.62s cubic-bezier(0.22, 1, 0.36, 1)
+    calc(var(--n) * 0.1s + var(--i) * 0.035s) both;
 }
-/* Two dishes stand in for the OO of COOK. They roll in from opposite edges —
-   travelling and spinning together, so they read as wheels rather than as
-   images being slid into place — and settle into the word as it assembles.
-   They carry the line's own `--spread` too, so when the word opens up the
-   dishes move with the letters instead of being left behind. */
+@keyframes rush-char {
+  from {
+    transform: translateX(calc(var(--i) * 0.14em)) translateY(0.32em) rotate(-7deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Two dishes stand in for the OO of COOK, rolling in from opposite edges.
+   Travel and spin share one timing so they read as wheels rather than as
+   images being slid into place. */
 .dish-o {
   display: inline-block;
   position: relative;
@@ -796,9 +823,16 @@ app-root {
   border-radius: 9999px;
   overflow: hidden;
   box-shadow: 0 0.03em 0.1em rgb(0 0 0 / 0.5);
-  transform: translateX(calc(var(--i) * var(--spread, 0) * 0.14em))
-    translateX(calc((1 - var(--wp, 1)) * var(--roll-from, 0) * 1vw))
-    rotate(calc((1 - var(--wp, 1)) * var(--roll-spin, 0) * 1deg));
+  animation: dish-roll 1.15s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--n) * 0.1s) both;
+}
+@keyframes dish-roll {
+  from {
+    transform: translateX(calc(var(--roll-from, 0) * 1vw))
+      rotate(calc(var(--roll-spin, 0) * 1deg));
+  }
+  to {
+    transform: none;
+  }
 }
 .dish-o img {
   display: block;
@@ -815,9 +849,54 @@ app-root {
     -webkit-text-stroke: 0.014em #fbbf24;
   }
 }
+
 .rush-glow {
-  transform: scale(calc(0.5 + var(--p, 0) * 1.1));
-  opacity: calc(0.25 + var(--p, 0) * 0.45);
+  animation: rush-glow 3s ease-out both;
+}
+@keyframes rush-glow {
+  from {
+    transform: scale(0.5);
+    opacity: 0.25;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0.7;
+  }
+}
+
+.intro-splash {
+  cursor: pointer;
+}
+/* Clears in step with the words leaving, so the page is revealed through the
+   type rather than after a cut. */
+.intro-splash-backdrop {
+  animation: intro-backdrop 3s linear both;
+}
+@keyframes intro-backdrop {
+  0%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.intro-splash-hint {
+  animation: intro-hint 3s linear both;
+}
+@keyframes intro-hint {
+  0%,
+  18% {
+    opacity: 0;
+  }
+  34%,
+  64% {
+    opacity: 1;
+  }
+  78%,
+  100% {
+    opacity: 0;
+  }
 }
 
 
@@ -1037,8 +1116,12 @@ app-root {
 .scene-active .hero-dish,
 .scene-active .hero-halo,
 .scene-active .hero-late,
-.scene-active .story-visual,
-.scene-active .rush-line {
+.scene-active .story-visual {
+  will-change: transform, opacity;
+}
+/* The kinetic type is an intro now, not a scene: it is on screen for three
+   seconds and always moving, so it is promoted for its whole life. */
+.intro-splash .rush-line {
   will-change: transform, opacity;
 }
 
@@ -1053,16 +1136,8 @@ app-root {
     opacity: 1;
     transform: none;
   }
-  /* At rest the kinetic type would be mid-flight and invisible; hold it at
-     the assembled frame instead. */
-  .rush-line {
-    --wp: 1;
-    --out: 0;
-  }
-  .rush-line .split-char {
-    --cp: 1;
-  }
-  .dish-o,
+  /* The kinetic type needs no rest state here — the intro that runs it never
+     mounts under reduced motion. */
   .story-bowl {
     transform: none;
   }

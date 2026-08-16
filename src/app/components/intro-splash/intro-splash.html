@@ -1,0 +1,63 @@
+@if (isRunning()) {
+  <div
+    #stage
+    class="intro-splash fixed inset-0 z-[9998] overflow-hidden select-none"
+    role="button"
+    tabindex="0"
+    aria-label="Skip intro"
+    (click)="skip()"
+    (keydown)="skip()"
+    (wheel)="skip()"
+    (touchstart)="skip()"
+  >
+    <!-- Fades on the same progress that carries the words out, so the page
+         is revealed through the type rather than after a cut. -->
+    <div class="intro-splash-backdrop absolute inset-0 bg-slate-950" aria-hidden="true"></div>
+
+    <!-- The perspective element is deliberately its own box, exactly as it was
+         when this ran on scroll: the overlay above owns the clipping, this one
+         owns the depth the words travel through. -->
+    <div class="rush relative w-full h-full flex flex-col items-center justify-center gap-[1.5vw]">
+
+    <div class="rush-glow absolute w-[80vmin] h-[80vmin] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.22),transparent_65%)] pointer-events-none"></div>
+
+    <!-- C-O-O-K, with the two O's played by dishes. The indices are kept as if
+         the word were still four characters so the letters stagger and spread
+         exactly as they would otherwise. -->
+    <div
+      class="rush-line relative text-[21vw] font-black uppercase leading-[0.8] tracking-tight text-amber-400"
+      style="--n: 0; --dir: -1"
+      role="img"
+      aria-label="Cook"
+    >
+      <span class="split-char" style="--i: 0" aria-hidden="true">C</span>
+      <span class="dish-o" style="--i: 1; --roll-from: -82; --roll-spin: -900" aria-hidden="true">
+        <img [src]="cookDishes[0]" alt="" width="300" height="300" fetchpriority="high" decoding="async" />
+      </span>
+      <span class="dish-o" style="--i: 2; --roll-from: 82; --roll-spin: 900" aria-hidden="true">
+        <img [src]="cookDishes[1]" alt="" width="300" height="300" fetchpriority="high" decoding="async" />
+      </span>
+      <span class="split-char" style="--i: 3" aria-hidden="true">K</span>
+    </div>
+
+    <div
+      class="rush-line rush-outline relative text-[10vw] font-black uppercase leading-[0.8] tracking-tight"
+      style="--n: 1; --dir: 1"
+    >
+      <app-split-text text="Something" unit="char" />
+    </div>
+
+    <div
+      class="rush-line relative text-[21vw] font-black uppercase leading-[0.8] tracking-tight text-amber-400"
+      style="--n: 2; --dir: -1"
+    >
+      <app-split-text text="Great" unit="char" />
+    </div>
+
+    </div>
+
+    <span class="intro-splash-hint absolute bottom-10 left-0 right-0 text-center text-[9px] font-black uppercase tracking-[0.28em] text-white/25">
+      Tap to skip
+    </span>
+  </div>
+}

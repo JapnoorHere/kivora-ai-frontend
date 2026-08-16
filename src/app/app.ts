@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { DockComponent } from './components/dock/dock';
 import { FooterComponent } from './components/footer/footer';
+import { IntroSplashComponent } from './components/intro-splash/intro-splash';
 import { LoaderComponent } from './components/loader/loader';
 import { OnboardingPreferencesComponent } from './components/onboarding-preferences/onboarding-preferences';
 import { ToastComponent } from './components/toast/toast';
@@ -12,7 +13,15 @@ import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoaderComponent, DockComponent, FooterComponent, ToastComponent, OnboardingPreferencesComponent],
+  imports: [
+    RouterOutlet,
+    LoaderComponent,
+    DockComponent,
+    FooterComponent,
+    ToastComponent,
+    OnboardingPreferencesComponent,
+    IntroSplashComponent,
+  ],
   template: `
     @if (!isLoginRoute()) {
       <div class="flex min-h-screen relative bg-[#fbfbfa]">
@@ -35,6 +44,10 @@ import { AuthService } from './core/services/auth.service';
       <main class="relative min-h-screen bg-[#fbfbfa] text-slate-900">
         <router-outlet />
       </main>
+    }
+
+    @if (showIntro()) {
+      <app-intro-splash />
     }
 
     <app-loader />
@@ -70,6 +83,20 @@ export class App implements OnInit {
   protected readonly isLandingView = computed(() => {
     const path = this.routerUrl().split(/[?#]/)[0];
     return !this.authService.isAuthenticated() && path === APP_ROUTES.HOME;
+  });
+
+  /**
+   * The intro belongs to the front door — the landing page, the signed-in
+   * home, and the sign-in/sign-up form. Somebody deep-linking to a recipe or
+   * their settings is on their way somewhere specific and should not be held
+   * up by it.
+   *
+   * The component decides for itself whether to play at all (once a session,
+   * never under reduced motion); this only says where it is allowed to.
+   */
+  protected readonly showIntro = computed(() => {
+    const path = this.routerUrl().split(/[?#]/)[0];
+    return path === APP_ROUTES.HOME || path === APP_ROUTES.LOGIN;
   });
 
   protected readonly title = signal('kivora-ai-frontend');
