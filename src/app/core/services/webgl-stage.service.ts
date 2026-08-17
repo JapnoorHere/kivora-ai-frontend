@@ -1,5 +1,6 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import type { StageHandle } from '../../webgl/kitchen-stage';
+import { IntroGateService } from './intro-gate.service';
 import { ScrollSceneRegistry } from './scroll-scene-registry.service';
 import { ScrollTrackerService } from './scroll-tracker.service';
 import { prefersReducedMotion } from '../utils/visibility.util';
@@ -34,6 +35,7 @@ interface CapabilityHints {
 export class WebglStageService {
   private readonly registry = inject(ScrollSceneRegistry);
   private readonly tracker = inject(ScrollTrackerService);
+  private readonly introGate = inject(IntroGateService);
   private readonly ngZone = inject(NgZone);
 
   private readonly views = new Map<HTMLElement, RegisteredView>();
@@ -95,7 +97,15 @@ export class WebglStageService {
     }
 
     this.state = 'booting';
-    const boot = () => void this.boot();
+
+    // Checked when idle rather than up front: the intro mounts after the page
+    // it covers, so at this point it may not have started yet.
+    //
+    // Starting under the intro is worse than pointless. The stage is hidden
+    // behind an opaque overlay, and the frame-time guard would be measuring a
+    // three-second full-screen animation instead of the scene — reading the
+    // device as too slow and shutting the 3D down for good.
+    const boot = () => this.introGate.whenClear(() => void this.boot());
 
     this.ngZone.runOutsideAngular(() => {
       if ('requestIdleCallback' in window) {

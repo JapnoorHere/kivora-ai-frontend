@@ -18,13 +18,14 @@ describe('LandingComponent', () => {
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
 
-    // hero, story, wheel, pass — the kinetic type is the intro splash now
-    expect(element.querySelectorAll('[appScene]').length).toBe(4);
+    // hero, story, sweep, wheel, pass — the kinetic type is the intro now
+    expect(element.querySelectorAll('[appScene]').length).toBe(5);
     expect(element.querySelectorAll('.rush-line').length).toBe(0);
     expect(element.querySelectorAll('.story-panel').length).toBe(4);
     expect(element.querySelectorAll('.story-chapter').length).toBe(4);
     expect(element.querySelector('app-cuisine-wheel')).toBeTruthy();
     expect(element.querySelector('app-ticket-rail')).toBeTruthy();
+    expect(element.querySelector('app-depth-scene')).toBeTruthy();
     expect(document.querySelector('canvas.webgl-canvas')).toBeNull();
   });
 
@@ -83,6 +84,28 @@ describe('LandingComponent', () => {
 
     expect(photoIds.length).toBeGreaterThan(20);
     expect(new Set(photoIds).size).toBe(photoIds.length);
+  });
+
+  /**
+   * The depth field is entirely a speed ratio: the near plane has to outrun
+   * the far one or the three layers collapse into a single sliding sheet.
+   * Nothing about that failure looks like an error — it just stops reading as
+   * depth — so the distinct speeds are what the test pins.
+   */
+  it('gives the depth planes distinct speeds', async () => {
+    const fixture = TestBed.createComponent(LandingComponent);
+    await fixture.whenStable();
+    const planes = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+      '.depth-plane',
+    );
+
+    expect(planes.length).toBe(3);
+
+    const speeds = [...planes].map((plane) => Number(plane.style.getPropertyValue('--speed')));
+    speeds.forEach((speed) => expect(speed).toBeGreaterThan(0));
+    expect(new Set(speeds).size).toBe(speeds.length);
+    // The near plane has to cover meaningfully more ground than the far one.
+    expect(Math.max(...speeds) / Math.min(...speeds)).toBeGreaterThan(3);
   });
 
   it('gives every decorative image a lazy, sized, non-blocking load', async () => {

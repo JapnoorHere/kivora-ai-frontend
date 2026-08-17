@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } fro
 import { DISCOVERY_CATEGORIES } from '../../core/constants/recipe.constants';
 import { AuthService } from '../../core/services/auth.service';
 import { CuisineWheelComponent } from '../cuisine-wheel/cuisine-wheel';
+import { DepthSceneComponent } from '../depth-scene/depth-scene';
 import { TicketRailComponent } from '../ticket-rail/ticket-rail';
 import { MagneticDirective } from '../ui/magnetic.directive';
 import { ScrollProgressDirective } from '../ui/scroll-progress.directive';
@@ -42,6 +43,7 @@ interface OrbitItem {
     SplitTextComponent,
     StepTimerComponent,
     CuisineWheelComponent,
+    DepthSceneComponent,
     TicketRailComponent,
     WebglViewDirective,
   ],

@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, inject, signal } from '@angular/core';
+import { IntroGateService } from '../../core/services/intro-gate.service';
 import { prefersReducedMotion } from '../../core/utils/visibility.util';
 import { SplitTextComponent } from '../ui/split-text/split-text';
 
@@ -38,8 +39,11 @@ const FORCE_PARAM = 'intro';
 export class IntroSplashComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
+  private readonly introGate = inject(IntroGateService);
 
   protected readonly isRunning = signal<boolean>(false);
+  /** Set once a frame has been painted, which is what releases the keyframes. */
+  protected readonly isPlaying = signal<boolean>(false);
 
   /** The two dishes standing in for the O's of COOK. */
   protected readonly cookDishes = [
@@ -48,6 +52,7 @@ export class IntroSplashComponent implements OnDestroy {
   ];
 
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private frameId: number | null = null;
   private previousOverflow = '';
 
   constructor() {
@@ -58,12 +63,25 @@ export class IntroSplashComponent implements OnDestroy {
     this.remember();
     this.isRunning.set(true);
     this.lockScroll();
+    // Anything heavy that would otherwise start underneath the overlay waits
+    // for it — see IntroGateService.
+    this.introGate.start();
 
     // The animation itself is entirely declarative — see the intro block in
-    // styles.css. This only has to take the overlay down when it finishes, and
-    // waiting outside the zone keeps a pending timer from holding up stability.
+    // styles.css. All that is left is to start it at a moment the visitor can
+    // actually see, and to take the overlay down when it finishes.
+    //
+    // Two frames, not one: a rAF callback runs *before* its frame is painted,
+    // so the second one is the first moment something has definitely been
+    // drawn. Only then are the keyframes released and the clock started.
     this.ngZone.runOutsideAngular(() => {
-      this.timer = setTimeout(() => this.ngZone.run(() => this.skip()), RUN_MS);
+      this.frameId = requestAnimationFrame(() => {
+        this.frameId = requestAnimationFrame(() => {
+          this.frameId = null;
+          this.timer = setTimeout(() => this.ngZone.run(() => this.skip()), RUN_MS);
+          this.ngZone.run(() => this.isPlaying.set(true));
+        });
+      });
     });
   }
 
@@ -83,7 +101,12 @@ export class IntroSplashComponent implements OnDestroy {
       clearTimeout(this.timer);
       this.timer = null;
     }
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
     this.releaseScroll();
+    this.introGate.finish();
   }
 
   /**

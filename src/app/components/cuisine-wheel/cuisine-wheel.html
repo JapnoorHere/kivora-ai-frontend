@@ -1,6 +1,6 @@
 <section #scene appScene="wheel" class="wheel-scene relative bg-slate-950">
 
-  <div class="sticky top-0 h-screen -mb-[100vh] overflow-hidden">
+  <div class="sticky top-0 h-screen overflow-hidden">
     <div class="relative w-full h-full flex items-center justify-center">
 
       <!-- Cuisine colour. Each layer owns a slot's fade window, so the
@@ -104,6 +104,9 @@
     </div>
   </div>
 
-  <!-- Scroll runway the wheel turns over -->
-  <div class="h-[320vh]" aria-hidden="true"></div>
+  <!-- Scroll runway the wheel turns over. The negative margin belongs here
+       rather than on the stage: applied there it shrinks the sticky element's
+       margin box, which is what the sticky constraint is measured against, and
+       the stage overhangs the section into the one below. -->
+  <div class="h-[320vh] -mt-[100vh]" aria-hidden="true"></div>
 </section>

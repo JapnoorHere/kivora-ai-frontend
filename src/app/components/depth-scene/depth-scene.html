@@ -1,0 +1,77 @@
+<section appScene="depth" class="depth-scene relative z-30 bg-[#f7f2e6]">
+
+  <div class="sticky top-0 h-screen overflow-hidden">
+    <div class="relative w-full h-full">
+
+      <div class="absolute inset-0 bg-dot-grid opacity-30 pointer-events-none"></div>
+      <div class="depth-warm absolute inset-0 bg-linear-to-b from-amber-100/50 via-transparent to-amber-200/40 pointer-events-none"></div>
+
+      <!-- Far plane: behind the words -->
+      <div class="depth-plane absolute inset-0 z-0" style="--speed: 0.25" aria-hidden="true">
+        @for (dish of far; track dish.url) {
+          <img
+            [src]="dish.url"
+            alt=""
+            width="520"
+            height="520"
+            loading="lazy"
+            decoding="async"
+            class="depth-dish absolute rounded-full object-cover opacity-55 shadow-lg"
+            [class.hidden]="!dish.onMobile"
+            [class.md:block]="!dish.onMobile"
+            [style.top]="dish.top"
+            [style.left]="dish.left"
+            [style.width]="dish.size"
+            [style.height]="dish.size"
+            [style.--dx]="dish.dx"
+            [style.--rot]="dish.rot"
+          />
+        }
+      </div>
+
+      <!-- The words, between the planes -->
+      <div class="depth-plane absolute inset-0 z-10 flex items-center justify-center px-6" style="--speed: 0.55">
+        <div class="relative w-full max-w-5xl text-center">
+          <h2 class="depth-ask text-[13vw] sm:text-[9vw] font-black text-slate-900 leading-[0.9] tracking-tight">
+            What's for<br>dinner?
+          </h2>
+          <p class="depth-answer absolute inset-x-0 top-1/2 -translate-y-1/2 text-[11vw] sm:text-[7.5vw] font-black text-amber-500 leading-[0.9] tracking-tight">
+            Whatever you're<br>craving.
+          </p>
+        </div>
+      </div>
+
+      <!-- Near plane: in front of the words -->
+      <div class="depth-plane absolute inset-0 z-20 pointer-events-none" style="--speed: 1.15" aria-hidden="true">
+        @for (dish of near; track dish.url) {
+          <img
+            [src]="dish.url"
+            alt=""
+            width="520"
+            height="520"
+            loading="lazy"
+            decoding="async"
+            class="depth-dish absolute rounded-full object-cover shadow-[0_30px_70px_-20px_rgba(15,23,42,0.5)] ring-4 ring-white/70"
+            [class.hidden]="!dish.onMobile"
+            [class.md:block]="!dish.onMobile"
+            [style.top]="dish.top"
+            [style.left]="dish.left"
+            [style.width]="dish.size"
+            [style.height]="dish.size"
+            [style.--dx]="dish.dx"
+            [style.--rot]="dish.rot"
+          />
+        }
+      </div>
+
+      <p class="depth-tag absolute inset-x-0 bottom-[8%] text-center text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">
+        Ask once · Cook in minutes
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Scroll runway. Negative margin on the runway, not the stage, so the
+       sticky constraint still ends with the section. -->
+  <div class="h-[280vh] -mt-[100vh]" aria-hidden="true"></div>
+</section>

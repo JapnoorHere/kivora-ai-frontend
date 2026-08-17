@@ -2,6 +2,7 @@
   <div
     #stage
     class="intro-splash fixed inset-0 z-[9998] overflow-hidden select-none"
+    [class.is-playing]="isPlaying()"
     role="button"
     tabindex="0"
     aria-label="Skip intro"

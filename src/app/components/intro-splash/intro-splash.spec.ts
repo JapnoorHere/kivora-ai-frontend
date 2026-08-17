@@ -107,6 +107,23 @@ describe('IntroSplashComponent', () => {
     });
   });
 
+  /**
+   * The keyframes are held paused until a frame has been painted. Without the
+   * class that releases them the overlay sits frozen on its first frame, which
+   * is a black screen — so the release is worth asserting on its own.
+   */
+  it('releases the keyframes only once a frame has been painted', async () => {
+    const fixture = await render();
+    expect(overlayOf(fixture)!.classList).not.toContain('is-playing');
+
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+
+    expect(overlayOf(fixture)!.classList).toContain('is-playing');
+  });
+
   it('ends on any input and releases the page', async () => {
     const fixture = await render();
     overlayOf(fixture)!.dispatchEvent(new Event('click'));

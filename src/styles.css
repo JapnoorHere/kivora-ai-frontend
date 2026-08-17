@@ -659,7 +659,12 @@ app-root {
    takes the opposite side to the device, turns a full revolution across the
    four chapters, and swaps its dish for the one the chapter is describing. */
 .story-bowl {
-  transform: translate3d(calc(var(--shift) * -21vw), 0, 0)
+  /* Sits low, not at mid-height. Taking the opposite side to the device puts
+     it on the same side as the copy for half the chapters, and at mid-height
+     that ran the bowl straight through the heading: the text wins on z-order
+     and loses on legibility, which is the worst of both. Dropping it below the
+     text block keeps the alternation and clears the words entirely. */
+  transform: translate(-50%, -50%) translate3d(calc(var(--shift) * -21vw), 27vh, 0)
     rotate(calc(var(--p, 0) * 360deg)) scale(calc(0.8 + 0.2 * var(--p, 0)));
 }
 .story-dish-layer {
@@ -784,10 +789,21 @@ app-root {
   72% {
     transform: translate3d(0, 0, 0) rotateX(0deg);
     opacity: 1;
+    /* The exit needs the opposite curve to the entrance. One ease-out for the
+       whole run makes the words leave fastest at the moment they start and
+       crawl the rest of the way — they have to accelerate away instead, so
+       the interval that begins here gets its own ease-in. */
+    animation-timing-function: cubic-bezier(0.55, 0, 0.95, 0.4);
   }
   100% {
-    transform: translate3d(0, 0, 430px) rotateX(0deg);
-    opacity: 0;
+    /* Drifting on the line's own axis as it goes, so the three come apart on
+       the way out rather than leaving as one slab.
+
+       No fade here: the overlay dissolves as a whole at the end. Fading the
+       words on their own left them sitting bright over a page that was already
+       showing through, which is a mess however well the motion reads. */
+    transform: translate3d(calc(var(--dir) * -7vw), 0, 560px) rotateX(-9deg);
+    opacity: 1;
   }
 }
 
@@ -854,32 +870,56 @@ app-root {
   animation: rush-glow 3s ease-out both;
 }
 @keyframes rush-glow {
-  from {
+  0% {
     transform: scale(0.5);
     opacity: 0.25;
   }
-  to {
-    transform: scale(1.6);
+  100% {
+    transform: scale(1.7);
     opacity: 0.7;
   }
 }
 
 .intro-splash {
   cursor: pointer;
+  /* The curtain comes up once, at the end, taking the black and the words with
+     it. Clearing the backdrop before the type has gone leaves giant letters
+     stranded over the page underneath. */
+  animation: intro-clear 3s linear both;
 }
-/* Clears in step with the words leaving, so the page is revealed through the
-   type rather than after a cut. */
-.intro-splash-backdrop {
-  animation: intro-backdrop 3s linear both;
-}
-@keyframes intro-backdrop {
+@keyframes intro-clear {
   0%,
-  72% {
+  86% {
     opacity: 1;
   }
   100% {
     opacity: 0;
   }
+}
+.intro-splash-backdrop {
+  /* Opaque for the whole run; the overlay above handles the reveal. */
+  opacity: 1;
+}
+/*
+  Held until the page has actually painted a frame.
+
+  A CSS animation runs on a real-time clock that starts the moment the element
+  is styled, whether or not anything has been drawn. This mounts during
+  bootstrap, with the main thread saturated, so the first paint can land a few
+  hundred milliseconds late — and the entrance, being deliberately front-loaded,
+  is entirely over inside that window. The result looks like the words simply
+  appear already assembled.
+
+  Pausing everything in the subtree and releasing it once a frame has been
+  painted means the visitor always sees the run from its first frame.
+*/
+.intro-splash,
+.intro-splash * {
+  animation-play-state: paused;
+}
+.intro-splash.is-playing,
+.intro-splash.is-playing * {
+  animation-play-state: running;
 }
 .intro-splash-hint {
   animation: intro-hint 3s linear both;
@@ -899,6 +939,66 @@ app-root {
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   THE DEPTH FIELD — three planes the scroll moves through
+
+   The near plane covers roughly four times the distance of the far one over
+   the same scroll. That ratio is the whole effect: matched speeds collapse it
+   into a single sliding layer, and nothing about the code would look wrong.
+
+   The type sits between the planes, so far dishes pass behind the words and
+   near ones pass in front. Text inside a moving depth field is what reads as
+   real space rather than as layers being moved.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.depth-scene {
+  /* Halved on phones, where the same travel is most of the screen. */
+  --travel: 70vh;
+}
+@media (max-width: 767px) {
+  .depth-scene {
+    --travel: 36vh;
+  }
+}
+.depth-plane {
+  --speed: 1;
+  transform: translate3d(0, calc((var(--p, 0) - 0.5) * var(--speed) * var(--travel) * -1), 0);
+}
+.depth-dish {
+  --dx: 0;
+  --rot: 0;
+  /* Drifts sideways as well as up, so nothing travels on a pure vertical rail. */
+  transform: translate3d(calc((var(--p, 0) - 0.5) * var(--dx) * 2vw), 0, 0)
+    rotate(calc(var(--rot) * 1deg));
+}
+.scene-active .depth-plane {
+  will-change: transform;
+}
+
+/* The question holds through the first half, the answer takes the second. */
+.depth-ask {
+  opacity: clamp(0, calc(min((var(--p, 0) - 0.02) * 9, (0.52 - var(--p, 0)) * 9)), 1);
+}
+.depth-answer {
+  opacity: clamp(0, calc((var(--p, 0) - 0.5) * 5), 1);
+}
+.depth-warm {
+  opacity: calc(0.4 + var(--p, 0) * 0.6);
+}
+.depth-tag {
+  opacity: clamp(0, calc((var(--p, 0) - 0.72) * 4), 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* `--p` rests at 1, which would leave every plane at the far end of its
+     travel. Held at the middle instead, so the section rests as a composed
+     frame with the answer showing. */
+  .depth-plane,
+  .depth-dish {
+    transform: none;
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    THE WHEEL — a trolley of dishes that scroll turns

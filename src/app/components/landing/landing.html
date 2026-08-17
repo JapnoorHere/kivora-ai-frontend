@@ -14,7 +14,12 @@
     </div>
 
     <!-- Sticky stage (pulled out of flow by the negative margin below it) -->
-    <div class="sticky top-0 h-screen -mb-[100vh] z-0 pointer-events-none overflow-hidden">
+    <!-- The pull that takes this stage out of flow lives on the content below,
+         not here. A negative bottom margin shrinks the sticky element's margin
+         box, and the sticky constraint is measured against that box — so the
+         stage would stay pinned a full viewport past the end of its section
+         and paint over whatever comes next. -->
+    <div class="sticky top-0 h-screen z-0 pointer-events-none overflow-hidden">
       <div class="hero-assembly relative w-full h-full">
         <div class="hero-halo w-[54vmin] h-[54vmin] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.45),transparent_70%)]"></div>
 
@@ -58,7 +63,7 @@
     </div>
 
     <!-- Screen one: the pitch. Sits above the shared WebGL canvas (z-20). -->
-    <div class="relative z-30">
+    <div class="relative z-30 -mt-[100vh]">
       <div class="min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <div class="hero-intro relative max-w-2xl mx-auto">
           <app-steam-wisp class="absolute -top-8 left-1/2 -translate-x-1/2 hidden sm:block" />
@@ -165,12 +170,12 @@
 
     <!-- Pinned layer: the journey rail and the app itself. Desktop only —
          small screens get each chapter's card inline instead. -->
-    <div class="story-stage hidden md:block sticky top-0 h-screen -mb-[100vh] z-0 pointer-events-none">
+    <div class="story-stage hidden md:block sticky top-0 h-screen z-0 pointer-events-none">
       <div class="relative w-full h-full flex items-center justify-center">
 
         <!-- The bowl carries on from the hero, taking the side the device
              isn't on and turning once across the four chapters. -->
-        <div class="story-bowl absolute w-[26vmin] h-[26vmin] max-w-72 max-h-72">
+        <div class="story-bowl absolute left-1/2 top-1/2 w-[20vmin] h-[20vmin] max-w-56 max-h-56">
           @for (dish of storyDishes; track dish.url) {
             <img
               [src]="dish.url"
@@ -308,7 +313,9 @@
       </div>
     </div>
 
-    <div class="relative z-10 max-w-6xl mx-auto px-6">
+    <!-- Gated on md, because the stage above it is: below that breakpoint the
+         stage is display:none and generates no box to pull back over. -->
+    <div class="relative z-10 max-w-6xl mx-auto px-6 md:-mt-[100vh]">
 
       <div appScrollProgress class="story-chapter min-h-screen grid md:grid-cols-12 items-center gap-10">
         <div class="relative md:col-span-5">
@@ -379,6 +386,10 @@
 
     </div>
   </section>
+
+  <!-- ══════════════════════ THE DEPTH FIELD ══════════════════════
+       Three planes at different speeds, with the type between them. -->
+  <app-depth-scene />
 
   <!-- ══════════════════════ THE WHEEL ══════════════════════
        Six dishes on a trolley that scroll turns. Whichever reaches the top

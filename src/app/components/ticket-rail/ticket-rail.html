@@ -1,6 +1,6 @@
 <section appScene="pass" class="pass-scene relative bg-[#f4eedb]">
 
-  <div class="sticky top-0 h-screen -mb-[100vh] overflow-hidden">
+  <div class="sticky top-0 h-screen overflow-hidden">
     <div class="relative w-full h-full flex flex-col items-center justify-center px-6">
 
       <div class="relative z-10 text-center mb-10 sm:mb-14">
@@ -74,6 +74,7 @@
     </div>
   </div>
 
-  <!-- Scroll runway the rail fills over -->
-  <div class="h-[240vh]" aria-hidden="true"></div>
+  <!-- Scroll runway the rail fills over. Negative margin here, not on the
+       stage, so the sticky constraint still ends with the section. -->
+  <div class="h-[240vh] -mt-[100vh]" aria-hidden="true"></div>
 </section>
