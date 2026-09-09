@@ -1,4 +1,17 @@
-<section appScene="pass" class="pass-scene relative bg-[#f4eedb]">
+<section
+  appScene="pass"
+  class="pass-scene relative bg-linear-to-b from-[var(--seam-cream)] to-[var(--seam-wheat)]"
+>
+
+  <div
+    class="absolute inset-0 pointer-events-none"
+    appParallax
+    [appParallaxSpeed]="0.1"
+    aria-hidden="true"
+  >
+    <div class="absolute top-[22%] left-[8%] w-[400px] h-[400px] rounded-full bg-amber-300/14 blur-[130px]"></div>
+    <div class="absolute top-[64%] right-[10%] w-[360px] h-[360px] rounded-full bg-orange-300/10 blur-[120px]"></div>
+  </div>
 
   <div class="sticky top-0 h-screen overflow-hidden">
     <div class="relative w-full h-full flex flex-col items-center justify-center px-6">

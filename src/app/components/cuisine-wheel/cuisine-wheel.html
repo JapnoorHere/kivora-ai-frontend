@@ -1,4 +1,4 @@
-<section #scene appScene="wheel" class="wheel-scene relative bg-slate-950">
+<section #scene appScene="wheel" class="wheel-scene relative bg-[var(--seam-night)]">
 
   <div class="sticky top-0 h-screen overflow-hidden">
     <div class="relative w-full h-full flex items-center justify-center">
@@ -74,11 +74,11 @@
       <!-- Hub: the bowl that has travelled the whole page, and the label of
            whichever dish is currently at the top. -->
       <div class="relative z-20 flex flex-col items-center text-center px-6 pointer-events-none">
-        <div
-          appWebglView="wheel"
-          [appWebglTexture]="hubDish"
-          class="relative w-[26vmin] h-[26vmin] max-w-64 max-h-64"
-        >
+        <!-- A flat photograph, not the 3D stage. This is the dish the depth
+             field hands over, and that one is a photograph — drawn here as a
+             lit 3D bowl instead, the object would change material halfway
+             through its own handover. -->
+        <div #hub class="relative w-[26vmin] h-[26vmin] max-w-64 max-h-64">
           <img
             [src]="hubDish"
             alt=""
@@ -86,7 +86,7 @@
             height="440"
             loading="lazy"
             decoding="async"
-            class="webgl-fallback w-full h-full object-cover rounded-full ring-8 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
+            class="w-full h-full object-cover rounded-full ring-8 ring-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]"
             aria-hidden="true"
           />
         </div>
@@ -109,4 +109,20 @@
        margin box, which is what the sticky constraint is measured against, and
        the stage overhangs the section into the one below. -->
   <div class="h-[320vh] -mt-[100vh]" aria-hidden="true"></div>
+
+  <!-- The two big ones. Cream to near-black is far too large a step for a
+       shared colour stop to carry on its own, so the wheel opens holding the
+       exact colour the depth field closed on and develops out of it over the
+       first screen — then goes back the same way into the colour the pass
+       opens on. Both bands are gradients rather than fills, so the wheel is
+       only ever fully hidden in the single row of pixels that touches each
+       boundary. -->
+  <div
+    class="seam-open bg-linear-to-t from-transparent to-[var(--seam-crust)]"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="seam-close bg-linear-to-b from-transparent to-[var(--seam-cream)]"
+    aria-hidden="true"
+  ></div>
 </section>

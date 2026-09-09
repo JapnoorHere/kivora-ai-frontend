@@ -68,12 +68,22 @@ describe('LandingComponent', () => {
   });
 
   /**
-   * No photograph may appear twice anywhere on the page. A repeat is obvious
-   * to a visitor scrolling past the same food in two different sections, and
-   * it is the kind of thing that creeps back in the moment someone copies an
-   * existing entry to add a new one.
+   * A photograph may only repeat where the repeat *is* the design.
+   *
+   * An accidental repeat is obvious to a visitor scrolling past the same food
+   * in two unrelated sections, and it is the kind of thing that creeps back in
+   * the moment someone copies an existing entry to add a new one. But three
+   * repeats are load-bearing: they are how one section hands an object to the
+   * next instead of putting it down and picking a different one up.
+   *
+   *   hero dish → story bowl's first chapter (and the bridge that flies it)
+   *   story bowl's last chapter → the depth field's leading near dish
+   *   depth field's trailing near dish → the wheel's hub
+   *
+   * Everything else on the page still has to be unique, which is what this
+   * actually guards.
    */
-  it('uses every photograph exactly once across the whole page', async () => {
+  it('repeats a photograph only where one section hands an object to the next', async () => {
     const fixture = TestBed.createComponent(LandingComponent);
     await fixture.whenStable();
     const images = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLImageElement>('img');
@@ -82,8 +92,24 @@ describe('LandingComponent', () => {
       .map((image) => /photo-([\w-]+)/.exec(image.getAttribute('src') ?? '')?.[1])
       .filter((id): id is string => Boolean(id));
 
+    const handovers = new Set([
+      '1546069901-ba9599a7e63c', // hero dish → story bowl, plus the bridge
+      '1567620905732-2d1ec7ab7445', // story bowl → depth field
+      '1504674900247-0877df9cc836', // depth field → wheel hub
+    ]);
+
+    const counts = new Map<string, number>();
+    photoIds.forEach((id) => counts.set(id, (counts.get(id) ?? 0) + 1));
+
     expect(photoIds.length).toBeGreaterThan(20);
-    expect(new Set(photoIds).size).toBe(photoIds.length);
+
+    // Every handover is actually wired up. Without this a broken one would
+    // pass silently, by simply not repeating.
+    handovers.forEach((id) => expect(counts.get(id) ?? 0).toBeGreaterThan(1));
+
+    [...counts].forEach(([id, count]) => {
+      expect(count).toBeLessThanOrEqual(handovers.has(id) ? 3 : 1);
+    });
   });
 
   /**

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { MagneticDirective } from '../ui/magnetic.directive';
+import { ScrollParallaxDirective } from '../ui/scroll-parallax.directive';
 import { ScrollSceneDirective } from '../ui/scroll-scene.directive';
 import { TicketDish, ticketsForDay } from './ticket-rail.data';
 
@@ -30,7 +31,7 @@ const HANG_ANGLES = [-2.2, 1.6, -1.4, 2.4, -1.8];
  */
 @Component({
   selector: 'app-ticket-rail',
-  imports: [ScrollSceneDirective, MagneticDirective],
+  imports: [ScrollSceneDirective, ScrollParallaxDirective, MagneticDirective],
   templateUrl: './ticket-rail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MagneticDirective } from '../ui/magnetic.directive';
 import { APP_ROUTES, MOBILE_BREAKPOINT_PX } from '../../core/constants/app.constants';
 import { AuthService } from '../../core/services/auth.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
@@ -10,7 +9,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-dock',
-  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, BugReportModalComponent, MagneticDirective],
+  imports: [RouterLink, RouterLinkActive, ConfirmDialogComponent, BugReportModalComponent],
   templateUrl: './dock.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(window:resize)': 'onResize()' },

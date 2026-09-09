@@ -1,14 +1,40 @@
-<div class="relative">
+<!-- The page's own ground colour, so a section is free to paint nothing at all
+     and still sit on the right shade. The strip between the hero and the story
+     does exactly that: given a background of its own it cut off the hero's
+     ambient warmth bleeding down into it, which put a hard horizontal edge
+     across the page at precisely the boundary this work is meant to remove. -->
+<div class="relative bg-[var(--seam-linen)]">
 
   <!-- ══════════════════════ HERO SCENE ══════════════════════
        Two screens tall. The stage below is sticky, so the ingredient ring
        stays put and converges into the finished dish while the copy scrolls
        past it — the whole thing driven by this section's `--p`. -->
-  <section appScene="hero" class="relative">
+  <section
+    appScene="hero"
+    class="relative bg-linear-to-b from-[var(--seam-paper)] to-[var(--seam-linen)]"
+  >
 
-    <!-- Ambient layers: blurred but never transformed, so they never re-blur -->
-    <div class="absolute inset-0 z-0 bg-dot-grid opacity-40 pointer-events-none"></div>
-    <div class="absolute inset-0 z-0 pointer-events-none">
+    <!-- Ambient layers. Each is translated as a whole and never re-blurred:
+         the blur lives on the children, so moving the promoted parent shifts
+         an already-rastered texture instead of recomputing it. They overscan
+         vertically because a parallaxed `inset-0` layer pulls its own edge
+         into view at the extremes of its travel. -->
+    <div
+      class="absolute -inset-y-64 inset-x-0 z-0 bg-dot-grid opacity-40 pointer-events-none"
+      appParallax
+      [appParallaxSpeed]="0.05"
+      aria-hidden="true"
+    ></div>
+    <!-- No overscan on this one, unlike the dot grid above it. The container is
+         transparent, so moving it exposes no edge of its own — but stretching
+         it past the section pushes the blobs' warmth into the next section,
+         whose opaque background then clips it into a hard line. -->
+    <div
+      class="absolute inset-0 z-0 pointer-events-none"
+      appParallax
+      [appParallaxSpeed]="0.12"
+      aria-hidden="true"
+    >
       <div class="absolute top-[6%] left-[8%] w-[420px] h-[420px] rounded-full bg-amber-400/12 blur-[120px]"></div>
       <div class="absolute bottom-[8%] right-[6%] w-[460px] h-[460px] rounded-full bg-amber-400/10 blur-[130px]"></div>
     </div>
@@ -38,7 +64,7 @@
           />
         }
 
-        <div class="hero-dish w-[38vmin] h-[38vmin] max-w-80 max-h-80">
+        <div #heroBowl class="hero-dish w-[38vmin] h-[38vmin] max-w-80 max-h-80">
           <img
             [src]="heroDish"
             alt=""
@@ -46,19 +72,18 @@
             height="520"
             fetchpriority="low"
             decoding="async"
-            class="webgl-fallback w-full h-full object-cover rounded-full shadow-[0_40px_90px_-25px_rgba(0,0,0,0.45)] ring-8 ring-white/70"
+            class="w-full h-full object-cover rounded-full shadow-[0_40px_90px_-25px_rgba(0,0,0,0.45)] ring-8 ring-white/70"
             aria-hidden="true"
           />
         </div>
 
-        <!-- Where the 3D bowl is drawn, if the stage ever starts. It carries no
-             transform of its own — it rides the assembly wrapper, so the 3D
-             viewport and the CSS artwork can never drift apart. -->
-        <div
-          appWebglView="hero"
-          [appWebglTexture]="heroDish"
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[52vmin] h-[52vmin] max-w-[28rem] max-h-[28rem]"
-        ></div>
+        <!-- The 3D stage used to draw a bowl over this dish. It is gone on
+             purpose: the story picks this same dish up as a flat photograph,
+             so rendering it here as a lit 3D bowl meant the object changed
+             material halfway through its own handover. The whole point of
+             carrying it across is that it stays the same thing, and a
+             photograph that matches at both ends beats a nicer one that only
+             matches at one. -->
       </div>
     </div>
 
@@ -144,8 +169,15 @@
     </div>
   </section>
 
-  <!-- ══════════════════════ HONEST FEATURE STRIP ══════════════════════ -->
-  <section class="relative z-30 border-y border-slate-200/60 bg-white/60 py-5">
+  <!-- ══════════════════════ HONEST FEATURE STRIP ══════════════════════
+       No rules top and bottom and no panel of its own: those hairlines were
+       what made this read as a separate card wedged between two sections
+       rather than as a line of text the page happens to pass through. It
+       paints no background at all: the hero ends on the page's ground colour
+       and the story begins on it, so a transparent strip has no edge on
+       either side, and whatever ambient warmth the hero is bleeding downward
+       carries straight through it instead of being clipped. -->
+  <section class="relative z-30 py-8">
     <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
       <span>3 Languages</span>
       <span class="text-amber-400">✦</span>
@@ -162,10 +194,27 @@
        side the text isn't on, and the background warms through three washes. -->
   <section #storySection appScene="story" class="relative z-30">
 
+    <!-- The washes are not parallaxed and must not be: they carry the seam
+         colours at both ends of the section, and sliding them would pull the
+         matched stop away from the boundary it exists to hide. Depth here
+         comes from the ambient layer below them instead. -->
     <div class="absolute inset-0 z-0 pointer-events-none">
-      <div class="absolute inset-0 bg-linear-to-b from-[#fbfbfa] to-[#f7f2e4]"></div>
+      <div class="absolute inset-0 bg-linear-to-b from-[var(--seam-linen)] to-[var(--seam-wheat)]"></div>
       <div class="story-wash-2 absolute inset-0 bg-linear-to-b from-rose-100/70 to-orange-50"></div>
-      <div class="story-wash-3 absolute inset-0 bg-linear-to-b from-emerald-100/60 to-[#f4eedb]"></div>
+      <!-- Fully opaque by the end of the scene, so the section's last painted
+           row is exactly `--seam-grain` — which is where the depth field
+           starts. -->
+      <div class="story-wash-3 absolute inset-0 bg-linear-to-b from-emerald-100/60 to-[var(--seam-grain)]"></div>
+    </div>
+
+    <div
+      class="absolute inset-0 z-0 pointer-events-none"
+      appParallax
+      [appParallaxSpeed]="0.09"
+      aria-hidden="true"
+    >
+      <div class="absolute top-[16%] left-[5%] w-[380px] h-[380px] rounded-full bg-amber-300/12 blur-[130px]"></div>
+      <div class="absolute top-[58%] right-[7%] w-[420px] h-[420px] rounded-full bg-rose-300/10 blur-[140px]"></div>
     </div>
 
     <!-- Pinned layer: the journey rail and the app itself. Desktop only —
@@ -175,7 +224,7 @@
 
         <!-- The bowl carries on from the hero, taking the side the device
              isn't on and turning once across the four chapters. -->
-        <div class="story-bowl absolute left-1/2 top-1/2 w-[20vmin] h-[20vmin] max-w-56 max-h-56">
+        <div #storyBowl class="story-bowl absolute left-1/2 top-1/2 w-[20vmin] h-[20vmin] max-w-56 max-h-56">
           @for (dish of storyDishes; track dish.url) {
             <img
               [src]="dish.url"
@@ -389,16 +438,62 @@
 
   <!-- ══════════════════════ THE DEPTH FIELD ══════════════════════
        Three planes at different speeds, with the type between them. -->
-  <app-depth-scene />
+  <app-depth-scene #depthScene />
 
   <!-- ══════════════════════ THE WHEEL ══════════════════════
        Six dishes on a trolley that scroll turns. Whichever reaches the top
        is plated, and the section becomes that cuisine's colour. -->
-  <app-cuisine-wheel />
+  <app-cuisine-wheel #cuisineWheel />
 
   <!-- ══════════════════════ THE PASS ══════════════════════
        Orders clip onto the rail as you scroll. The last one is the
        visitor's, and it carries the call to action. -->
   <app-ticket-rail />
+
+  <!-- ══════════════════════ THE HANDOVER ══════════════════════
+       The hero's plated dish becoming the story's bowl. Fixed, so neither
+       stage's `overflow-hidden` can clip it and no sticky ancestor drags it
+       off course; it belongs to no section, which is the point — it exists
+       only in the gap between two of them.
+
+       Same photograph at both ends because it is the same dish: the hero
+       plates it, this flies it across, and the story's first chapter is
+       already holding it. -->
+  <img
+    [src]="heroDish"
+    alt=""
+    width="520"
+    height="520"
+    decoding="async"
+    class="morph-bridge"
+    [appMorphBridge]="heroBowl"
+    [appMorphBridgeTo]="storyBowl"
+    [appMorphBridgeOver]="storySection"
+    aria-hidden="true"
+  />
+
+  <!-- And the depth field's right-hand dish becoming the wheel's hub. Both
+       endpoints live inside child components, so they come from view queries
+       rather than template references — which is why the bridge tolerates an
+       endpoint that is not there yet.
+
+       The fainter, colder ring: this one lands on the dark wheel, where the
+       hub carries `ring-white/10` rather than the `/70` the light sections
+       use. Flying in with a bright white rim and then dropping it would be the
+       one frame of this that shows. -->
+  <img
+    [src]="cuisineWheel.hubDish"
+    alt=""
+    width="440"
+    height="440"
+    decoding="async"
+    class="morph-bridge"
+    [appMorphBridge]="depthScene.handoverElement()?.nativeElement"
+    [appMorphBridgeTo]="cuisineWheel.hubElement()?.nativeElement"
+    [appMorphBridgeOver]="cuisineWheel.scene()?.nativeElement"
+    [appMorphBridgeRing]="5"
+    appMorphBridgeRingColor="rgb(255 255 255 / 0.3)"
+    aria-hidden="true"
+  />
 
 </div>

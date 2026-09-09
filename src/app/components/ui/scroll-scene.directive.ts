@@ -1,6 +1,7 @@
 import { Directive, ElementRef, NgZone, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { ScrollSceneRegistry } from '../../core/services/scroll-scene-registry.service';
 import { ScrollTrackerService } from '../../core/services/scroll-tracker.service';
+import { SmoothScrollService } from '../../core/services/smooth-scroll.service';
 import { prefersReducedMotion, whileVisible } from '../../core/utils/visibility.util';
 
 const SETTLED = 0.0004;
@@ -32,11 +33,17 @@ export class ScrollSceneDirective implements OnInit, OnDestroy {
   private readonly tracker = inject(ScrollTrackerService);
   private readonly registry = inject(ScrollSceneRegistry);
   private readonly ngZone = inject(NgZone);
+  private readonly smoothScroll = inject(SmoothScrollService);
 
   /** Scene name, so other layers can follow this scene's progress. */
   public readonly appScene = input<string>('');
 
-  /** 0 → frozen, 1 → no smoothing. Lower reads heavier. */
+  /**
+   * 0 → frozen, 1 → no smoothing. Lower reads heavier.
+   *
+   * Ignored entirely while the smooth-scroll service is running: see the note
+   * on `apply()` below.
+   */
   public readonly appSceneEase = input<number>(0.14);
 
   private target = 0;
@@ -74,8 +81,21 @@ export class ScrollSceneDirective implements OnInit, OnDestroy {
         this.target = this.readProgress();
       },
       apply: () => {
-        if (!primed) {
+        /**
+         * Two reasons to write the raw target rather than ease toward it.
+         *
+         * The first frame after entering the scene: easing from wherever the
+         * scene was last left makes a re-entry visibly slide into place.
+         *
+         * And whenever the smooth-scroll service is driving, because it damps
+         * the scroll position itself. Easing `--p` on top of an already-eased
+         * scroll position puts every scene effect behind the page through two
+         * lags stacked, which reads as the page lagging rather than as weight
+         * — the exact opposite of what the smoothing is there to buy.
+         */
+        if (!primed || this.smoothScroll.isActive) {
           primed = true;
+          this.stopSettling();
           this.write(this.target);
           return;
         }

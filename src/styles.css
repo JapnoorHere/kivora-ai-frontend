@@ -1,8 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
+/* No `scroll-behavior: smooth` here. It only ever covered programmatic jumps,
+   never the wheel, and it animates the same scroll position that
+   `SmoothScrollService` eases — two owners of one value, which judders.
+   Everything that moves the page goes through that service instead, which
+   keeps a native fallback for reduced motion and for the pages Lenis is not
+   running on. */
 html {
-  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #fbbf24 rgba(244, 238, 219, 0.3);
 }
@@ -501,6 +506,128 @@ app-root {
     ::view-transition-new(root) {
       animation: none;
     }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SEAMS — how one landing section becomes the next
+
+   The page used to be a stack of boxes: each section declared its own
+   background, so every boundary was a visible edge where one flat colour
+   stopped and another started. Worst at the two big ones — cream meeting
+   near-black at the wheel, twice.
+
+   The fix is one rule, applied everywhere: **a section never picks its own
+   edge colour.** Each boundary owns a token below, and the section above ends
+   on it while the section below begins on it. Matching stops means there is
+   nothing to align by eye and nothing to drift when someone later restyles
+   one section in isolation — the seam is gone by construction, not by having
+   been measured once.
+
+   The ramp runs cool paper → warm cream → night → cream, three acts:
+
+     paper ── linen ── wheat ── grain ── crust ══ NIGHT ══ cream
+     hero     strip    story    depth     ↕      wheel     pass
+                                      the dip
+
+   Where a boundary is too big for a shared stop to carry on its own — the two
+   sides of the wheel — the receiving section opens on the departing colour and
+   dissolves out of it across the first screen of itself (`.seam-open`), and
+   closes back into the next one the same way (`.seam-close`). Same principle,
+   just spread over a screen of scroll instead of over one edge.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --seam-paper: #fbfbfa;
+  --seam-linen: #f9f5ec;
+  --seam-wheat: #f2ead6;
+  --seam-grain: #ece0c6;
+  --seam-crust: #e4d5b6;
+  --seam-night: #0b1120;
+  --seam-cream: #f4eedb;
+}
+
+/* A section's opening and closing wash: the exact colour of the neighbour on
+   that side, dissolved across the first (or last) screen of this
+   section's own progress. At `--p: 0` the dawn is fully opaque, so the first
+   painted row of the section is its neighbour's last one. */
+/* Bands anchored to a section's own top and bottom edge, opaque where they
+   meet the neighbour and clear a screen further in.
+ *
+ * These were `--p`-driven washes first, and that was wrong for a reason worth
+ * recording: a scene's `--p` reaches 1 when its *pinned travel* ends, which is
+ * a full viewport before the section itself ends. A flat wash tied to that
+ * therefore sat at full opacity across the whole of that last screen, and the
+ * transition — meant to be a dissolve — became a blank screen of one colour
+ * scrolling past.
+ *
+ * Anchored to the edges instead, they need no progress value at all: the band
+ * is a gradient, so the section is only ever fully covered in the single row
+ * of pixels that actually touches the boundary, and everything above that row
+ * dissolves. Cheaper too — nothing here changes per frame. */
+.seam-open,
+.seam-close {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Taller than the viewport, so the far end of the gradient is always off
+     screen and the band never shows where it stops. */
+  height: 110vh;
+  /* Above the sticky stage and everything in it: a band that resolves the
+     section has to resolve all of it, and a plate left floating over the
+     closing colour is worse than no band at all. */
+  z-index: 22;
+  pointer-events: none;
+}
+.seam-open {
+  top: 0;
+}
+.seam-close {
+  bottom: 0;
+}
+
+/* Continuity across a boundary is carried by the objects the page already
+   has, never by a second copy of one.
+ *
+ * An earlier attempt here positioned a duplicate dish in the receiving section
+ * to "hand over" from the section above. It does not work, and the reason is
+ * worth keeping: the donor lives in a sticky stage and the copy rides the
+ * page, so the two travel at different rates for the whole overlap and the
+ * visitor simply sees the same bowl twice, drifting apart.
+ *
+ * What does work is passing the photograph along. Consecutive stages are never
+ * on screen at the same time — each pins only once its own section reaches the
+ * top — so the same dish appearing in the last frame of one and the first
+ * frame of the next reads as one object continuing, with nothing ever
+ * duplicated. See `storyDishes` in landing.ts and `near` in depth-scene.ts.
+ *
+ * Where the two stages are far enough apart that passing the photograph along
+ * still reads as a cut — the hero dish and the story bowl, a viewport of
+ * scroll between them — a bridge flies the object across the gap instead. See
+ * `MorphBridgeDirective`. */
+
+/* The flying dish. Fixed, so neither stage's `overflow-hidden` clips it and no
+   sticky ancestor drags it off course. Everything about its placement is
+   written per frame by the directive; the only thing that matters here is that
+   `transform-origin` is the top-left, which is what lets that transform chain
+   put the dish's centre exactly on a measured point. */
+.morph-bridge {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  width: 400px;
+  height: 400px;
+  transform-origin: 0 0;
+  border-radius: 9999px;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .morph-bridge {
+    display: none;
   }
 }
 
@@ -1218,6 +1345,15 @@ app-root {
 .scene-active .hero-late,
 .scene-active .story-visual {
   will-change: transform, opacity;
+}
+/* The ambient parallax layers, promoted for the same window and no longer.
+   These are the expensive ones to get wrong: each holds a 120px-blurred blob,
+   and a promoted layer keeps that blur rastered once and merely moves the
+   result. Left unpromoted the blur is recomputed on the frames the transform
+   changes; left promoted permanently, every one of them holds its texture for
+   the life of the page. */
+.scene-active [appParallax] {
+  will-change: transform;
 }
 /* The kinetic type is an intro now, not a scene: it is on screen for three
    seconds and always moving, so it is promoted for its whole life. */

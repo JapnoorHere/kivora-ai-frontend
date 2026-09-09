@@ -30,9 +30,9 @@ import { AuthService } from './core/services/auth.service';
           <app-dock />
         }
 
-        <div class="flex-grow flex flex-col min-h-screen min-w-0" [class.md:pl-60]="!isLandingView()">
+        <div class="flex-grow flex flex-col min-h-screen min-w-0">
           <main class="relative flex-grow bg-linear-to-b from-[#fbfbfa] via-[#f7f5f0] to-[#f4eedb] text-slate-900 flex flex-col justify-between">
-            <div class="flex-grow" [class.pb-20]="!isLandingView()" [class.md:pb-0]="!isLandingView()">
+            <div class="flex-grow" [class.pb-24]="!isLandingView()">
               <router-outlet />
             </div>
             <app-footer />

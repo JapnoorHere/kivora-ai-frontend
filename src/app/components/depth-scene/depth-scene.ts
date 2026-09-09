@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, viewChild } from '@angular/core';
 import { ScrollSceneDirective } from '../ui/scroll-scene.directive';
 
 interface DepthDish {
@@ -40,14 +40,52 @@ export class DepthSceneComponent {
     { url: this.photo('1466637574441-749b8f19452f'), top: '71%', left: '78%', size: '11vmin', dx: -4, rot: -9, onMobile: false },
   ];
 
-  /** Large, sharp, fast — and cropped by the edges, so the frame feels like a window. */
+  /**
+   * Large, sharp, fast — and cropped by the edges, so the frame feels like a
+   * window.
+   *
+   * Two of these are inherited rather than chosen, which is what ties this
+   * section to the ones either side of it:
+   *
+   *  - The **first** is the dish the story's bowl was holding when it left. At
+   *    `--p: 0` the near plane sits 40vh low, so it enters large and
+   *    centre-left, right where the story put it down.
+   *  - The **fourth** is the dish the wheel's hub opens on. By `--p: 1` the
+   *    plane has carried it up to mid-screen, so the depth field finishes
+   *    holding out exactly what the wheel takes.
+   *
+   * Nothing is on screen twice for either handover: consecutive stages pin one
+   * at a time, so the donor has always scrolled away before the receiver
+   * arrives.
+   */
   protected readonly near: readonly DepthDish[] = [
-    { url: this.photo('1484723091739-30a097e8f929'), top: '4%', left: '-7%', size: '27vmin', dx: 5, rot: -7, onMobile: true },
+    { url: this.photo('1567620905732-2d1ec7ab7445'), top: '4%', left: '-7%', size: '27vmin', dx: 5, rot: -7, onMobile: true },
     { url: this.photo('1495521821757-a1efb6729352'), top: '28%', left: '80%', size: '30vmin', dx: -6, rot: 9, onMobile: true },
     { url: this.photo('1498837167922-ddd27525d352'), top: '70%', left: '10%', size: '24vmin', dx: 6, rot: 8, onMobile: true },
-    { url: this.photo('1455619452474-d2be8b1e70cd'), top: '78%', left: '66%', size: '26vmin', dx: -5, rot: -11, onMobile: false },
     { url: this.photo('1476718406336-bb5a9690ee2a'), top: '-6%', left: '46%', size: '20vmin', dx: 3, rot: 12, onMobile: false },
   ];
+
+  /**
+   * The dish on the right of the near plane, and the one the wheel takes.
+   *
+   * Rendered on its own rather than from `near` only so it can carry a
+   * template reference: the bridge that flies it to the wheel's hub needs the
+   * element itself, and a `@for` gives nothing to point at. It sits on the
+   * near plane with the others and moves with them, so nothing about the
+   * composition changes.
+   */
+  protected readonly handover: DepthDish = {
+    url: this.photo('1504674900247-0877df9cc836'),
+    top: '78%',
+    left: '66%',
+    size: '26vmin',
+    dx: -5,
+    rot: -11,
+    onMobile: false,
+  };
+
+  /** Where the wheel's hub bowl flies in from. */
+  public readonly handoverElement = viewChild<ElementRef<HTMLElement>>('handoverEl');
 
   private photo(id: string): string {
     return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=520&q=72`;

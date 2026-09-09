@@ -1,16 +1,27 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { DISCOVERY_CATEGORIES } from '../../core/constants/recipe.constants';
 import { AuthService } from '../../core/services/auth.service';
+import { IntroGateService } from '../../core/services/intro-gate.service';
+import { SmoothScrollService } from '../../core/services/smooth-scroll.service';
 import { CuisineWheelComponent } from '../cuisine-wheel/cuisine-wheel';
 import { DepthSceneComponent } from '../depth-scene/depth-scene';
 import { TicketRailComponent } from '../ticket-rail/ticket-rail';
 import { MagneticDirective } from '../ui/magnetic.directive';
+import { MorphBridgeDirective } from '../ui/morph-bridge.directive';
+import { ScrollParallaxDirective } from '../ui/scroll-parallax.directive';
 import { ScrollProgressDirective } from '../ui/scroll-progress.directive';
 import { ScrollSceneDirective } from '../ui/scroll-scene.directive';
 import { SplitTextComponent } from '../ui/split-text/split-text';
 import { SteamWispComponent } from '../ui/steam-wisp/steam-wisp';
 import { StepTimerComponent } from '../ui/step-timer/step-timer';
-import { WebglViewDirective } from '../ui/webgl-view.directive';
 
 interface OrbitItem {
   readonly url: string;
@@ -32,12 +43,19 @@ interface OrbitItem {
  * through a sticky-pinned section as `--p`, and the CSS in styles.css derives
  * every transform from it. No animation library, and nothing animates but
  * transform and opacity.
+ *
+ * The one library involved is Lenis, and it animates nothing — it damps the
+ * scroll position itself so the whole page carries weight, and every scene
+ * above reads that damped position through the same `--p` as before. See
+ * `SmoothScrollService` for why it is started here rather than app-wide.
  */
 @Component({
   selector: 'app-landing',
   imports: [
     MagneticDirective,
+    MorphBridgeDirective,
     SteamWispComponent,
+    ScrollParallaxDirective,
     ScrollProgressDirective,
     ScrollSceneDirective,
     SplitTextComponent,
@@ -45,24 +63,34 @@ interface OrbitItem {
     CuisineWheelComponent,
     DepthSceneComponent,
     TicketRailComponent,
-    WebglViewDirective,
   ],
   templateUrl: './landing.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly smoothScroll = inject(SmoothScrollService);
+  private readonly introGate = inject(IntroGateService);
+
+  private destroyed = false;
 
   protected readonly cuisines = DISCOVERY_CATEGORIES;
   protected readonly storySection = viewChild<ElementRef<HTMLElement>>('storySection');
 
   /**
-   * Shown as the hero's plated dish, and mapped onto the 3D bowl if it loads.
+   * Shown as the hero's plated dish — as a flat photograph, deliberately, and
+   * not mapped onto the 3D bowl. The story picks this same dish up as a flat
+   * photograph, so drawing it here as a lit 3D bowl changed the object's
+   * material halfway through its own handover.
    *
-   * Every photograph on this page is used exactly once — the hero dish, the
+   * Every photograph on this page is used once *per place it appears*: the
    * ring, the story bowl, the two dishes inside COOK and the wheel all draw
-   * from disjoint sets. Repeats are obvious on a page that scrolls past the
-   * same food twice.
+   * from disjoint sets, because an accidental repeat is obvious on a page that
+   * scrolls past the same food twice.
+   *
+   * The single exception is deliberate and is the point: this dish is also the
+   * story bowl's first chapter, so the object the hero plates is the object
+   * the story picks up. See `storyDishes` below.
    */
   protected readonly heroDish =
     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=520&q=72';
@@ -122,7 +150,21 @@ export class LandingComponent {
    */
   protected readonly storyDishes = [
     {
-      url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=420&q=72',
+      /**
+       * The hero's dish, still in the bowl.
+       *
+       * These two sections used to share nothing at all: the hero plated one
+       * dish, the strip went past, and the story opened on an unrelated
+       * photograph — the page put an object down and picked a different one
+       * up. Carrying the hero's dish through the first chapter makes it one
+       * bowl travelling, which is the same trick the bowl already plays across
+       * the rest of the story.
+       *
+       * Nothing is duplicated by this: consecutive stages are never pinned at
+       * the same time, so the hero's copy has scrolled away before the story's
+       * stage arrives.
+       */
+      url: this.heroDish,
       in: -0.2,
       out: 0.2,
     },
@@ -255,6 +297,28 @@ export class LandingComponent {
     },
   ];
 
+  /**
+   * Held behind the intro for the same reason the WebGL stage is: the intro is
+   * an opaque three-second animation, and a scroll loop started underneath it
+   * competes for frames at the most contended moment of the page's life while
+   * being invisible and, since the page cannot be scrolled yet, useless.
+   */
+  public ngOnInit(): void {
+    this.introGate.whenClear(() => {
+      if (this.destroyed) return;
+      this.smoothScroll.start();
+    });
+  }
+
+  /**
+   * Smooth scrolling belongs to this page alone — signing in navigates to the
+   * dashboard, which wants its scroll back exactly as the platform ships it.
+   */
+  public ngOnDestroy(): void {
+    this.destroyed = true;
+    this.smoothScroll.stop();
+  }
+
   protected startSignup(): void {
     this.authService.promptLogin('signup');
   }
@@ -264,6 +328,9 @@ export class LandingComponent {
   }
 
   protected scrollToStory(): void {
-    this.storySection()?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const section = this.storySection()?.nativeElement;
+    if (section) {
+      this.smoothScroll.scrollTo(section);
+    }
   }
 }

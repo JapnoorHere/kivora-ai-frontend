@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { SmoothScrollService } from '../../core/services/smooth-scroll.service';
 import { ScrollSceneDirective } from '../ui/scroll-scene.directive';
-import { WebglViewDirective } from '../ui/webgl-view.directive';
 
 interface WheelSlot {
   readonly name: string;
@@ -36,19 +36,31 @@ const SLOT_COUNT = 6;
  */
 @Component({
   selector: 'app-cuisine-wheel',
-  imports: [ScrollSceneDirective, WebglViewDirective],
+  imports: [ScrollSceneDirective],
   templateUrl: './cuisine-wheel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CuisineWheelComponent {
-  private readonly scene = viewChild.required<ElementRef<HTMLElement>>('scene');
-  private readonly document = inject(ElementRef).nativeElement.ownerDocument as Document;
+  /**
+   * Public so the depth field's handover bridge knows where to finish, and not
+   * `required` because the parent template reads it while its own view is
+   * still being built — a required query throws when it is read that early.
+   */
+  public readonly scene = viewChild<ElementRef<HTMLElement>>('scene');
+
+  /** The hub bowl, and the far end of that bridge. */
+  public readonly hubElement = viewChild<ElementRef<HTMLElement>>('hub');
+
+  private readonly smoothScroll = inject(SmoothScrollService);
 
   /**
-   * The bowl at the hub of the wheel. Its own photograph — every image on the
-   * landing page appears exactly once, including this one.
+   * The bowl at the hub of the wheel.
+   *
+   * Also the dish on the right of the depth field's near plane, which flies
+   * into this spot as the wheel arrives — one of the three deliberate repeats
+   * on a page where every other photograph appears exactly once.
    */
-  protected readonly hubDish =
+  public readonly hubDish =
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=440&q=72';
 
   protected readonly slots: readonly WheelSlot[] = [
@@ -102,19 +114,19 @@ export class CuisineWheelComponent {
    * the same thing that happens when the visitor scrolls by hand.
    */
   protected select(slot: WheelSlot): void {
-    const element = this.scene().nativeElement;
+    const element = this.scene()?.nativeElement;
+    if (!element) return;
+
     const rect = element.getBoundingClientRect();
     const travel = rect.height - window.innerHeight;
     if (travel <= 0) return;
 
     const top = rect.top + window.scrollY;
-    window.scrollTo({ top: top + travel * slot.at, behavior: this.scrollBehavior() });
-  }
-
-  private scrollBehavior(): ScrollBehavior {
-    return this.document.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? 'auto'
-      : 'smooth';
+    // Through the smooth-scroll service rather than `window.scrollTo`: the
+    // browser's own smooth behaviour animates the same value Lenis is easing,
+    // and the two fighting over it judders the whole page. The service also
+    // keeps the reduced-motion fallback, which used to live here.
+    this.smoothScroll.scrollTo(top + travel * slot.at);
   }
 }
 
