@@ -24,6 +24,21 @@ export const GENERATION_STATUS_MESSAGES: readonly string[] = [
   'Plating it up...',
 ];
 
+// Rotated by the app footer, one line at a time — small kitchen wisdom rather
+// than generic legal boilerplate.
+export const KITCHEN_WISDOM: readonly string[] = [
+  'Simmer low, taste often.',
+  'Salt in layers, never just at the end.',
+  'A sharp knife is a safer knife.',
+  'Read the whole recipe before you light the stove.',
+  'Mise en place first — chop and measure, then cook.',
+  'Let meat rest as long as it cooked.',
+  'Your tongue knows more than the timer does.',
+  'Room-temperature eggs mix smoother than cold ones.',
+  'A pinch of acid brightens almost anything.',
+  'Good stock is the difference between fine and unforgettable.',
+];
+
 // Heuristic — an ingredient whose name contains one of these is counted as a
 // spice/seasoning in the checklist's stats dashboard; everything else is "fresh".
 export const SPICE_KEYWORDS: readonly string[] = [

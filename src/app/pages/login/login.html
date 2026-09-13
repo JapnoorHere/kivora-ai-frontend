@@ -85,7 +85,7 @@
                 [class.border-amber-500]="nameControl.touched && nameControl.invalid"
               />
             </div>
-            <div class="h-4 pt-1">
+            <div class="min-h-4 pt-1">
               @if (nameControl.touched && nameControl.invalid) {
                 <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">
                   Name is required (min 2 characters)
@@ -111,7 +111,7 @@
               [class.border-amber-500]="emailControl.touched && emailControl.invalid"
             />
           </div>
-          <div class="h-4 pt-1">
+          <div class="min-h-4 pt-1">
             @if (emailControl.touched && emailControl.invalid) {
               <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">
                 A valid email address is required
@@ -151,7 +151,7 @@
               </svg>
             </button>
           </div>
-          <div class="h-4 pt-1">
+          <div class="min-h-4 pt-1">
             @if (passwordControl.touched && passwordControl.invalid) {
               <span class="pl-1 text-[9px] font-black uppercase tracking-wide text-amber-700">{{ passwordError }}</span>
             }

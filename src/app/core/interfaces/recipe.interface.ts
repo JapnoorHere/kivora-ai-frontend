@@ -1,10 +1,24 @@
 import { DietaryPreference, LanguageCode, RecipeDifficulty } from '../enums/recipe.enum';
 
+export interface ImageCredit {
+  readonly photographerName: string | null;
+  readonly photographerUrl: string | null;
+}
+
 export interface Ingredient {
   readonly name: string;
   readonly amount: string;
-  /** Thumbnail URL; null on every recipe today — the UI renders a letter tile. */
+  /** Thumbnail URL from Pexels; null when unset/unmatched — the UI renders a letter tile. */
   readonly image?: string | null;
+  /** Present alongside `image` — who to credit if it's ever shown visibly. */
+  readonly imageCredit?: ImageCredit | null;
+}
+
+export interface RecipePhoto {
+  readonly url: string;
+  readonly photographerName: string | null;
+  readonly photographerUrl: string | null;
+  readonly pexelsPhotoPageUrl: string | null;
 }
 
 export interface RecipeStep {
@@ -48,6 +62,8 @@ export interface Recipe {
   readonly title: string;
   readonly description: string;
   readonly cuisine?: string;
+  /** Free-text "restrictions or special requests" the user typed when generating this recipe. */
+  readonly exclusions?: string | null;
   readonly dietaryPreference: DietaryPreference;
   readonly language: LanguageCode;
   readonly servings: number;
@@ -58,6 +74,8 @@ export interface Recipe {
   readonly instructions: readonly RecipeStep[];
   readonly nutritionalInfo?: NutritionalInfo;
   readonly prepNotes?: PrepNotes;
+  /** The dish's hero photo from Pexels; null when unset/unmatched. */
+  readonly photo?: RecipePhoto | null;
   readonly sourceRecipeId?: string;
   readonly createdAt: string;
   readonly updatedAt: string;

@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
+import { IngredientThumbComponent } from '../../components/ui/ingredient-thumb/ingredient-thumb';
 import { MagneticDirective } from '../../components/ui/magnetic.directive';
+import { PexelsCreditComponent } from '../../components/ui/pexels-credit/pexels-credit';
 import { RevealDirective } from '../../components/ui/reveal.directive';
 import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
@@ -13,7 +15,15 @@ import { getErrorMessage } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-recent',
-  imports: [RouterLink, ConfirmDialogComponent, RevealDirective, TiltDirective, MagneticDirective],
+  imports: [
+    RouterLink,
+    ConfirmDialogComponent,
+    IngredientThumbComponent,
+    PexelsCreditComponent,
+    RevealDirective,
+    TiltDirective,
+    MagneticDirective,
+  ],
   templateUrl: './recent.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

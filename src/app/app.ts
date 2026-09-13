@@ -32,10 +32,15 @@ import { AuthService } from './core/services/auth.service';
 
         <div class="flex-grow flex flex-col min-h-screen min-w-0">
           <main class="relative flex-grow bg-linear-to-b from-[#fbfbfa] via-[#f7f5f0] to-[#f4eedb] text-slate-900 flex flex-col justify-between">
-            <div class="flex-grow" [class.pb-24]="!isLandingView()">
+            <div class="flex-grow">
               <router-outlet />
             </div>
-            <app-footer />
+            <!-- The dock is fixed-position, so clearance has to trail the actual
+                 last element (the footer) — padding before it leaves the footer
+                 itself sitting under the dock at the bottom of the page. -->
+            <div [class.pb-24]="!isLandingView()">
+              <app-footer />
+            </div>
           </main>
         </div>
 

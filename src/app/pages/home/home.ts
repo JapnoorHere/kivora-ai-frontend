@@ -3,6 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookingInterviewComponent, InterviewResult } from '../../components/cooking-interview/cooking-interview';
 import { LandingComponent } from '../../components/landing/landing';
+import { IngredientThumbComponent } from '../../components/ui/ingredient-thumb/ingredient-thumb';
 import { MagneticDirective } from '../../components/ui/magnetic.directive';
 import { FloatingComponent, FloatingElementComponent } from '../../components/ui/parallax-floating/parallax-floating';
 import { RevealDirective } from '../../components/ui/reveal.directive';
@@ -29,6 +30,7 @@ import { describeApiError, isErrorCode } from '../../core/utils/error.util';
     CookingInterviewComponent,
     FloatingComponent,
     FloatingElementComponent,
+    IngredientThumbComponent,
     RevealDirective,
     TiltDirective,
     MagneticDirective,

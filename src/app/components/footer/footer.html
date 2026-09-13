@@ -1,0 +1,31 @@
+<footer appReveal class="relative w-full overflow-hidden border-t border-amber-900/10 bg-gradient-to-b from-transparent to-amber-100/25 px-6 py-8 mt-auto select-none">
+
+  <!-- Decorative steam, drifting up behind the copy — the same motif used across the app -->
+  <app-steam-wisp size="sm" class="absolute left-[10%] -top-3 text-amber-400/20 hidden sm:block" />
+  <app-steam-wisp size="sm" class="absolute right-[12%] -top-5 text-amber-400/15 hidden md:block" />
+
+  <div class="relative max-w-2xl mx-auto flex flex-col items-center gap-2.5 text-center">
+    <p class="text-[9px] font-black uppercase tracking-[0.22em] text-amber-700/70">Kitchen Wisdom</p>
+
+    <!-- Single-item @for keyed on the line itself: forces Angular to destroy and
+         recreate this node (and the split-text inside it) on every rotation,
+         which is what re-triggers the per-word entrance animation. -->
+    <p class="footer-wisdom text-sm sm:text-base font-bold italic text-slate-600 leading-relaxed min-h-[1.75em]">
+      @for (line of [tip()]; track line) {
+        "<app-split-text [text]="line" unit="word" />"
+      }
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-[10px] font-bold text-slate-400 mt-2.5">
+      <span class="transition-colors duration-300 hover:text-amber-700">Cooked with a little AI magic</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>&copy; {{ currentYear }} Kivora AI</span>
+      <span aria-hidden="true">&middot;</span>
+      <span
+        appMagnetic
+        [appMagneticStrength]="0.35"
+        class="bg-slate-900/5 border border-slate-700/10 px-2 py-0.5 rounded-full text-slate-500 transition-colors duration-300 hover:bg-amber-400/15 hover:text-amber-700 hover:border-amber-400/30 cursor-default"
+      >v1.0.0</span>
+    </div>
+  </div>
+</footer>

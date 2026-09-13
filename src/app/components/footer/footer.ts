@@ -1,32 +1,38 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, computed, signal } from '@angular/core';
+import { KITCHEN_WISDOM } from '../../core/constants/recipe.constants';
+import { MagneticDirective } from '../ui/magnetic.directive';
 import { RevealDirective } from '../ui/reveal.directive';
+import { SplitTextComponent } from '../ui/split-text/split-text';
+import { SteamWispComponent } from '../ui/steam-wisp/steam-wisp';
 
+const ROTATE_MS = 7000;
+
+/**
+ * Sits at the natural end of every authenticated page. Deliberately on-brand
+ * rather than generic boilerplate — a rotating line of kitchen wisdom instead
+ * of a wall of links a cooking app has no real use for. Carries the same
+ * motion vocabulary as the landing page (split-text stagger, steam wisp,
+ * magnetic hover) rather than sitting there inert.
+ */
 @Component({
   selector: 'app-footer',
-  imports: [RevealDirective],
-  template: `
-    <footer appReveal class="w-full bg-[#fbfbfa]/20 backdrop-blur-md border-t border-slate-700/10 px-6 py-6 mt-auto select-none text-slate-500">
-      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold">
-
-        <!-- Branding & Copy -->
-        <div class="flex items-center gap-1.5 text-slate-600">
-          <span>© {{ currentYear }}</span>
-          <span class="font-extrabold text-slate-800 tracking-wider text-[10px]">KIVORA AI</span>
-          <span>• All Rights Reserved.</span>
-        </div>
-
-        <!-- Application Version Indicator -->
-        <div class="flex items-center gap-4">
-          <span class="text-[10px] bg-slate-900/5 border border-slate-700/10 px-2.5 py-1 rounded-full text-slate-500">
-            v1.0.0 (v21 Engine)
-          </span>
-        </div>
-
-      </div>
-    </footer>
-  `,
+  imports: [RevealDirective, SteamWispComponent, SplitTextComponent, MagneticDirective],
+  templateUrl: './footer.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FooterComponent {
+export class FooterComponent implements OnDestroy {
   protected readonly currentYear = new Date().getFullYear();
+
+  private readonly tips = KITCHEN_WISDOM;
+  // Starts on a random line so every session doesn't open on the same one.
+  private readonly tipIndex = signal<number>(Math.floor(Math.random() * KITCHEN_WISDOM.length));
+  protected readonly tip = computed(() => this.tips[this.tipIndex()]);
+
+  private readonly intervalId: ReturnType<typeof setInterval> = setInterval(() => {
+    this.tipIndex.update((i) => (i + 1) % this.tips.length);
+  }, ROTATE_MS);
+
+  public ngOnDestroy(): void {
+    clearInterval(this.intervalId);
+  }
 }

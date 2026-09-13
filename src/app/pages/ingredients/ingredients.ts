@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { RecipeModifyModalComponent } from '../../components/recipe-modify-modal/recipe-modify-modal';
 import { IngredientThumbComponent } from '../../components/ui/ingredient-thumb/ingredient-thumb';
 import { MagneticDirective } from '../../components/ui/magnetic.directive';
+import { PexelsCreditComponent } from '../../components/ui/pexels-credit/pexels-credit';
+import { RecipeHeroPhotoComponent } from '../../components/ui/recipe-hero-photo/recipe-hero-photo';
 import { RevealDirective } from '../../components/ui/reveal.directive';
 import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
@@ -23,7 +25,15 @@ interface RecipeStatBreakdown {
 
 @Component({
   selector: 'app-ingredients',
-  imports: [RecipeModifyModalComponent, IngredientThumbComponent, RevealDirective, TiltDirective, MagneticDirective],
+  imports: [
+    RecipeModifyModalComponent,
+    IngredientThumbComponent,
+    RecipeHeroPhotoComponent,
+    PexelsCreditComponent,
+    RevealDirective,
+    TiltDirective,
+    MagneticDirective,
+  ],
   templateUrl: './ingredients.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
