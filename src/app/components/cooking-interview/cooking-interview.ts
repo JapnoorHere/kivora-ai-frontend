@@ -26,6 +26,7 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
   public readonly recipeName = input.required<string>();
   public readonly recipeCuisine = input<string>('');
   public readonly initialLanguage = input<LanguageCode>(LanguageCode.ENGLISH);
+  public readonly initialDiet = input<DietaryPreference>(DietaryPreference.VEGETARIAN);
 
   public readonly submitted = output<InterviewResult>();
   public readonly cancelled = output<void>();
@@ -33,7 +34,7 @@ export class CookingInterviewComponent implements OnInit, OnDestroy {
   protected readonly step = signal<number>(1);
   protected readonly direction = signal<'forward' | 'backward'>('forward');
   protected readonly servings = signal<number>(2);
-  protected readonly diet = signal<DietaryPreference>(DietaryPreference.VEGETARIAN);
+  protected readonly diet = signal<DietaryPreference>(this.initialDiet());
   protected readonly exclusions = signal<string>('');
   protected readonly language = signal<LanguageCode>(this.initialLanguage());
 

@@ -12,6 +12,28 @@ export const ROTATING_PLACEHOLDERS: readonly string[] = [
   'जैसे, मटर पनीर', 'ਜਿਵੇਂ, ਦਾਲ ਤੜਕਾ'
 ];
 
+// Cycled through by the full-screen loader while a recipe is being generated, so
+// a 10-30s AI wait shows progress rather than a bare spinner.
+export const GENERATION_STATUS_MESSAGES: readonly string[] = [
+  'Reading your request...',
+  'Choosing the right technique...',
+  'Balancing the spices...',
+  'Scaling quantities to your servings...',
+  'Writing the steps...',
+  'Timing each stage...',
+  'Plating it up...',
+];
+
+// Heuristic — an ingredient whose name contains one of these is counted as a
+// spice/seasoning in the checklist's stats dashboard; everything else is "fresh".
+export const SPICE_KEYWORDS: readonly string[] = [
+  'salt', 'pepper', 'chilli', 'chili', 'cumin', 'coriander', 'turmeric', 'paprika',
+  'masala', 'cinnamon', 'clove', 'cardamom', 'nutmeg', 'oregano', 'thyme', 'basil',
+  'rosemary', 'bay leaf', 'saffron', 'fennel', 'mustard seed', 'sesame', 'garam',
+  'curry powder', 'cayenne', 'allspice', 'peppercorn', 'star anise', 'asafoetida',
+  'hing', 'seasoning', 'spice',
+];
+
 export const PRESET_RECIPES: readonly PresetRecipe[] = [
   // --- INDIAN (7 Recipes) ---
   { cuisine: 'Indian', name: 'Butter Chicken', description: 'Tender chicken slow-cooked in a velvety, rich tomato-cream sauce with aromatic spices', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80', diet: DietaryPreference.NON_VEGETARIAN },

@@ -1,0 +1,42 @@
+<div class="relative min-h-screen bg-[#fbfbfa] pt-10 pb-28 px-6">
+  <div class="max-w-3xl mx-auto space-y-6">
+
+    <div class="space-y-1">
+      <h1 class="text-2xl font-black text-slate-900">Activity</h1>
+      <p class="text-sm font-semibold text-slate-500">Your recent recipe generations and edits.</p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex items-center justify-center py-32">
+        <div class="w-10 h-10 border-3 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
+      </div>
+    } @else if (entries().length === 0) {
+      <p class="text-sm font-bold text-slate-500 text-center py-24">
+        Nothing here yet — generate a recipe and it shows up here.
+      </p>
+    } @else {
+      <div class="space-y-2.5 animate-fade-in">
+        @for (entry of entries(); track entry.id; let idx = $index) {
+          <div appReveal [appRevealDelay]="idx * 30" class="flex items-center gap-4 bg-white/60 border border-slate-200 rounded-2xl px-4 py-3.5">
+            <span
+              class="w-2 h-2 rounded-full shrink-0"
+              [class.bg-emerald-500]="entry.success"
+              [class.bg-red-400]="!entry.success"
+            ></span>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-bold text-slate-800 truncate">{{ dishName(entry) }}</p>
+              <p class="text-[11px] font-semibold text-slate-400">
+                {{ entry.action }} · {{ entry.provider }} · {{ seconds(entry.durationMs) }}
+                @if (!entry.success && entry.errorReason) {
+                  · <span class="text-red-500">{{ entry.errorReason }}</span>
+                }
+              </p>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 shrink-0">{{ relativeTime(entry.createdAt) }}</span>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

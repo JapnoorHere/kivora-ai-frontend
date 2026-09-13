@@ -4,9 +4,11 @@ import { API_ENDPOINTS } from '../constants/app.constants';
 import {
   ApiErrorResponse,
   FeedbackRequest,
+  PaginatedRecipes,
   Recipe,
   RecipeGenerationRequest,
   RecipeModificationRequest,
+  RecipeStats,
 } from '../interfaces/recipe.interface';
 import { fetchJson } from '../utils/http.util';
 import { AuthService } from './auth.service';
@@ -56,12 +58,24 @@ export class RecipeApiService {
     });
   }
 
-  public fetchRecipes(): Promise<Recipe[]> {
-    return this.request<Recipe[]>(API_ENDPOINTS.RECIPES_LIST);
+  public fetchRecipes(page = 1, limit = 20): Promise<PaginatedRecipes> {
+    return this.request<PaginatedRecipes>(`${API_ENDPOINTS.RECIPES_LIST}?page=${page}&limit=${limit}`);
+  }
+
+  public fetchRecipeStats(): Promise<RecipeStats> {
+    return this.request<RecipeStats>(API_ENDPOINTS.RECIPES_STATS);
   }
 
   public fetchRecipeById(id: string): Promise<Recipe> {
     return this.request<Recipe>(API_ENDPOINTS.recipeById(id));
+  }
+
+  public deleteRecipe(id: string): Promise<{ id: string }> {
+    return this.request<{ id: string }>(API_ENDPOINTS.recipeById(id), { method: 'DELETE' });
+  }
+
+  public clearRecipes(): Promise<{ deletedCount: number }> {
+    return this.request<{ deletedCount: number }>(API_ENDPOINTS.RECIPES_LIST, { method: 'DELETE' });
   }
 
   public submitBugReport(payload: FeedbackRequest): Promise<void> {

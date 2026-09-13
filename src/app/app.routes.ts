@@ -33,6 +33,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'activity',
+    loadComponent: () => import('./pages/activity/activity').then((m) => m.ActivityComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: '',
   },

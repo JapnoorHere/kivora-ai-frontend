@@ -63,6 +63,7 @@ export class DockComponent {
   protected async confirmLogout(): Promise<void> {
     this.isLogoutConfirmOpen.set(false);
     await this.authService.logout();
+    this.recipeState.clearAll();
     this.toast.success('See you next time, Chef!', 'Signed Out');
     this.router.navigate([APP_ROUTES.HOME]);
   }

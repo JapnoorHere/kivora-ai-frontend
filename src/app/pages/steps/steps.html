@@ -15,6 +15,33 @@
         <div class="w-10 h-10 border-3 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
       </div>
     } @else if (recipe(); as r) {
+      @if (isComplete()) {
+        <div class="animate-fade-in flex flex-col items-center text-center gap-6 py-16 max-w-lg mx-auto">
+          <div class="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center">
+            <svg aria-hidden="true" class="w-9 h-9 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+          </div>
+          <div class="space-y-2">
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{{ r.title }} — done</h1>
+            <p class="text-sm font-semibold text-slate-500">All {{ r.instructions.length }} steps complete. Nicely cooked, Chef.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch gap-3 w-full max-w-md">
+            <a
+              [routerLink]="routes.recipeIngredients(r.id)"
+              class="flex-1 py-3.5 rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-md hover:bg-white hover:border-amber-300/60 text-slate-700 font-bold text-[10px] uppercase tracking-widest text-center transition-all duration-200 cursor-pointer"
+            >Review checklist</a>
+            <button
+              type="button"
+              (click)="cookAgain()"
+              class="flex-1 py-3.5 rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-md hover:bg-white hover:border-amber-300/60 text-slate-700 font-bold text-[10px] uppercase tracking-widest transition-all duration-200 cursor-pointer"
+            >Cook again</button>
+            <a
+              [routerLink]="[routes.HOME]"
+              appMagnetic
+              class="flex-1 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-widest text-center transition-all duration-200 active:scale-98 cursor-pointer shadow-lg shadow-amber-400/20"
+            >Back home</a>
+          </div>
+        </div>
+      } @else {
       <div class="animate-fade-in space-y-5">
 
         <!-- Header -->
@@ -115,7 +142,7 @@
                     {{ step.stepNumber }}
                   }
                 </span>
-                <span class="text-[11px] font-bold truncate max-w-32" [class.text-slate-900]="activeStepIndex() === idx" [class.text-slate-500]="activeStepIndex() !== idx">{{ step.instruction }}</span>
+                <span class="text-[11px] font-bold truncate max-w-32" [class.text-slate-900]="activeStepIndex() === idx" [class.text-slate-500]="activeStepIndex() !== idx">{{ stepLabel(step) }}</span>
               </button>
             }
           </div>
@@ -151,7 +178,7 @@
                       {{ step.stepNumber }}
                     }
                   </span>
-                  <span class="text-[11px] font-bold truncate transition-colors duration-200" [class.text-slate-900]="activeStepIndex() === idx" [class.text-slate-400]="activeStepIndex() !== idx" [class.group-hover:text-slate-600]="activeStepIndex() !== idx">{{ step.instruction }}</span>
+                  <span class="text-[11px] font-bold truncate transition-colors duration-200" [class.text-slate-900]="activeStepIndex() === idx" [class.text-slate-400]="activeStepIndex() !== idx" [class.group-hover:text-slate-600]="activeStepIndex() !== idx">{{ stepLabel(step) }}</span>
                 </button>
               }
             </div>
@@ -196,6 +223,19 @@
               }
             </div>
 
+            <!-- Ingredients this step uses -->
+            @if (stepIngredients().length > 0) {
+              <div class="flex flex-wrap gap-2">
+                @for (ing of stepIngredients(); track ing.name) {
+                  <div class="flex items-center gap-2 bg-white/50 backdrop-blur-md border border-white/60 rounded-full pl-1.5 pr-3 py-1.5">
+                    <app-ingredient-thumb [name]="ing.name" [image]="ing.image ?? null" class="w-6 h-6 text-[10px]" />
+                    <span class="text-[11px] font-bold text-slate-700">{{ ing.name }}</span>
+                    <span class="text-[10px] font-semibold text-slate-400">{{ ing.amount }}</span>
+                  </div>
+                }
+              </div>
+            }
+
             <!-- Nav buttons live outside the card -->
             <div class="flex items-center gap-3">
               <button
@@ -207,11 +247,12 @@
               >← Back</button>
 
               @if (isLastStep()) {
-                <a
-                  [routerLink]="[routes.RECENT]"
+                <button
+                  type="button"
+                  (click)="finishCooking()"
                   appMagnetic
                   class="flex-1 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[10px] uppercase tracking-widest text-center transition-all duration-200 active:scale-98 cursor-pointer shadow-lg shadow-amber-400/20"
-                >Finish Cooking</a>
+                >Finish Cooking</button>
               } @else {
                 <button
                   type="button"
@@ -225,6 +266,7 @@
 
         </div>
       </div>
+      }
     }
 
   </div>

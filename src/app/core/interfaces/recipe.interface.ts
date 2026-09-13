@@ -3,12 +3,18 @@ import { DietaryPreference, LanguageCode, RecipeDifficulty } from '../enums/reci
 export interface Ingredient {
   readonly name: string;
   readonly amount: string;
+  /** Thumbnail URL; null on every recipe today — the UI renders a letter tile. */
+  readonly image?: string | null;
 }
 
 export interface RecipeStep {
   readonly stepNumber: number;
+  /** Short imperative label (e.g. "Sear the chicken"); absent on older recipes. */
+  readonly title?: string;
   readonly instruction: string;
   readonly timeRequired?: string;
+  /** Exact ingredient names this step uses; absent on older recipes. */
+  readonly ingredientsUsed?: readonly string[];
 }
 
 export interface NutritionalInfo {
@@ -16,6 +22,25 @@ export interface NutritionalInfo {
   readonly protein?: string;
   readonly carbs?: string;
   readonly fat?: string;
+}
+
+export interface PrepNotes {
+  readonly beforeYouStart?: readonly string[];
+  readonly proTips?: readonly string[];
+}
+
+export interface RecipeStats {
+  readonly totalRecipes: number;
+  readonly totalMinutes: number;
+  readonly distinctCuisines: number;
+}
+
+export interface PaginatedRecipes {
+  readonly items: readonly Recipe[];
+  readonly total: number;
+  readonly page: number;
+  readonly limit: number;
+  readonly totalPages: number;
 }
 
 export interface Recipe {
@@ -32,6 +57,7 @@ export interface Recipe {
   readonly ingredients: readonly Ingredient[];
   readonly instructions: readonly RecipeStep[];
   readonly nutritionalInfo?: NutritionalInfo;
+  readonly prepNotes?: PrepNotes;
   readonly sourceRecipeId?: string;
   readonly createdAt: string;
   readonly updatedAt: string;

@@ -1,6 +1,8 @@
 export const STORAGE_KEYS = {
   USER: 'kivora_user',
   LANGUAGE: 'kivora_language',
+  CURRENT_RECIPE: 'kivora_current_recipe',
+  RECENT_RECIPES: 'kivora_recent_recipes',
 } as const;
 
 export const API_ENDPOINTS = {
@@ -10,6 +12,7 @@ export const API_ENDPOINTS = {
   AUTH_ME: '/auth/me',
   RECIPES_GENERATE: '/recipes/generate',
   RECIPES_LIST: '/recipes',
+  RECIPES_STATS: '/recipes/stats',
   recipeById: (id: string): string => `/recipes/${id}`,
   recipeModify: (id: string): string => `/recipes/${id}/modify`,
   FEEDBACK_SUBMIT: '/feedback/submit',
@@ -18,6 +21,8 @@ export const API_ENDPOINTS = {
   settingsAiRemoveKey: (provider: string): string => `/settings/ai/keys/${provider}`,
   SETTINGS_AI_PREFERRED: '/settings/ai/preferred',
   USER_PREFERENCES: '/user/preferences',
+  LOGS_AI: '/logs/ai-interactions',
+  LOGS_ERRORS: '/logs/errors',
 } as const;
 
 export const APP_ROUTES = {
@@ -25,6 +30,7 @@ export const APP_ROUTES = {
   LOGIN: '/login',
   RECENT: '/recent',
   SETTINGS: '/settings',
+  ACTIVITY: '/activity',
   recipeIngredients: (id: string): string[] => ['/recipes', id, 'ingredients'],
   recipeSteps: (id: string): string[] => ['/recipes', id, 'steps'],
 } as const;

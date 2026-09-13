@@ -9,8 +9,9 @@ import { RevealDirective } from '../../components/ui/reveal.directive';
 import { SteamWispComponent } from '../../components/ui/steam-wisp/steam-wisp';
 import { TiltDirective } from '../../components/ui/tilt.directive';
 import { APP_ROUTES } from '../../core/constants/app.constants';
-import { DISCOVERY_CATEGORIES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
-import { DietaryPreference } from '../../core/enums/recipe.enum';
+import { DISCOVERY_CATEGORIES, GENERATION_STATUS_MESSAGES, PRESET_RECIPES, ROTATING_PLACEHOLDERS } from '../../core/constants/recipe.constants';
+import { ApiErrorCode, DietaryPreference, LanguageCode } from '../../core/enums/recipe.enum';
+import { UserPreferences } from '../../core/interfaces/preferences.interface';
 import { PresetRecipe, Recipe } from '../../core/interfaces/recipe.interface';
 import { AuthService } from '../../core/services/auth.service';
 import { CookIntentService } from '../../core/services/cook-intent.service';
@@ -18,7 +19,8 @@ import { LoaderService } from '../../core/services/loader.service';
 import { RecipeApiService } from '../../core/services/recipe-api.service';
 import { RecipeStateService } from '../../core/services/recipe-state.service';
 import { ToastService } from '../../core/services/toast.service';
-import { getErrorMessage } from '../../core/utils/error.util';
+import { UserApiService } from '../../core/services/user-api.service';
+import { describeApiError, isErrorCode } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-home',
@@ -42,6 +44,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly cookIntent = inject(CookIntentService);
   private readonly apiService = inject(RecipeApiService);
+  private readonly userApi = inject(UserApiService);
   private readonly loaderService = inject(LoaderService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
@@ -79,6 +82,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   protected readonly isInterviewOpen = signal<boolean>(false);
   protected readonly customizationQuery = signal<string>('');
   protected readonly customizationPreset = signal<PresetRecipe | null>(null);
+
+  // Saved onboarding preferences, loaded once when signed in — seeds the cooking
+  // interview so a returning user isn't re-picking the same diet/language.
+  private readonly preferences = signal<UserPreferences | null>(null);
 
   protected readonly placeholders = ROTATING_PLACEHOLDERS;
   protected readonly placeholderIndex = signal<number>(0);
@@ -122,14 +129,33 @@ export class HomeComponent implements OnInit, OnDestroy {
     PRESET_RECIPES.filter(r => r.diet === DietaryPreference.NON_VEGETARIAN).slice(0, 2)
   );
 
-  public ngOnInit(): void {
+  public async ngOnInit(): Promise<void> {
     this.startPlaceholderCycle();
     this.initScrollParallax();
     if (this.isAuthenticated()) {
       // Best-effort — Continue Cooking simply stays empty if this fails
       this.stateService.loadRecentRecipes().catch(() => undefined);
+      // Awaited before resuming a pending cook so the interview opens with the
+      // user's saved diet/language rather than the bare defaults.
+      await this.loadPreferences();
       this.resumePendingCook();
     }
+  }
+
+  private async loadPreferences(): Promise<void> {
+    try {
+      this.preferences.set(await this.userApi.getPreferences());
+    } catch {
+      // Non-blocking — the interview just falls back to its own defaults.
+    }
+  }
+
+  protected interviewInitialDiet(): DietaryPreference {
+    return this.preferences()?.dietaryPreference ?? DietaryPreference.VEGETARIAN;
+  }
+
+  protected interviewInitialLanguage(): LanguageCode {
+    return this.preferences()?.preferredLanguage ?? this.stateService.currentLanguage();
   }
 
   /** Picks up whatever the visitor was about to cook before signing in. */
@@ -279,7 +305,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!recipeName) return;
 
     this.isInterviewOpen.set(false);
-    this.loaderService.show();
+    this.loaderService.show(GENERATION_STATUS_MESSAGES);
 
     try {
       const cuisine = preset ? preset.cuisine : (this.activeCategory() !== 'All' ? this.activeCategory() : undefined);
@@ -299,7 +325,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       await this.router.navigate(APP_ROUTES.recipeIngredients(recipe.id));
     } catch (err: unknown) {
       console.error('Recipe generation failed:', err);
-      this.toastService.error(getErrorMessage(err, 'Recipe generation failed. Please try again.'));
+      const { title, message } = describeApiError(err, 'Recipe generation failed. Please try again.');
+      this.toastService.error(message, title);
+      // Invalid dish / diet mismatch are fixable in the interview — reopen it so
+      // the user can adjust and resubmit instead of starting from the search box.
+      if (isErrorCode(err, ApiErrorCode.INVALID_DISH) || isErrorCode(err, ApiErrorCode.DIET_MISMATCH)) {
+        this.isInterviewOpen.set(true);
+      }
     } finally {
       this.loaderService.hide();
     }

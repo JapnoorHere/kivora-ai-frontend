@@ -353,7 +353,8 @@
   <app-cooking-interview
     [recipeName]="interviewRecipeName()"
     [recipeCuisine]="interviewCuisine()"
-    [initialLanguage]="stateService.currentLanguage()"
+    [initialLanguage]="interviewInitialLanguage()"
+    [initialDiet]="interviewInitialDiet()"
     (submitted)="onInterviewSubmit($event)"
     (cancelled)="onInterviewCancelled()"
   />
