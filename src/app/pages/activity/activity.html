@@ -26,7 +26,7 @@
             <div class="min-w-0 flex-1">
               <p class="text-sm font-bold text-slate-800 truncate">{{ dishName(entry) }}</p>
               <p class="text-[11px] font-semibold text-slate-400">
-                {{ entry.action }} · {{ entry.provider }} · {{ seconds(entry.durationMs) }}
+                {{ entry.action }} · {{ entry.model }} · {{ seconds(entry.durationMs) }}
                 @if (!entry.success && entry.errorReason) {
                   · <span class="text-red-500">{{ entry.errorReason }}</span>
                 }

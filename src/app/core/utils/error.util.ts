@@ -34,8 +34,6 @@ const TITLE_BY_CODE: Readonly<Record<string, string>> = {
   [ApiErrorCode.FREE_LIMIT_REACHED]: 'Daily free limit reached',
   [ApiErrorCode.AI_TIMEOUT]: 'That took too long',
   [ApiErrorCode.AI_QUOTA_EXCEEDED]: 'Recipe engine at capacity',
-  [ApiErrorCode.SETTINGS_INVALID_API_KEY]: 'Key could not be verified',
-  [ApiErrorCode.SETTINGS_PROVIDER_NOT_CONNECTED]: 'Provider not connected',
 };
 
 const FALLBACK_MESSAGE_BY_CODE: Readonly<Record<string, string>> = {

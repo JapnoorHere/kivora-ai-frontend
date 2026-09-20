@@ -1,10 +1,10 @@
 <div class="relative min-h-screen bg-[#fbfbfa] pt-10 px-6">
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-2xl mx-auto space-y-6">
 
     <div>
-      <h1 class="text-2xl font-black text-slate-900">AI Settings</h1>
+      <h1 class="text-2xl font-black text-slate-900">AI Usage</h1>
       <p class="text-xs font-semibold text-slate-500 mt-1.5 leading-relaxed max-w-lg">
-        Kivora AI cooks with Gemini or Groq. Connect your own API key for unlimited recipes, or stick with our free daily tier.
+        Kivora AI cooks with Cloudflare Workers AI — fully powered by us, no setup needed on your end.
       </p>
     </div>
 
@@ -12,201 +12,22 @@
       <div class="flex items-center justify-center py-32">
         <div class="w-10 h-10 border-3 border-amber-400/30 border-t-amber-400 rounded-full animate-spin"></div>
       </div>
-    } @else if (settings(); as s) {
+    } @else if (usage(); as u) {
 
-    <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 items-start">
-
-      <!-- Icon-rail sidebar nav -->
-      <nav class="hidden md:block sticky top-8 bg-white/60 border border-slate-200 rounded-3xl p-2.5 space-y-1">
-        <button type="button" (click)="scrollToSection('usage-section')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-left hover:bg-amber-50 transition-colors cursor-pointer">
-          <svg aria-hidden="true" class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14" /></svg>
-          <span class="text-xs font-bold text-slate-700">Usage</span>
-        </button>
-        <button type="button" (click)="scrollToSection('providers-section')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-left hover:bg-amber-50 transition-colors cursor-pointer">
-          <svg aria-hidden="true" class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 11-12 0 6 6 0 0112 0zM7 9a6 6 0 006 6c1 0 2-.2 2.8-.6L21 19l-2 2-4.6-4.2A6 6 0 017 9z" /></svg>
-          <span class="text-xs font-bold text-slate-700">AI Providers</span>
-        </button>
-      </nav>
-
-      <div class="min-w-0 space-y-6">
-
-      <!-- Usage card -->
-      <div id="usage-section" appReveal appTilt [appTiltMax]="2" class="scroll-mt-8 bg-white/60 border border-slate-200 rounded-3xl p-6 animate-fade-in">
-        @if (s.freeUsage.unlimited) {
-          <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-              <svg aria-hidden="true" class="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-black text-slate-800 uppercase tracking-wide">Unlimited Recipes</p>
-              <p class="text-[11px] font-semibold text-slate-500 mt-0.5">You're cooking on your own {{ providerLabel(s.preferredProvider) }} key — no daily limit.</p>
-            </div>
-          </div>
-        } @else {
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-black text-slate-800 uppercase tracking-wide">Free Daily Recipes</p>
-            <span class="text-xs font-black text-amber-600 tabular-nums">{{ s.freeUsage.used }} / {{ s.freeUsage.limit }}</span>
-          </div>
-          <div class="h-2 rounded-full bg-slate-900/5 overflow-hidden">
-            <div class="h-full bg-amber-400 rounded-full transition-all duration-500" [style.width.%]="usagePercent(s)"></div>
-          </div>
-          <p class="text-[11px] font-semibold text-slate-500 mt-3 leading-relaxed">
-            {{ s.freeUsage.remaining }} free {{ s.freeUsage.remaining === 1 ? 'recipe' : 'recipes' }} left today. Connect your own API key below for unlimited recipes.
-          </p>
-        }
+      <div appReveal appTilt [appTiltMax]="2" class="bg-white/60 border border-slate-200 rounded-3xl p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-black text-slate-800 uppercase tracking-wide">Free Daily Recipes</p>
+          <span class="text-xs font-black text-amber-600 tabular-nums">{{ u.used }} / {{ u.limit }}</span>
+        </div>
+        <div class="h-2 rounded-full bg-slate-900/5 overflow-hidden">
+          <div class="h-full bg-amber-400 rounded-full transition-all duration-500" [style.width.%]="usagePercent(u)"></div>
+        </div>
+        <p class="text-[11px] font-semibold text-slate-500 mt-3 leading-relaxed">
+          {{ u.remaining }} free {{ u.remaining === 1 ? 'recipe' : 'recipes' }} left today. Your allowance resets every day.
+        </p>
       </div>
 
-      <h2 id="providers-section" class="scroll-mt-8 text-xs font-black text-slate-700 uppercase tracking-widest">AI Providers</h2>
-
-      <!-- Gemini card -->
-      <div appReveal [appRevealDelay]="60" appTilt [appTiltMax]="2" class="bg-white/60 border border-slate-200 rounded-3xl p-6 space-y-4 animate-fade-in">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 text-blue-600 font-black text-sm">G</div>
-            <div class="min-w-0">
-              <p class="text-sm font-black text-slate-900">Google Gemini</p>
-              @if (s.providers[AiProvider.GEMINI].connected) {
-                <p class="text-[10px] font-bold text-slate-400 tracking-wide truncate">{{ s.providers[AiProvider.GEMINI].maskedKey }}</p>
-              } @else {
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Not connected</p>
-              }
-            </div>
-          </div>
-          @if (s.providers[AiProvider.GEMINI].connected) {
-            <span
-              class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0"
-              [class.bg-emerald-500/10]="s.preferredProvider === AiProvider.GEMINI"
-              [class.text-emerald-700]="s.preferredProvider === AiProvider.GEMINI"
-              [class.bg-slate-900/5]="s.preferredProvider !== AiProvider.GEMINI"
-              [class.text-slate-500]="s.preferredProvider !== AiProvider.GEMINI"
-            >{{ s.preferredProvider === AiProvider.GEMINI ? 'Active' : 'Connected' }}</span>
-          }
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input
-            type="password"
-            [formControl]="geminiKeyControl"
-            (keydown.enter)="saveKey(AiProvider.GEMINI)"
-            placeholder="Paste your Gemini API key"
-            class="flex-1 min-w-0 bg-white/60 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
-          />
-          <button
-            type="button"
-            (click)="saveKey(AiProvider.GEMINI)"
-            [disabled]="!geminiKeyControl.value.trim() || savingProvider() === AiProvider.GEMINI"
-            class="shrink-0 px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 font-extrabold text-[10px] uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer"
-          >{{ savingProvider() === AiProvider.GEMINI ? 'Verifying...' : (s.providers[AiProvider.GEMINI].connected ? 'Update' : 'Connect') }}</button>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="text-[10px] font-black text-amber-600 hover:text-amber-700 uppercase tracking-widest">Get a Gemini key →</a>
-          @if (s.providers[AiProvider.GEMINI].connected) {
-            <div class="flex items-center gap-4">
-              @if (s.preferredProvider !== AiProvider.GEMINI) {
-                <button
-                  type="button"
-                  (click)="setActive(AiProvider.GEMINI)"
-                  [disabled]="switchingProvider() === AiProvider.GEMINI"
-                  class="text-[10px] font-black text-slate-500 hover:text-slate-800 uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
-                >{{ switchingProvider() === AiProvider.GEMINI ? 'Switching...' : 'Make Active' }}</button>
-              }
-              <button
-                type="button"
-                (click)="confirmRemove(AiProvider.GEMINI)"
-                [disabled]="removingProvider() === AiProvider.GEMINI"
-                class="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
-              >Remove</button>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Groq card -->
-      <div appReveal [appRevealDelay]="120" appTilt [appTiltMax]="2" class="bg-white/60 border border-slate-200 rounded-3xl p-6 space-y-4 animate-fade-in">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0 text-orange-600 font-black text-sm">Gq</div>
-            <div class="min-w-0">
-              <p class="text-sm font-black text-slate-900">Groq</p>
-              @if (s.providers[AiProvider.GROQ].connected) {
-                <p class="text-[10px] font-bold text-slate-400 tracking-wide truncate">{{ s.providers[AiProvider.GROQ].maskedKey }}</p>
-              } @else {
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Not connected</p>
-              }
-            </div>
-          </div>
-          @if (s.providers[AiProvider.GROQ].connected) {
-            <span
-              class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0"
-              [class.bg-emerald-500/10]="s.preferredProvider === AiProvider.GROQ"
-              [class.text-emerald-700]="s.preferredProvider === AiProvider.GROQ"
-              [class.bg-slate-900/5]="s.preferredProvider !== AiProvider.GROQ"
-              [class.text-slate-500]="s.preferredProvider !== AiProvider.GROQ"
-            >{{ s.preferredProvider === AiProvider.GROQ ? 'Active' : 'Connected' }}</span>
-          }
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input
-            type="password"
-            [formControl]="groqKeyControl"
-            (keydown.enter)="saveKey(AiProvider.GROQ)"
-            placeholder="Paste your Groq API key"
-            class="flex-1 min-w-0 bg-white/60 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#fbbf24] focus:ring-4 focus:ring-[#fbbf24]/10 transition-all duration-300"
-          />
-          <button
-            type="button"
-            (click)="saveKey(AiProvider.GROQ)"
-            [disabled]="!groqKeyControl.value.trim() || savingProvider() === AiProvider.GROQ"
-            class="shrink-0 px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-900 font-extrabold text-[10px] uppercase tracking-widest transition-all duration-200 active:scale-98 cursor-pointer"
-          >{{ savingProvider() === AiProvider.GROQ ? 'Verifying...' : (s.providers[AiProvider.GROQ].connected ? 'Update' : 'Connect') }}</button>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" class="text-[10px] font-black text-amber-600 hover:text-amber-700 uppercase tracking-widest">Get a Groq key →</a>
-          @if (s.providers[AiProvider.GROQ].connected) {
-            <div class="flex items-center gap-4">
-              @if (s.preferredProvider !== AiProvider.GROQ) {
-                <button
-                  type="button"
-                  (click)="setActive(AiProvider.GROQ)"
-                  [disabled]="switchingProvider() === AiProvider.GROQ"
-                  class="text-[10px] font-black text-slate-500 hover:text-slate-800 uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
-                >{{ switchingProvider() === AiProvider.GROQ ? 'Switching...' : 'Make Active' }}</button>
-              }
-              <button
-                type="button"
-                (click)="confirmRemove(AiProvider.GROQ)"
-                [disabled]="removingProvider() === AiProvider.GROQ"
-                class="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
-              >Remove</button>
-            </div>
-          }
-        </div>
-      </div>
-
-      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center pt-2">
-        Keys are encrypted before storage and never shown in full again
-      </p>
-
-      </div>
-    </div>
     }
 
   </div>
 </div>
-
-@if (removeTarget(); as target) {
-  <app-confirm-dialog
-    title="Remove API Key"
-    [message]="'Remove your ' + providerLabel(target) + ' key? Recipe generation will fall back to the free daily limit.'"
-    confirmText="Remove"
-    cancelText="Cancel"
-    type="danger"
-    (confirm)="removeKey()"
-    (cancel)="cancelRemove()"
-  />
-}
